@@ -1,0 +1,11 @@
+{
+    "i18n-ally.localesPaths": [
+        "src/i18n",
+        "src/i18n/lang",
+        "src/app/api/messages"
+    ],
+    "cSpell.words": [
+        "Feedbacktype",
+        "maomao"
+    ]
+}

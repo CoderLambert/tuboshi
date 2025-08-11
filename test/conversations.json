@@ -1,0 +1,24 @@
+{
+    "limit": 20,
+    "has_more": false,
+    "data": [
+      {
+        "id": "7f95bd2e-192e-4abb-908f-135d5e41f5c6",
+        "name": "Greeting myself☺️",
+        "inputs": {},
+        "status": "normal",
+        "introduction": "",
+        "created_at": 1753983164,
+        "updated_at": 1754353465
+      },
+      {
+        "id": "218be520-6e60-4268-9d6c-1088a91f61a1",
+        "name": "询问我是谁",
+        "inputs": {},
+        "status": "normal",
+        "introduction": "",
+        "created_at": 1753983909,
+        "updated_at": 1753983909
+      }
+    ]
+  }

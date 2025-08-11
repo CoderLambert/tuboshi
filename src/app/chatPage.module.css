@@ -1,0 +1,18 @@
+.chatPage {
+    display: flex;
+    flex-direction: column; 
+}
+
+.header {
+    @apply  flex flex-row items-end mx-[32px];
+}
+
+.logo {
+    width: 127.15px;
+    height: 113px;
+}
+
+.intro {
+    @apply text-[38px] leading-tight font-[500];
+}
+
