@@ -2,6 +2,7 @@ import Image from "next/image";
 import maomaoPng from "@/assets/maomao@2x.png";
 import styles from './chatPage.module.css'
 import FAQGuide from '@/app/components/FAQGuide'
+import {MessageInfo} from '@/app/components/chat/message'
 import {INavieAppSuggesQuestionItem} from "@/types/app"
 export default function Home() {
 
@@ -31,6 +32,10 @@ export default function Home() {
 
       {/* 问题建议 */}
       <FAQGuide suggestions={questions}></FAQGuide>
+
+      {/* 消息列表 */}
+      
+      <MessageInfo></MessageInfo>
     </div>
   );
 }
