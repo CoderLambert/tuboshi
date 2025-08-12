@@ -12,9 +12,9 @@ ARG APP
 ADD ${APP}.tar.gz .
 
 # 复制锁文件
-COPY app/package.json ./
-COPY package-lock.json* ./
-COPY pnpm-lock.yaml* ./
+COPY /app/package.json ./
+COPY /app/package-lock.json* ./
+COPY /app/pnpm-lock.yaml* ./
 
 # 根据锁文件安装依赖
 # if you located in China, you can use taobao registry to speed up
