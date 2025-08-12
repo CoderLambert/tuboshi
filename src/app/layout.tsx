@@ -1,13 +1,17 @@
 // import { getLocaleOnServer } from '@/i18n/server'
 import { Suspense } from 'react'
-import { Inter } from 'next/font/google'
+import { Geist } from 'next/font/google'
 import '@/styles/tailwind.css'
-const inter = Inter({ subsets: ['latin'] })
+import '@/styles/markdown.css'
+
 export const metadata = {
   title: 'AI Agent Chatflow',
   description: 'A chat application powered by AI agents',
 }
-
+const geist = Geist({
+  subsets: ['latin'],
+})
+ 
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -24,15 +28,15 @@ const LocaleLayout = async ({
 }) => {
   // const locale = await getLocaleOnServer()
   return (
-    <html lang='en' className="h-full" style={{ 
+    <html lang='en' className={`${geist.className} h-full`} style={{ 
       fontSize: '100px',  // 注意：驼峰式写法 fontSize，而不是 font-size
       '--tpx': '0.01rem'  // 自定义 CSS 变量使用字符串值
     } as React.CSSProperties}  suppressHydrationWarning>
-      <body className={inter.className}>
+      <body>
         <div className="flex min-h-screen flex-col px-safe-left pr-safe-right pt-safe-top pb-safe-bottom overflow-auto">
-          {/* <Suspense fallback={<div>Loading...</div>}> */}
+          <Suspense fallback={<div>Loading...</div>}>
             {children}
-          {/* </Suspense> */}
+          </Suspense>
         </div>
 
         <script
