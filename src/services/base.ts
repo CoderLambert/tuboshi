@@ -295,7 +295,7 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: I
                   return
                 }
                 default:
-                  // eslint-disable-next-line no-new
+                   
                   new Promise(() => {
                     bodyJson.then((data: any) => {
                       Toast.notify({ type: 'error', message: data.message })
@@ -392,7 +392,7 @@ export const ssePost = (
   globalThis.fetch(urlWithPrefix, options)
     .then((res: any) => {
       if (!/^(2|3)\d{2}$/.test(res.status)) {
-        // eslint-disable-next-line no-new
+         
         new Promise(() => {
           res.json().then((data: any) => {
             Toast.notify({ type: 'error', message: data.message || 'Server Error' })
