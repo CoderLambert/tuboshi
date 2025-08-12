@@ -62,7 +62,7 @@ This is a [link](https://github.com/remarkjs/react-markdown)
     }, [message]);
 
     return (
-        <div className="prose prose-sm max-w-none dark:prose-invert">
+        <div className="markdown-body max-w-none ">
             <MarkdownErrorBoundary
                 fallback={<SimpleMarkdown content={markdownText} />}
             >

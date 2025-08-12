@@ -803,7 +803,7 @@ html {
   margin: 0;
   color: var(--color-text-primary);
   background-color: var(--color-canvas-default);
-  font-size: 15px;
+  font-size: 30px;
   font-weight: 400;
   line-height: 1.6;
   word-wrap: break-word;
@@ -823,8 +823,8 @@ html {
 .markdown-body h4:hover .anchor .octicon-link:before,
 .markdown-body h5:hover .anchor .octicon-link:before,
 .markdown-body h6:hover .anchor .octicon-link:before {
-  width: 16px;
-  height: 16px;
+  width: 32px;
+  height: 32px;
   content: " ";
   display: inline-block;
   background-color: currentColor;
@@ -868,19 +868,19 @@ html {
 }
 
 .markdown-body abbr[title]:hover::after {
-  @apply shadow-xl rounded-md;
-  border-radius: calc(var(--radius) - 2px);
+  @apply shadow-xl  rounded-md;
+  border-radius: calc(var(--radius) - 4px);
   position: absolute;
   bottom: 100%;
   left: 0;
   display: block;
   width: max-content;
   content: attr(title);
-  padding: 6px;
-  font-size: 12px;
+  padding: 12px;
+  font-size: 24px;
   line-height: 1;
   color: var(--color-text-secondary);
-  border: 0.5px solid var(--color-components-panel-border);
+  border: 1px solid var(--color-components-panel-border);
   background-color: var(--color-components-tooltip-bg);
 }
 
@@ -919,13 +919,13 @@ html {
 }
 
 .markdown-body figure {
-  margin: 1em 40px;
+  margin: 1em 80px;
 }
 
 .markdown-body img {
   max-width: 100%;
   box-sizing: content-box;
-  border: 2px solid var(--color-effects-image-frame);
+  border: 4px solid var(--color-effects-image-frame);
   border-radius: 0;
   background-color: var(--color-canvas-default);
 }
@@ -939,7 +939,7 @@ html {
 }
 
 .markdown-body hr {
-  margin: 24px 0;
+  margin: 48px 0;
 }
 
 .markdown-body hr::before {
@@ -1008,8 +1008,8 @@ html {
   width: max-content;
   max-width: 100%;
   overflow: auto;
-  border: 1px solid var(--color-divider-regular);
-  border-radius: 8px;
+  border: 2px solid var(--color-divider-regular);
+  border-radius: 16px;
 }
 
 .markdown-body td,
@@ -1029,8 +1029,8 @@ html {
 .markdown-body [role="button"]:focus,
 .markdown-body input[type="radio"]:focus,
 .markdown-body input[type="checkbox"]:focus {
-  outline: 2px solid var(--color-accent-fg);
-  outline-offset: -2px;
+  outline: 4px solid var(--color-accent-fg);
+  outline-offset: -4px;
   box-shadow: none;
 }
 
@@ -1038,15 +1038,15 @@ html {
 .markdown-body [role="button"]:focus:not(:focus-visible),
 .markdown-body input[type="radio"]:focus:not(:focus-visible),
 .markdown-body input[type="checkbox"]:focus:not(:focus-visible) {
-  outline: solid 1px transparent;
+  outline: solid 2px transparent;
 }
 
 .markdown-body a:focus-visible,
 .markdown-body [role="button"]:focus-visible,
 .markdown-body input[type="radio"]:focus-visible,
 .markdown-body input[type="checkbox"]:focus-visible {
-  outline: 2px solid var(--color-accent-fg);
-  outline-offset: -2px;
+  outline: 4px solid var(--color-accent-fg);
+  outline-offset: -4px;
   box-shadow: none;
 }
 
@@ -1061,9 +1061,9 @@ html {
 
 .markdown-body kbd {
   display: inline-block;
-  padding: 2px 6px;
+  padding: 4px 12px;
   font:
-    11px ui-monospace,
+    22px ui-monospace,
     SFMono-Regular,
     SF Mono,
     Menlo,
@@ -1074,7 +1074,7 @@ html {
   color: var(--color-text-primary);
   vertical-align: middle;
   background-color: var(--color-components-input-bg-normal);
-  border-radius: 6px;
+  border-radius: 12px;
 }
 
 .markdown-body h1,
@@ -1083,31 +1083,31 @@ html {
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-  padding-top: 12px;
-  margin-bottom: 12px;
+  padding-top: 24px;
+  margin-bottom: 24px;
   font-weight: var(--base-text-weight-semibold, 600);
   line-height: 1.25;
 }
 
 .markdown-body h1 {
-  font-size: 18px;
+  font-size: 36px;
 }
 
 .markdown-body h2 {
-  font-size: 16px;
+  font-size: 32px;
 }
 
 .markdown-body h3,
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-  font-size: 14px;
+  font-size: 28px;
 }
 
 .markdown-body blockquote {
   margin: 0;
-  padding: 0 12px;
-  border-left: 3px solid var(--color-text-accent-secondary);
+  padding: 0 24px;
+  border-left: 6px solid var(--color-text-accent-secondary);
 }
 
 .markdown-body ol {
@@ -1150,7 +1150,7 @@ html {
     Consolas,
     Liberation Mono,
     monospace;
-  font-size: 12px;
+  font-size: 24px;
 }
 
 .markdown-body pre {
@@ -1164,7 +1164,7 @@ html {
     Consolas,
     Liberation Mono,
     monospace;
-  font-size: 12px;
+  font-size: 24px;
   word-wrap: normal;
 }
 
@@ -1212,8 +1212,8 @@ html {
 
 .markdown-body .anchor {
   float: left;
-  padding-right: 4px;
-  margin-left: -20px;
+  padding-right: 8px;
+  margin-left: -40px;
   line-height: 1;
 }
 
@@ -1230,7 +1230,7 @@ html {
 .markdown-body pre,
 .markdown-body details {
   margin-top: 0;
-  margin-bottom: 12px;
+  margin-bottom: 24px;
 }
 
 .markdown-body ul,
@@ -1309,7 +1309,7 @@ html {
 .markdown-body summary h4 .anchor,
 .markdown-body summary h5 .anchor,
 .markdown-body summary h6 .anchor {
-  margin-left: -40px;
+  margin-left: -80px;
 }
 
 .markdown-body summary h1,
@@ -1357,7 +1357,7 @@ html {
 }
 
 .markdown-body li > p {
-  margin-top: 16px;
+  margin-top: 32px;
 }
 
 .markdown-body li + li {
@@ -1370,47 +1370,47 @@ html {
 
 .markdown-body dl dt {
   padding: 0;
-  margin-top: 16px;
+  margin-top: 32px;
   font-size: 1em;
   font-style: italic;
   font-weight: var(--base-text-weight-semibold, 600);
 }
 
 .markdown-body dl dd {
-  padding: 0 16px;
-  margin-bottom: 16px;
+  padding: 0 32px;
+  margin-bottom: 32px;
 }
 
 .markdown-body table th {
   color: var(--color-text-tertiary);
-  font-size: 12px;
+  font-size: 24px;
   font-weight: var(--base-text-weight-medium, 500);
   white-space: nowrap;
 }
 
 .markdown-body table td {
   color: var(--color-text-secondary);
-  font-size: 13px;
+  font-size: 26px;
   font-weight: var(--base-text-weight-normal, 400);
   white-space: nowrap;
 }
 
 .markdown-body table th,
 .markdown-body table td {
-  padding: 6px 13px;
+  padding: 12px 26px;
 }
 
 .markdown-body table tr > th:not(:last-child),
 .markdown-body table tr > td:not(:last-child) {
-  border-right: 1px solid var(--color-divider-subtle);
+  border-right: 2px solid var(--color-divider-subtle);
 }
 
 .markdown-body table tbody tr:first-child td {
-  border-top: 1px solid var(--color-divider-regular);
+  border-top: 2px solid var(--color-divider-regular);
 }
 
 .markdown-body table tbody tr:not(:last-child) td {
-  border-bottom: 1px solid var(--color-divider-subtle);
+  border-bottom: 2px solid var(--color-divider-subtle);
 }
 
 .markdown-body table img {
@@ -1418,11 +1418,11 @@ html {
 }
 
 .markdown-body img[align="right"] {
-  padding-left: 20px;
+  padding-left: 40px;
 }
 
 .markdown-body img[align="left"] {
-  padding-right: 20px;
+  padding-right: 40px;
 }
 
 .markdown-body .emoji {
@@ -1440,10 +1440,10 @@ html {
   display: block;
   float: left;
   width: auto;
-  padding: 7px;
-  margin: 13px 0 0;
+  padding: 14px;
+  margin: 26px 0 0;
   overflow: hidden;
-  border: 1px solid var(--color-border-default);
+  border: 2px solid var(--color-border-default);
 }
 
 .markdown-body span.frame span img {
@@ -1453,7 +1453,7 @@ html {
 
 .markdown-body span.frame span span {
   display: block;
-  padding: 5px 0 0;
+  padding: 10px 0 0;
   clear: both;
   color: var(--color-fg-default);
 }
@@ -1466,7 +1466,7 @@ html {
 
 .markdown-body span.align-center > span {
   display: block;
-  margin: 13px auto 0;
+  margin: 26px auto 0;
   overflow: hidden;
   text-align: center;
 }
@@ -1484,7 +1484,7 @@ html {
 
 .markdown-body span.align-right > span {
   display: block;
-  margin: 13px 0 0;
+  margin: 26px 0 0;
   overflow: hidden;
   text-align: right;
 }
@@ -1497,24 +1497,24 @@ html {
 .markdown-body span.float-left {
   display: block;
   float: left;
-  margin-right: 13px;
+  margin-right: 26px;
   overflow: hidden;
 }
 
 .markdown-body span.float-left span {
-  margin: 13px 0 0;
+  margin: 26px 0 0;
 }
 
 .markdown-body span.float-right {
   display: block;
   float: right;
-  margin-left: 13px;
+  margin-left: 26px;
   overflow: hidden;
 }
 
 .markdown-body span.float-right > span {
   display: block;
-  margin: 13px auto 0;
+  margin: 26px auto 0;
   overflow: hidden;
   text-align: right;
 }
@@ -1526,7 +1526,7 @@ html {
   font-size: 85%;
   white-space: break-spaces;
   background-color: var(--color-neutral-muted);
-  border-radius: 6px;
+  border-radius: 12px;
 }
 
 .markdown-body code br,
@@ -1557,7 +1557,7 @@ html {
 }
 
 .markdown-body .highlight {
-  margin-bottom: 16px;
+  margin-bottom: 32px;
 }
 
 .markdown-body .highlight pre {
@@ -1567,7 +1567,7 @@ html {
 
 .markdown-body .highlight pre,
 .markdown-body pre {
-  padding: 16px;
+  padding: 32px;
   background-color: transparent;
   overflow: auto;
   font-size: 85%;
@@ -1593,16 +1593,16 @@ html {
 
 .markdown-body .csv-data td,
 .markdown-body .csv-data th {
-  padding: 5px;
+  padding: 10px;
   overflow: hidden;
-  font-size: 12px;
+  font-size: 24px;
   line-height: 1;
   text-align: left;
   white-space: nowrap;
 }
 
 .markdown-body .csv-data .blob-num {
-  padding: 10px 8px 9px;
+  padding: 20px 16px 18px;
   text-align: right;
   background: var(--color-canvas-default);
   border: 0;
@@ -1627,19 +1627,19 @@ html {
 }
 
 .markdown-body .footnotes {
-  font-size: 12px;
+  font-size: 24px;
   color: var(--color-fg-muted);
-  border-top: 1px solid var(--color-border-default);
+  border-top: 2px solid var(--color-border-default);
 }
 
 .markdown-body .footnotes ol {
-  padding-left: 16px;
+  padding-left: 32px;
 }
 
 .markdown-body .footnotes ol ul {
   display: inline-block;
-  padding-left: 16px;
-  margin-top: 16px;
+  padding-left: 32px;
+  margin-top: 32px;
 }
 
 .markdown-body .footnotes li {
@@ -1648,14 +1648,14 @@ html {
 
 .markdown-body .footnotes li:target::before {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  bottom: -8px;
-  left: -24px;
+  top: -16px;
+  right: -16px;
+  bottom: -16px;
+  left: -48px;
   pointer-events: none;
   content: "";
-  border: 2px solid var(--color-accent-emphasis);
-  border-radius: 6px;
+  border: 4px solid var(--color-accent-emphasis);
+  border-radius: 12px;
 }
 
 .markdown-body .footnotes li:target {
@@ -1815,7 +1815,7 @@ html {
 }
 
 .markdown-body .task-list-item + .task-list-item {
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
 .markdown-body .task-list-item .handle {
@@ -1839,7 +1839,7 @@ html {
 .markdown-body .contains-task-list:focus-within .task-list-item-convert-container {
   display: block;
   width: auto;
-  height: 24px;
+  height: 48px;
   overflow: visible;
   clip: auto;
 }
