@@ -12,6 +12,13 @@ export default (phase: string): NextConfig => {
         }),
       },
       output: 'standalone',  // 可选：开发模式下也保持 standalone（但实际 dev 不影响）
+      webpack: (config: any) => {
+        // 为 react-markdown 添加特殊处理
+        config.resolve.alias = {
+          ...config.resolve.alias,
+        };
+        return config;
+      },
     };
   }
 
