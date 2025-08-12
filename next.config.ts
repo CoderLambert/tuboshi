@@ -1,13 +1,22 @@
 import type { NextConfig } from "next";
 import { codeInspectorPlugin } from 'code-inspector-plugin';
+import { PHASE_DEVELOPMENT_SERVER } from 'next/constants';  // 导入 phase 常量
 
-const nextConfig: NextConfig = {
-  /* config options here */
-  turbopack: {
-    rules: codeInspectorPlugin({
-      bundler: 'turbopack',
-    }),
+export default (phase: string): NextConfig => {
+  // 只在开发模式下应用 Turbopack 配置
+  if (phase === PHASE_DEVELOPMENT_SERVER) {
+    return {
+      turbopack: {
+        rules: codeInspectorPlugin({
+          bundler: 'turbopack',  // 开发模式下使用 Turbopack
+        }),
+      },
+      output: 'standalone',  // 可选：开发模式下也保持 standalone（但实际 dev 不影响）
+    };
   }
-};
 
-export default nextConfig;
+  // 在构建模式下，不应用 Turbopack（使用默认 Webpack）
+  return {
+    output: 'standalone',  // 只保留必要的生产配置
+  };
+};
