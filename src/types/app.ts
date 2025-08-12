@@ -225,9 +225,9 @@ export enum CodeLanguage {
 }
 
 // 大模型 APP 配置项
-export interface IAPPConfig  {
+export interface IAPPConfig {
   app_info: AppInfo
-  app_key: string 
+  app_key: string
   app_id: string
   api_url: string
 
@@ -245,7 +245,7 @@ export interface IAPPConfig  {
 export type INaviAppConfig = {
   token: string
   user: string
-  suggestions: INavieAppSuggesQuestionItem[]
+  suggestions: INaviAppSuggestionQuestionItem[]
 }
 
 // 问题详情
@@ -253,6 +253,6 @@ export type INaviAppSuggesQuestionItemDetail = string
 // 建议问题类别
 export type INavieAppSuggesQuestionCategory = string
 // 分类配置详情
-export type INavieAppSuggesQuestionItem = Record<INavieAppSuggesQuestionCategory, INaviAppSuggesQuestionItemDetail[]>
+export type INaviAppSuggestionQuestionItem = Record<INavieAppSuggesQuestionCategory, INaviAppSuggesQuestionItemDetail[]>
 
 

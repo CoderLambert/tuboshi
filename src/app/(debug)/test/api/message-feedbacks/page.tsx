@@ -59,23 +59,23 @@ export default function MessageFeedbacks() {
         </div>
         
         <form onSubmit={handleSubmit} className="prose flex flex-col justify-start items-start gap-4 w-full">
-          <div className="w-full">
-            <label className="block text-sm font-medium mb-2">消息ID:</label>
+          <div>
+            <label className="block text-sm font-medium mb-1">消息ID:</label>
             <Input
               type="text"
               value={messageId}
               onChange={(e) => setMessageId(e.target.value)}
               placeholder="请输入消息ID"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           
-          <div className="w-full flex flex-col gap-2">
-            <label className="block text-sm font-medium mb-2">评分:</label>
+          <div className="flex flex-col gap-2">
+            <label className="block text-sm font-medium mb-1">评分:</label>
             <select
               value={rating ?? ""}
               onChange={(e) => setRating(e.target.value as MessageRating)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="like">喜欢</option>
               <option value="dislike">不喜欢</option>
@@ -85,7 +85,7 @@ export default function MessageFeedbacks() {
           <Button 
             type="submit"
             disabled={loading || !messageId}
-            className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
           >
             {loading ? '发送中...' : '发送反馈'}
           </Button>

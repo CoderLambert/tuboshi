@@ -8,8 +8,8 @@
 
 3. api_url   string 类型    后端接口地址，由大模型平台应用详情 `访问Api` 页面 `API 服务器` 获取
 
-4. app_info  Object 类型  由业务端自定义。 
-    主要内容有： 1. 应用标题  2. 应用描述 3. 默认语言 (当前应该只需要支持 en ) 
+4. app_info  Object 类型  由业务端自定义。
+    主要内容有： 1. 应用标题  2. 应用描述 3. 默认语言 (当前应该只需要支持 en )
 
 5. current_conversation_id  当前会话 id， 同步最后退出时的会话状态
 
@@ -44,13 +44,13 @@ export interface IAPPConfig  {
 }
 ```
 
-## 原生 APP 传递参数配置 
+## 原生 APP 传递参数配置
 
 1. token 用于传递接口鉴权信息，通过APP传递大模型平台进行接口调用
 
 2. user 用户id, 用于大模型平台侧进行用户身份区分
 
-3. suggestions 问题推荐列表配置. 示例: 
+3. suggestions 问题推荐列表配置. 示例:
 
 ```json
 [
@@ -69,6 +69,7 @@ export interface IAPPConfig  {
     ...
 ]
 ```
+
 ```ts
 // 业务 app 配置
 export const NavieAppConfig: INaviAppConfig = {
@@ -81,7 +82,7 @@ export const NavieAppConfig: INaviAppConfig = {
 export type INaviAppConfig = {
   token: string
   user: string
-  suggestions: INavieAppSuggesQuestionItem[]
+  suggestions: INaviAppSuggestionQuestionItem[]
 }
 
 // 问题详情
@@ -92,5 +93,5 @@ export type INaviAppSuggesQuestionItemDetail = {
 // 建议问题类别
 export type INavieAppSuggesQuestionCategory = string
 // 分类配置详情
-export type INavieAppSuggesQuestionItem = Record<INavieAppSuggesQuestionCategory, INaviAppSuggesQuestionItemDetail[]>
+export type INaviAppSuggestionQuestionItem = Record<INavieAppSuggesQuestionCategory, INaviAppSuggesQuestionItemDetail[]>
 ```

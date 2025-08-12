@@ -27,12 +27,12 @@ const LocaleLayout = async ({
     <html lang='en' className="h-full" style={{ 
       fontSize: '100px',  // 注意：驼峰式写法 fontSize，而不是 font-size
       '--tpx': '0.01rem'  // 自定义 CSS 变量使用字符串值
-    } as React.CSSProperties}>
+    } as React.CSSProperties}  suppressHydrationWarning>
       <body className={inter.className}>
         <div className="flex min-h-screen flex-col px-safe-left pr-safe-right pt-safe-top pb-safe-bottom overflow-auto">
-          <Suspense fallback={<div>Loading...</div>}>
+          {/* <Suspense fallback={<div>Loading...</div>}> */}
             {children}
-          </Suspense>
+          {/* </Suspense> */}
         </div>
 
         <script

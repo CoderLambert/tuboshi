@@ -3,10 +3,10 @@ import maomaoPng from "@/assets/maomao@2x.png";
 import styles from './chatPage.module.css'
 import FAQGuide from '@/app/components/FAQGuide'
 import {MessageInfo} from '@/app/components/chat/message'
-import {INavieAppSuggesQuestionItem} from "@/types/app"
+import {INaviAppSuggestionQuestionItem} from "@/types/app"
 export default function Home() {
 
-  const questions: INavieAppSuggesQuestionItem[] = [
+  const questions: INaviAppSuggestionQuestionItem[] = [
     {
         "收派": [
             "联系不上客户怎么办？",

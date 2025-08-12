@@ -25,11 +25,17 @@
     letter-spacing: 0px;
     color: #8F8F91;
     user-select: none;
-    transition: color 0.2s ease, transform 0.2s ease;  /* 新增：支持 motion 的颜色和缩放过渡 */
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.categoryName:hover {
+    transform: scale(1.1);
 }
 
 .categoryNameActive {
     color: #010101;
+    transform: scale(1.05);
 }
 
 .questions {
@@ -37,8 +43,47 @@
     flex-direction: column;
     gap: 24px;
     margin-top: 16px;
+    position: relative;
 }
 
+/* 问题容器动画 */
+.questionsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.questionsEnter {
+    animation: questionsEnterAnimation 0.3s ease-out forwards;
+}
+
+.questionsExit {
+    animation: questionsExitAnimation 0.2s ease-in forwards;
+}
+
+@keyframes questionsEnterAnimation {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes questionsExitAnimation {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* 问题项动画 */
 .question {
     padding: 20px 24px;
     background: #F7F7F9;
@@ -51,5 +96,28 @@
     z-index: 0;
     width: fit-content;
     user-select: none;
-    transition: background-color 0.2s ease, transform 0.2s ease;  /* 新增：支持 hover 和 scale 动画 */
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.question:hover {
+    transform: scale(1.02);
+    background-color: #E0E0E2;
+}
+
+.question:active {
+    transform: scale(0.98);
+}
+
+.questionItem {
+    animation: questionItemEnter 0.25s ease-out forwards;
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+}
+
+@keyframes questionItemEnter {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
