@@ -1,10 +1,7 @@
 'use client'
-
-import { AgentMessage } from '@/app/components/chat/agent-message'
-import { AgentMessageFallback } from '@/app/components/chat/agent-message-fallback'
 import { useState } from 'react'
 import Link from 'next/link'
-
+import { Markdown } from '@/app/components/markdown'
 export default function MarkdownTest() {
     const [testMessage, setTestMessage] = useState(`# AI Agent 响应示例
 
@@ -28,6 +25,17 @@ function greet(name) {
 const message = greet('用户');
 console.log(message);
 \`\`\`
+
+### 图片示例
+
+![图1](https://picsum.photos/seed/1/200/300)  
+![图2](https://picsum.photos/seed/2/200/300)  
+![图3](https://picsum.photos/seed/3/200/300)
+
+<div style="display: flex; gap: 10px;">
+  <img src="https://picsum.photos/200/300?random=1" width="100" alt="图1">
+  <img src="https://picsum.photos/200/300?random=2" width="100" alt="图2">
+</div>
 
 ### 列表示例
 
@@ -71,33 +79,7 @@ console.log(message);
                 <h1 className="text-3xl font-bold mt-2 mb-4">Markdown 渲染测试</h1>
             </div>
             <h2 className="text-xl font-semibold mb-4 text-green-600">React Markdown 版本</h2>
-            {/* React Markdown 版本 */}
-                <div className="bg-gray-50 p-4 rounded border">
-                    <AgentMessage message={testMessage} />
-                </div>
-
-                {/* 简单渲染器版本 */}
-                {/* <div className="border rounded-lg p-4">
-                    <h2 className="text-xl font-semibold mb-4 text-blue-600">简单渲染器版本（备用）</h2>
-                    <div className="bg-gray-50 p-4 rounded border">
-                        <AgentMessageFallback message={testMessage} />
-                    </div>
-                </div> */}
-
-            {/* 自定义消息测试 */}
-            {/* <div className="mt-8 border rounded-lg p-4">
-                <h2 className="text-xl font-semibold mb-4">自定义消息测试</h2>
-                <textarea
-                    value={testMessage}
-                    onChange={(e) => setTestMessage(e.target.value)}
-                    className="w-full h-[200px] overflow-auto p-3 border rounded-sm font-mono text-sm"
-                    placeholder="在这里输入 Markdown 文本..."
-                />
-                <div className="mt-4 bg-gray-50 p-4 rounded border">
-                    <h3 className="text-xl font-bold mb-2">渲染结果：</h3>
-                    <AgentMessage message={testMessage} />
-                </div>
-            </div> */}
+            <Markdown content={testMessage} />
         </div>
     )
 }

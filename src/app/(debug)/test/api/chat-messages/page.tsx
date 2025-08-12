@@ -8,9 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 
 import { AgentMessage } from '@/app/components/chat/agent-message'
-
+import { Markdown } from "@/app/components/markdown";
 export default function ChatMessages() {
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<any>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -24,7 +24,7 @@ export default function ChatMessages() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setResponse(null);
+    setResponse('');
     
     try {
       const requestBody: Record<string, any> = {
@@ -167,7 +167,9 @@ export default function ChatMessages() {
           </div>
         )}
     
-            <AgentMessage message={response}></AgentMessage>
+            {/* <AgentMessage message={response}></AgentMessage> */}
+
+            <Markdown content={response}></Markdown>
       </main>
     </div>
   );
