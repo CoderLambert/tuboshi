@@ -11,9 +11,10 @@ WORKDIR /app
 ARG APP
 ADD ${APP}.tar.gz .
 
-
 # 复制锁文件
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+COPY app/package.json ./
+COPY package-lock.json* ./
+COPY pnpm-lock.yaml* ./
 
 # 根据锁文件安装依赖
 # if you located in China, you can use taobao registry to speed up
