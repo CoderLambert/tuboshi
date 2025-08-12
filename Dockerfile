@@ -38,12 +38,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # 阶段 2: 构建应用
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-
-
-
-WORKDIR /app
 COPY --from=builder /app/public ./public
 RUN mkdir .next
 COPY --from=builder  /app/.next/standalone ./
