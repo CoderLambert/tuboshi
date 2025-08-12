@@ -6,6 +6,9 @@ import { sendChatMessage } from '@/services';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+
+import { AgentMessage } from '@/app/components/chat/agent-message'
+
 export default function ChatMessages() {
   const [response, setResponse] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -163,14 +166,8 @@ export default function ChatMessages() {
             <p className="text-sm whitespace-pre-wrap">{error}</p>
           </div>
         )}
-        { (
-          <div className="mt-4 p-4 bg-gray-100 rounded w-full">
-            <h3 className="font-bold text-base mb-2">响应结果:</h3>
-            <p className="text-base leading-7 [&:not(:first-child)]:mt-6">
-              {response}
-            </p>
-          </div>
-        )}
+    
+            <AgentMessage message={response}></AgentMessage>
       </main>
     </div>
   );

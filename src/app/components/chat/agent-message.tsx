@@ -43,28 +43,15 @@ class MarkdownErrorBoundary extends Component<
 export function AgentMessage({
     message
 }: {
-    message?: string;
+    message: string;
 }) {
     // 使用 useMemo 来优化性能并避免重复渲染
-    const markdownText = useMemo(() => {
-        return message || `
-# React Markdown Example
-
-- Some text
-- Some other text
-
-## Subtitle
-
-### Additional info
-
-This is a [link](https://github.com/remarkjs/react-markdown)
-`;
-    }, [message]);
+  
 
     return (
         <div className="markdown-body max-w-none ">
             <MarkdownErrorBoundary
-                fallback={<SimpleMarkdown content={markdownText} />}
+                fallback={<SimpleMarkdown content={message} />}
             >
                 <Suspense fallback={<div className="animate-pulse bg-gray-200 h-4 rounded"></div>}>
                     <ReactMarkdown
@@ -83,19 +70,19 @@ This is a [link](https://github.com/remarkjs/react-markdown)
                                 </a>
                             ),
                             code: ({ children }) => (
-                                <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">
+                                <code className="bg-gray-100 px-1 py-0.5 rounded-[4px] text-sm font-mono">
                                     {children}
                                 </code>
                             ),
                             pre: ({ children }) => (
-                                <pre className="bg-gray-100 p-3 rounded overflow-x-auto">
+                                <pre className="bg-gray-100 p-3 rounded-[4px]  overflow-x-auto">
                                     {children}
                                 </pre>
                             ),
                         }}
 
                     >
-                        {markdownText}
+                        {message}
                     </ReactMarkdown>
                 </Suspense>
             </MarkdownErrorBoundary>
