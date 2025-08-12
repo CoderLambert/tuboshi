@@ -11,14 +11,8 @@ WORKDIR /app
 ARG APP
 ADD ${APP}.tar.gz .
 
-# 复制锁文件
-COPY /app/package.json ./
-COPY /app/package-lock.json* ./
-COPY /app/pnpm-lock.yaml* ./
-
-# 根据锁文件安装依赖
 # if you located in China, you can use taobao registry to speed up
-RUN pnpm install --registry  https://maven.jtexpress.com.cn/nexus3/repository/npm-group-2/
+RUN pnpm install --frozen-lockfile --registry  https://maven.jtexpress.com.cn/nexus3/repository/npm-group-2/
 
 #COPY . .
 ENV NODE_OPTIONS="--max-old-space-size=4096"
