@@ -18,7 +18,7 @@ import { Component, memo, useMemo, useRef, useState } from 'react'
 import { flow } from 'lodash-es'
 // import ActionButton from '@/app/components/base/action-button'
 // import CopyIcon from '@/app/components/base/copy-icon'
-// import SVGBtn from '@/app/components/base/svg'
+import SVGBtn from '@/app/components/base/svg'
 import Flowchart from '@/app/components/base/mermaid'
 import ImageGallery from '@/app/components/base/image-gallery'
 // import { useChatContext } from '@/app/components/base/chat/chat/context'
@@ -167,12 +167,7 @@ const CodeBlock: any = memo(({ inline, className, children = '', ...props }: any
           )
         }
         break
-    //   case 'abc':
-    //     return (
-    //       <ErrorBoundary>
-    //         <MarkdownMusic children={content} />
-    //       </ErrorBoundary>
-    //     )
+
       default:
         return (
           <SyntaxHighlighter
@@ -202,9 +197,8 @@ const CodeBlock: any = memo(({ inline, className, children = '', ...props }: any
       <div className='border-divider-subtle bg-components-input-bg-normal flex h-8 items-center justify-between rounded-t-[10px] border-b p-1 pl-3'>
         <div className='system-xs-semibold-uppercase text-text-secondary'>{languageShowName}</div>
         <div className='flex items-center gap-1'>
-            btn
-          {/* {(['mermaid', 'svg']).includes(language!) && <SVGBtn isSVG={isSVG} setIsSVG={setIsSVG} />}
-          <ActionButton>
+          {(['mermaid', 'svg']).includes(language!) && <SVGBtn isSVG={isSVG} setIsSVG={setIsSVG} />}
+          {/* <ActionButton>
             <CopyIcon content={String(children).replace(/\n$/, '')} />
           </ActionButton> */}
         </div>
