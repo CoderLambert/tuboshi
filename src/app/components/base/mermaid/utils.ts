@@ -3,61 +3,6 @@ export function cleanUpSvgCode(svgCode: string): string {
 }
 
 /**
- * Preprocesses mermaid code to fix common syntax issues
- */
-export function preprocessMermaidCode(code: string): string {
-  if (!code || typeof code !== 'string')
-    return ''
-
-  // First check if this is a gantt chart
-  if (code.trim().startsWith('gantt')) {
-    // For gantt charts, we need to ensure each task is on its own line
-    // Split the code into lines and process each line separately
-    const lines = code.split('\n').map(line => line.trim())
-    return lines.join('\n')
-  }
-
-  return code
-    // Replace English colons with Chinese colons in section nodes to avoid parsing issues
-    .replace(/section\s+([^:]+):/g, (match, sectionName) => `section ${sectionName}：`)
-    // Fix common syntax issues
-    .replace(/fifopacket/g, 'rect')
-    // Clean up empty lines and extra spaces
-    .trim()
-}
-
-/**
- * Prepares mermaid code based on selected style
- */
-export function prepareMermaidCode(code: string, style: 'classic' | 'handDrawn'): string {
-  let finalCode = preprocessMermaidCode(code)
-
-  // Special handling for gantt charts
-  if (finalCode.trim().startsWith('gantt')) {
-    // For gantt charts, preserve the structure exactly as is
-    return finalCode
-  }
-
-  if (style === 'handDrawn') {
-    finalCode = finalCode
-      // Remove style definitions that interfere with hand-drawn style
-      .replace(/style\s+[^\n]+/g, '')
-      .replace(/linkStyle\s+[^\n]+/g, '')
-      .replace(/^flowchart/, 'graph')
-      // Remove any styles that might interfere with hand-drawn style
-      .replace(/class="[^"]*"/g, '')
-      .replace(/fill="[^"]*"/g, '')
-      .replace(/stroke="[^"]*"/g, '')
-
-    // Ensure hand-drawn style charts always start with graph
-    if (!finalCode.startsWith('graph') && !finalCode.startsWith('flowchart'))
-      finalCode = `graph TD\n${finalCode}`
-  }
-
-  return finalCode
-}
-
-/**
  * Converts SVG to base64 string for image rendering
  */
 export function svgToBase64(svgGraph: string): Promise<string> {
@@ -83,43 +28,7 @@ export function svgToBase64(svgGraph: string): Promise<string> {
   }
 }
 
-/**
- * Processes SVG for theme styling
- */
-export function processSvgForTheme(
-  svg: string,
-  isDark: boolean,
-  isHandDrawn: boolean,
-  theme: any,
-): string {
-  let processedSvg = svg
 
-  if (isHandDrawn) {
-    processedSvg = processedSvg
-      .replace(/fill="#[a-fA-F0-9]{6}"/g, `fill="${theme.nodeColors[0].bg}"`)
-      .replace(/stroke="#[a-fA-F0-9]{6}"/g, `stroke="${theme.connectionColor}"`)
-      .replace(/stroke-width="1"/g, 'stroke-width="1.5"')
-  }
-  else {
-    theme.nodeColors.forEach(() => {
-      const regex = /fill="#[a-fA-F0-9]{6}"[^>]*class="node-[^"]*"/g
-      let i = 0
-      processedSvg = processedSvg.replace(regex, (match: string) => {
-        const colorIndex = i % theme.nodeColors.length
-        i++
-        return match.replace(/fill="#[a-fA-F0-9]{6}"/, `fill="${theme.nodeColors[colorIndex].bg}"`)
-      })
-    })
-
-    processedSvg = processedSvg
-      .replace(/<path [^>]*stroke="#[a-fA-F0-9]{6}"/g,
-        `<path stroke="${theme.connectionColor}"`)
-      .replace(/<(line|polyline) [^>]*stroke="#[a-fA-F0-9]{6}"/g,
-        `<$1 stroke="${theme.connectionColor}"`)
-  }
-
-  return processedSvg
-}
 
 /**
  * Checks if mermaid code is complete and valid
