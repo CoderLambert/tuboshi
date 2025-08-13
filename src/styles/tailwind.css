@@ -67,6 +67,9 @@
   }
 }
 
+
+
+
 @layer base {
   * {
     @apply border-border;
@@ -88,6 +91,7 @@
   }
 }
 
+
 @supports (-webkit-touch-callout: none) {
   body {
     /* Prevent iOS from resizing font on orientation change */
@@ -95,173 +99,188 @@
   }
 }
 
+
 /* CSS Utils */
 .h1 {
-  padding-bottom: 3rem;
+  padding-bottom: 1.5rem;
   line-height: 1.5;
-  font-size: 2.25rem;
+  font-size: 1.125rem;
   color: #111928;
 }
 
 .h2 {
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 500;
   color: #111928;
   line-height: 1.5;
 }
 
+/* 三行截断工具类 */
+.line-clamp-3-custom {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  word-break: break-word;
+  /* 强制设置行高，覆盖 leading-normal */
+  line-height: 1.4 !important;
+  /* 设置最大高度确保截断 */
+  max-height: calc(1.4em * 3) !important;
+}
+
 /* font define start */
 .system-kbd {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 500;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .system-2xs-regular-uppercase {
-  font-size: 20px;
+  font-size: 10px;
   font-weight: 400;
   text-transform: uppercase;
-  line-height: 24px;
+  line-height: 12px;
 }
 
 .system-2xs-regular {
-  font-size: 20px;
+  font-size: 10px;
   font-weight: 400;
-  line-height: 24px;
+  line-height: 12px;
 }
 
 .system-2xs-medium {
-  font-size: 20px;
+  font-size: 10px;
   font-weight: 500;
-  line-height: 24px;
+  line-height: 12px;
 }
 
 .system-2xs-medium-uppercase {
-  font-size: 20px;
+  font-size: 10px;
   font-weight: 500;
   text-transform: uppercase;
-  line-height: 24px;
+  line-height: 12px;
 }
 
 .system-2xs-semibold-uppercase {
-  font-size: 20px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  line-height: 24px;
+  line-height: 12px;
 }
 
 .system-xs-regular {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 400;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .system-xs-regular-uppercase {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 400;
   text-transform: uppercase;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .system-xs-medium {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 500;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .system-xs-medium-uppercase {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 500;
   text-transform: uppercase;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .system-xs-semibold {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 600;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .system-xs-semibold-uppercase {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .system-sm-regular {
-  font-size: 26px;
+  font-size: 13px;
   font-weight: 400;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .system-sm-medium {
-  font-size: 26px;
+  font-size: 13px;
   font-weight: 500;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .system-sm-medium-uppercase {
-  font-size: 26px;
+  font-size: 13px;
   font-weight: 500;
   text-transform: uppercase;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .system-sm-semibold {
-  font-size: 26px;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .system-sm-semibold-uppercase {
-  font-size: 26px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .system-md-regular {
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 400;
-  line-height: 40px;
+  line-height: 20px;
 }
 
 .system-md-medium {
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 500;
-  line-height: 40px;
+  line-height: 20px;
 }
 
 .system-md-semibold {
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 600;
-  line-height: 40px;
+  line-height: 20px;
 }
 
 .system-md-semibold-uppercase {
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 600;
   text-transform: uppercase;
-  line-height: 40px;
+  line-height: 20px;
 }
 
 .system-xl-regular {
-  font-size: 32px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 48px;
+  line-height: 24px;
 }
 
 .system-xl-medium {
-  font-size: 32px;
+  font-size: 16px;
   font-weight: 500;
-  line-height: 48px;
+  line-height: 24px;
 }
 
 .system-xl-semibold {
-  font-size: 32px;
+  font-size: 16px;
   font-weight: 600;
-  line-height: 48px;
+  line-height: 24px;
 }
 
 [class*="code-"] {
@@ -269,289 +288,289 @@
 }
 
 .code-xs-regular {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 400;
   line-height: 1.5;
 }
 
 .code-xs-semibold {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.5;
 }
 
 .code-sm-regular {
-  font-size: 26px;
+  font-size: 13px;
   font-weight: 400;
   line-height: 1.5;
 }
 
 .code-sm-semibold {
-  font-size: 26px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1.5;
 }
 
 .code-md-regular {
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 400;
   line-height: 1.5;
 }
 
 .code-md-semibold {
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.5;
 }
 
 .body-xs-light {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 300;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .body-xs-regular {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 400;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .body-xs-medium {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 500;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .body-sm-light {
-  font-size: 26px;
+  font-size: 13px;
   font-weight: 300;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .body-sm-regular {
-  font-size: 26px;
+  font-size: 13px;
   font-weight: 400;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .body-sm-medium {
-  font-size: 26px;
+  font-size: 13px;
   font-weight: 500;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .body-md-light {
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 300;
-  line-height: 40px;
+  line-height: 20px;
 }
 
 .body-md-regular {
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 400;
-  line-height: 40px;
+  line-height: 20px;
 }
 
 .body-md-medium {
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 500;
-  line-height: 40px;
+  line-height: 20px;
 }
 
 .body-lg-light {
-  font-size: 30px;
+  font-size: 15px;
   font-weight: 300;
-  line-height: 40px;
+  line-height: 20px;
 }
 
 .body-lg-regular {
-  font-size: 30px;
+  font-size: 15px;
   font-weight: 400;
-  line-height: 40px;
+  line-height: 20px;
 }
 
 .body-lg-medium {
-  font-size: 30px;
+  font-size: 15px;
   font-weight: 500;
-  line-height: 40px;
+  line-height: 20px;
 }
 
 .body-xl-regular {
-  font-size: 32px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 48px;
+  line-height: 24px;
 }
 
 .body-xl-medium {
-  font-size: 32px;
+  font-size: 16px;
   font-weight: 500;
-  line-height: 48px;
+  line-height: 24px;
 }
 
 .body-xl-light {
-  font-size: 32px;
+  font-size: 16px;
   font-weight: 300;
-  line-height: 48px;
+  line-height: 24px;
 }
 
 .body-2xl-light {
-  font-size: 36px;
+  font-size: 18px;
   font-weight: 300;
   line-height: 1.5;
 }
 
 .body-2xl-regular {
-  font-size: 36px;
+  font-size: 18px;
   font-weight: 400;
   line-height: 1.5;
 }
 
 .body-2xl-medium {
-  font-size: 36px;
+  font-size: 18px;
   font-weight: 500;
   line-height: 1.5;
 }
 
 .title-xs-semi-bold {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 600;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .title-xs-bold {
-  font-size: 24px;
+  font-size: 12px;
   font-weight: 700;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .title-sm-semi-bold {
-  font-size: 26px;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .title-sm-bold {
-  font-size: 26px;
+  font-size: 13px;
   font-weight: 700;
-  line-height: 32px;
+  line-height: 16px;
 }
 
 .title-md-semi-bold {
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 600;
-  line-height: 40px;
+  line-height: 20px;
 }
 
 .title-md-bold {
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 40px;
+  line-height: 20px;
 }
 
 .title-lg-semi-bold {
-  font-size: 30px;
+  font-size: 15px;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .title-lg-bold {
-  font-size: 30px;
+  font-size: 15px;
   font-weight: 700;
   line-height: 1.2;
 }
 
 .title-xl-semi-bold {
-  font-size: 32px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .title-xl-bold {
-  font-size: 32px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1.2;
 }
 
 .title-2xl-semi-bold {
-  font-size: 36px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .title-2xl-bold {
-  font-size: 36px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.2;
 }
 
 .title-3xl-semi-bold {
-  font-size: 40px;
+  font-size: 20px;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .title-3xl-bold {
-  font-size: 40px;
+  font-size: 20px;
   font-weight: 700;
   line-height: 1.2;
 }
 
 .title-4xl-semi-bold {
-  font-size: 48px;
+  font-size: 24px;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .title-4xl-bold {
-  font-size: 48px;
+  font-size: 24px;
   font-weight: 700;
   line-height: 1.2;
 }
 
 .title-5xl-semi-bold {
-  font-size: 60px;
+  font-size: 30px;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .title-5xl-bold {
-  font-size: 60px;
+  font-size: 30px;
   font-weight: 700;
   line-height: 1.2;
 }
 
 .title-6xl-semi-bold {
-  font-size: 72px;
+  font-size: 36px;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .title-6xl-bold {
-  font-size: 72px;
+  font-size: 36px;
   font-weight: 700;
   line-height: 1.2;
 }
 
 .title-7xl-semi-bold {
-  font-size: 96px;
+  font-size: 48px;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .title-7xl-bold {
-  font-size: 96px;
+  font-size: 48px;
   font-weight: 700;
   line-height: 1.2;
 }
 
 .title-8xl-semi-bold {
-  font-size: 120px;
+  font-size: 60px;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .title-8xl-bold {
-  font-size: 120px;
+  font-size: 60px;
   font-weight: 700;
   line-height: 1.2;
 }
@@ -560,63 +579,63 @@
 
 /* border radius start */
 .radius-2xs {
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 .radius-xs {
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 .radius-sm {
-  border-radius: 12px;
+  border-radius: 6px;
 }
 
 .radius-md {
-  border-radius: 16px;
+  border-radius: 8px;
 }
 
 .radius-lg {
-  border-radius: 20px;
+  border-radius: 10px;
 }
 
 .radius-xl {
-  border-radius: 24px;
+  border-radius: 12px;
 }
 
 .radius-2xl {
-  border-radius: 32px;
+  border-radius: 16px;
 }
 
 .radius-3xl {
-  border-radius: 40px;
+  border-radius: 20px;
 }
 
 .radius-4xl {
-  border-radius: 48px;
+  border-radius: 24px;
 }
 
 .radius-5xl {
-  border-radius: 48px;
+  border-radius: 24px;
 }
 
 .radius-6xl {
-  border-radius: 56px;
+  border-radius: 28px;
 }
 
 .radius-7xl {
-  border-radius: 64px;
+  border-radius: 32px;
 }
 
 .radius-8xl {
-  border-radius: 80px;
+  border-radius: 40px;
 }
 
 .radius-9xl {
-  border-radius: 96px;
+  border-radius: 48px;
 }
 
 .radius-full {
-  border-radius: 128px;
+  border-radius: 64px;
 }
 
 /* border radius end */
@@ -651,6 +670,12 @@
 [data-theme="light"] [data-hide-on-theme="light"] {
   display: none;
 }
+
+@import "../components/base/button/index.css";
+@import "../components/base/action-button/index.css";
+@import "../components/base/modal/index.css";
+
+@tailwind utilities;
 
 @layer utilities {
   /* Hide scrollbar for Chrome, Safari and Opera */
