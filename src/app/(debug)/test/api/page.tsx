@@ -62,10 +62,19 @@ export default function ApiTestIndex() {
   ];
 
   return (
-    <div className="font-sans items-center justify-items-center min-h-screen p-4 pb-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start w-full max-w-4xl">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-4">API 测试页面</h1>
+    <div className="font-sans  min-h-screen p-4 pb-20">
+      <main className="flex flex-col gap-4 w-full">
+        <div className="m-0 p-0 block">
+          <div className="flex gap-4 flex-col ">
+            <Link
+            href="/test/page"
+            className="text-blue-500 hover:text-blue-700 text-sm"
+          >
+            ← 返回页面测试列表
+          </Link>
+          <h1 className="text-3xl font-bold mb-4 mt-0">API 测试页面</h1>
+             </div>
+
           <p className="text-gray-600 text-base">选择要测试的API功能</p>
         </div>
         
