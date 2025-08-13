@@ -4,8 +4,10 @@ import styles from './chatPage.module.css'
 import FAQGuide from '@/app/components/FAQGuide'
 import {MessageInfo} from '@/app/components/chat/message'
 import {INaviAppSuggestionQuestionItem} from "@/types/app"
-export default function Home() {
+import TranslationTest from '@/app/components/TranslationTest'
 
+export default function Home() {
+  // 语言设置现在由 I18nProvider 统一处理
   const questions: INaviAppSuggestionQuestionItem[] = [
     {
         "收派": [
@@ -30,11 +32,16 @@ export default function Home() {
         <h1 className={styles.intro}>我是MAOMAO，你的智能助手</h1>
       </div>
 
+      {/* i18n 测试组件 */}
+      <div className="mb-4">
+        <TranslationTest />
+      </div>
+
       {/* 问题建议 */}
       <FAQGuide suggestions={questions}></FAQGuide>
 
       {/* 消息列表 */}
-      
+
       <MessageInfo></MessageInfo>
     </div>
   );
