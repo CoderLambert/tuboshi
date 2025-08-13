@@ -40,6 +40,13 @@ export default function TestPage({
                 >
                     md 测试
                 </Link>
+
+                  <Link
+                    href="/test/page/markdown/thinking"
+                    className="text-blue-500 hover:text-blue-700 text-sm"
+                >
+                    thinking 模型测试
+                </Link>
             </div>
                 {children}
             </div>

@@ -25,7 +25,7 @@ import ImageGallery from '@/app/components/base/image-gallery'
 // import MarkdownButton from '@/app/components/base/markdown-blocks/button'
 // import MarkdownForm from '@/app/components/base/markdown-blocks/form'
 // import MarkdownMusic from '@/app/components/base/markdown-blocks/music'
-// import ThinkBlock from '@/app/components/base/markdown-blocks/think-block'
+import ThinkBlock from '@/app/components/base/markdown-blocks/think-block'
 import cn from '@/utils/classnames'
 // import SVGRenderer from './svg-gallery'
 
@@ -317,7 +317,7 @@ export function Markdown(props: { content: string; className?: string; customDis
         //   button: MarkdownButton,
         //   form: MarkdownForm,
         //   script: ScriptBlock as any,
-        //   details: ThinkBlock,
+          details: ThinkBlock,
         }}
       >
         {/* Markdown detect has problem. */}

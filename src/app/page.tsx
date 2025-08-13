@@ -33,9 +33,9 @@ export default function Home() {
       </div>
 
       {/* i18n 测试组件 */}
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <TranslationTest />
-      </div>
+      </div> */}
 
       {/* 问题建议 */}
       <FAQGuide suggestions={questions}></FAQGuide>

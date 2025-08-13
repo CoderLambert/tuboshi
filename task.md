@@ -95,3 +95,21 @@ export type INavieAppSuggesQuestionCategory = string
 // 分类配置详情
 export type INaviAppSuggestionQuestionItem = Record<INavieAppSuggesQuestionCategory, INaviAppSuggesQuestionItemDetail[]>
 ```
+
+## 功能迁移
+
+1. markdown
+   1. 代码块
+   2. 链接
+   3. 图片
+   4. 列表
+   5. 标题
+   6. 引用
+   7. 表格
+   8. 水平线
+   9. 思考
+
+2. 语音
+   1. 录制
+   2. 转换文本  
+   3. 取消转换

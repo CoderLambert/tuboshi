@@ -32,3 +32,5 @@ John-->>Alice: Great!
 John->>Bob: How about you?
 Bob-->>John: Jolly good!
 ```
+
+## 思考模型对话
