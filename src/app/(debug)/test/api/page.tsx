@@ -66,7 +66,7 @@ export default function ApiTestIndex() {
         <div className="m-0 block p-0">
           <div className="flex flex-col gap-4 ">
             <Link
-            href="/test/feature"
+            href="/test/feature/markdown"
             className="text-sm text-blue-500 hover:text-blue-700"
           >
             ← 返回页面测试列表

@@ -55,3 +55,13 @@ Bob-->>John: Jolly good!
 ## 图片
 
 ![image](https://picsum.photos/200/300)
+
+
+## katex
+
+Lift($$L$$) can be determined by Lift Coefficient ($$C_L$$) like the following
+equation.
+
+$$
+L = \frac{1}{2} \rho v^2 S C_L
+$$
