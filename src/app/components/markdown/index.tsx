@@ -1,8 +1,10 @@
 'use client'
 
 import ReactMarkdown from 'react-markdown'
+
 import ReactEcharts from 'echarts-for-react'
 import 'katex/dist/katex.min.css'
+
 import RemarkMath from 'remark-math'
 import RemarkBreaks from 'remark-breaks'
 import RehypeKatex from 'rehype-katex'
@@ -27,7 +29,7 @@ import AudioGallery from '@/app/components/base/audio-gallery'
 // import MarkdownMusic from '@/app/components/base/markdown-blocks/music'
 import ThinkBlock from '@/app/components/base/markdown-blocks/think-block'
 import cn from '@/utils/classnames'
-// import SVGRenderer from './svg-gallery'
+import SVGRenderer from '@/app/components/base/svg-gallery'
 
 // Available language https://github.com/react-syntax-highlighter/react-syntax-highlighter/blob/master/AVAILABLE_LANGUAGES_HLJS.MD
 const capitalizationLanguageNameMap: Record<string, string> = {
@@ -156,15 +158,15 @@ const CodeBlock: any = memo(({ inline, className, children = '', ...props }: any
             </ErrorBoundary>
           </div>
         )
-    //   case 'svg':
-    //     if (isSVG) {
-    //       return (
-    //         <ErrorBoundary>
-    //           <SVGRenderer content={content} />
-    //         </ErrorBoundary>
-    //       )
-    //     }
-    //     break
+      case 'svg':
+        if (isSVG) {
+          return (
+            <ErrorBoundary>
+              <SVGRenderer content={content} />
+            </ErrorBoundary>
+          )
+        }
+        break
     //   case 'abc':
     //     return (
     //       <ErrorBoundary>
