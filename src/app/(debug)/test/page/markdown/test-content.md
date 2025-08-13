@@ -36,16 +36,21 @@ Bob-->>John: Jolly good!
 ## 视频
 
 <video controls width="100%">
-  <source src="/demo.mp4" type="video/mp4">
+  <source src="http://10.66.95.35:3000/demo.mp4" type="video/mp4">
   您的浏览器不支持视频播放。
 </video>
 
 ## 音频
 
 <audio controls>
-  <source src="/demo.mp3" type="audio/mpeg">
+  <source src="http://10.66.95.35:3000/demo.mp3" type="audio/mpeg">
   您的浏览器不支持音频播放。
 </audio>
+
+<!-- <audio controls>
+  <source src="http://downsc.chinaz.net/Files/DownLoad/sound1/201906/11582.mp3" type="audio/mpeg">
+  您的浏览器不支持音频播放。
+</audio> -->
 
 ## 图片
 

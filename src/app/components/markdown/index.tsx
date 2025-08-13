@@ -20,8 +20,8 @@ import { flow } from 'lodash-es'
 import Flowchart from '@/app/components/base/mermaid'
 import ImageGallery from '@/app/components/base/image-gallery'
 // import { useChatContext } from '@/app/components/base/chat/chat/context'
-// import VideoGallery from '@/app/components/base/video-gallery'
-// import AudioGallery from '@/app/components/base/audio-gallery'
+import VideoGallery from '@/app/components/base/video-gallery'
+import AudioGallery from '@/app/components/base/audio-gallery'
 // import MarkdownButton from '@/app/components/base/markdown-blocks/button'
 // import MarkdownForm from '@/app/components/base/markdown-blocks/form'
 // import MarkdownMusic from '@/app/components/base/markdown-blocks/music'
@@ -213,21 +213,21 @@ const CodeBlock: any = memo(({ inline, className, children = '', ...props }: any
 })
 CodeBlock.displayName = 'CodeBlock'
 
-// const VideoBlock: any = memo(({ node }: any) => {
-//   const srcs = node.children.filter((child: any) => 'properties' in child).map((child: any) => (child as any).properties.src)
-//   if (srcs.length === 0)
-//     return null
-//   return <VideoGallery key={srcs.join()} srcs={srcs} />
-// })
-// VideoBlock.displayName = 'VideoBlock'
+const VideoBlock: any = memo(({ node }: any) => {
+  const srcs = node.children.filter((child: any) => 'properties' in child).map((child: any) => (child as any).properties.src)
+  if (srcs.length === 0)
+    return null
+  return <VideoGallery key={srcs.join()} srcs={srcs} />
+})
+VideoBlock.displayName = 'VideoBlock'
 
-// const AudioBlock: any = memo(({ node }: any) => {
-//   const srcs = node.children.filter((child: any) => 'properties' in child).map((child: any) => (child as any).properties.src)
-//   if (srcs.length === 0)
-//     return null
-//   return <AudioGallery key={srcs.join()} srcs={srcs} />
-// })
-// AudioBlock.displayName = 'AudioBlock'
+const AudioBlock: any = memo(({ node }: any) => {
+  const srcs = node.children.filter((child: any) => 'properties' in child).map((child: any) => (child as any).properties.src)
+  if (srcs.length === 0)
+    return null
+  return <AudioGallery key={srcs.join()} srcs={srcs} />
+})
+AudioBlock.displayName = 'AudioBlock'
 
 // const ScriptBlock = memo(({ node }: any) => {
 //   const scriptContent = node.children[0]?.value || ''
@@ -260,6 +260,7 @@ const Img = ({ src }: any) => {
 const Link = ({ node, children, ...props }: any) => {
   if (node.properties?.href && node.properties.href?.toString().startsWith('abbr')) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
+    // Todo: useChatContext
     // const { onSend } = useChatContext()
     const hidden_text = decodeURIComponent(node.properties.href.toString().split('abbr:')[1])
 
@@ -310,8 +311,8 @@ export function Markdown(props: { content: string; className?: string; customDis
         components={{
           code: CodeBlock,
           img: Img,
-        //   video: VideoBlock,
-        //   audio: AudioBlock,
+          video: VideoBlock,
+          audio: AudioBlock,
           a: Link,
           p: Paragraph,
         //   button: MarkdownButton,
