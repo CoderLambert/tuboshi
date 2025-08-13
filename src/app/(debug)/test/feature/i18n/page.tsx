@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslation } from 'react-i18next'
-import { setLocaleOnClient, getLocaleOnClient } from '@/i18n/client'
+import { getLocaleOnClient, setLocaleOnClient } from '@/i18n/client'
 import { APP_INFO } from '@/config'
 
 export default function TestI18nPage() {
@@ -12,9 +12,9 @@ export default function TestI18nPage() {
   }
 
   return (
-    <div className="prose p-8 space-y-6">
+    <div className="prose space-y-6 p-8">
       <h1 className="text-2xl font-bold">i18n 测试页面</h1>
-      
+
       <div className="space-y-4">
         <div>
           <strong>当前语言:</strong> {i18n.language}
@@ -28,15 +28,15 @@ export default function TestI18nPage() {
       </div>
 
       <div className="space-x-4">
-        <button 
+        <button
           onClick={() => handleLanguageChange('en')}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
+          className="rounded bg-blue-500 px-4 py-2 text-white"
         >
           切换到英文
         </button>
-        <button 
+        <button
           onClick={() => handleLanguageChange('zh-Hans')}
-          className="px-4 py-2 bg-green-500 text-white rounded"
+          className="rounded bg-green-500 px-4 py-2 text-white"
         >
           切换到中文
         </button>
@@ -64,8 +64,8 @@ export default function TestI18nPage() {
         </div>
       </div>
 
-      <div className="mt-8 p-4 bg-gray-100 rounded">
-        <h3 className="font-semibold mb-2">调试信息:</h3>
+      <div className="mt-8 rounded bg-gray-100 p-4">
+        <h3 className="mb-2 font-semibold">调试信息:</h3>
         <pre className="text-sm">
           {JSON.stringify({
             'i18n.language': i18n.language,

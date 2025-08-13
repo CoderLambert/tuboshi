@@ -13,12 +13,12 @@ let isMermaidInitialized = false
  */
 function isMermaidCodeComplete(code: string): boolean {
   if (!code || code.trim().length === 0) return false
-  
+
   const trimmedCode = code.trim()
-  
+
   // Check for basic syntax structure
   const hasValidStart = /^(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|gantt|pie|er|journey|requirementDiagram)/.test(trimmedCode)
-  
+
   return hasValidStart && trimmedCode.length > 20
 }
 
@@ -27,24 +27,24 @@ function isMermaidCodeComplete(code: string): boolean {
  */
 function svgToBase64(svgGraph: string): Promise<string> {
   if (!svgGraph) return Promise.resolve('')
-  
+
   try {
     // Ensure SVG has correct XML declaration
-    if (!svgGraph.includes('<?xml')) {
+    if (!svgGraph.includes('<?xml'))
       svgGraph = `<?xml version="1.0" encoding="UTF-8"?>${svgGraph}`
-    }
-    
-    const blob = new Blob([new TextEncoder().encode(svgGraph)], { 
-      type: 'image/svg+xml;charset=utf-8' 
+
+    const blob = new Blob([new TextEncoder().encode(svgGraph)], {
+      type: 'image/svg+xml;charset=utf-8',
     })
-    
+
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
       reader.onloadend = () => resolve(reader.result as string)
       reader.onerror = reject
       reader.readAsDataURL(blob)
     })
-  } catch (error) {
+  }
+ catch (error) {
     console.error('Error converting SVG to base64:', error)
     return Promise.resolve('')
   }
@@ -89,7 +89,7 @@ const initMermaid = () => {
           secondaryColor: '#ffffff',
           tertiaryColor: '#ffffff',
           fontFamily: 'sans-serif',
-        }
+        },
       })
       isMermaidInitialized = true
       console.log('Mermaid initialized with classic theme')
@@ -122,14 +122,15 @@ const Flowchart = React.forwardRef((props: {
    */
   const renderMermaidChart = async (code: string) => {
     try {
-      if (containerRef.current) {
+      if (containerRef.current)
         containerRef.current.innerHTML = `<div id="${chartId}"></div>`
-      }
+
       await new Promise(resolve => setTimeout(resolve, 50))
-      
+
       const { svg } = await mermaid.render(chartId, code)
       return svg
-    } catch (error) {
+    }
+ catch (error) {
       console.error('Mermaid render error:', error)
       throw error
     }
@@ -152,17 +153,19 @@ const Flowchart = React.forwardRef((props: {
           maxTextSize: 50000,
         })
         setErrMsg('图表渲染失败，正在重试...')
-        
+
         // 延迟重试
         setTimeout(() => {
           setErrMsg('')
           setIsCodeComplete(true)
         }, 1000)
-      } catch (e) {
+      }
+ catch (e) {
         console.error('Mermaid re-initialization failed:', e)
         setErrMsg('渲染失败，请刷新页面重试')
       }
-    } else {
+    }
+ else {
       setErrMsg(`渲染图表失败: ${errorMsg}`)
     }
 
@@ -198,9 +201,8 @@ const Flowchart = React.forwardRef((props: {
       // 转换为 base64
       const base64Svg = await svgToBase64(svgGraph)
 
-      if (base64Svg && typeof base64Svg === 'string') {
+      if (base64Svg && typeof base64Svg === 'string')
         setSvgCode(base64Svg)
-      }
 
       setIsLoading(false)
     }
@@ -213,24 +215,21 @@ const Flowchart = React.forwardRef((props: {
   // Initialize mermaid
   useEffect(() => {
     const success = initMermaid()
-    if (success) {
+    if (success)
       setIsInitialized(true)
-    }
   }, [])
 
   // Validate mermaid code and check for completeness
   useEffect(() => {
-    if (codeCompletionCheckRef.current) {
+    if (codeCompletionCheckRef.current)
       clearTimeout(codeCompletionCheckRef.current)
-    }
 
     // Reset code complete status when code changes
     setIsCodeComplete(false)
 
     // If no code or code is extremely short, don't proceed
-    if (!props.PrimitiveCode || props.PrimitiveCode.length < 10) {
+    if (!props.PrimitiveCode || props.PrimitiveCode.length < 10)
       return
-    }
 
     // Initial check
     const isComplete = isMermaidCodeComplete(props.PrimitiveCode)
@@ -245,45 +244,42 @@ const Flowchart = React.forwardRef((props: {
     }, 300)
 
     return () => {
-      if (codeCompletionCheckRef.current) {
+      if (codeCompletionCheckRef.current)
         clearTimeout(codeCompletionCheckRef.current)
-      }
     }
   }, [props.PrimitiveCode])
 
   // 渲染效果处理
   useEffect(() => {
     if (isInitialized && isCodeComplete && props.PrimitiveCode) {
-      if (renderTimeoutRef.current) {
+      if (renderTimeoutRef.current)
         clearTimeout(renderTimeoutRef.current)
-      }
 
       renderTimeoutRef.current = setTimeout(() => {
         renderFlowchart(props.PrimitiveCode)
       }, 300)
-    } else {
+    }
+ else {
       setIsLoading(true)
     }
 
     return () => {
-      if (renderTimeoutRef.current) {
+      if (renderTimeoutRef.current)
         clearTimeout(renderTimeoutRef.current)
-      }
     }
   }, [props.PrimitiveCode, isInitialized, isCodeComplete])
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (containerRef.current) {
+      if (containerRef.current)
         containerRef.current.innerHTML = ''
-      }
-      if (renderTimeoutRef.current) {
+
+      if (renderTimeoutRef.current)
         clearTimeout(renderTimeoutRef.current)
-      }
-      if (codeCompletionCheckRef.current) {
+
+      if (codeCompletionCheckRef.current)
         clearTimeout(codeCompletionCheckRef.current)
-      }
     }
   }, [])
 

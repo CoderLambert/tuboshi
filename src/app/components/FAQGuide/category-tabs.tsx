@@ -1,18 +1,17 @@
-
 import styles from './style.module.css'
 
-export interface CategoryTabsProps {
+export type CategoryTabsProps = {
     categories: string[];
     onClick: (category: string) => void;
     currentCategory: string;
     setCurrentCategory: (category: string) => void;
 }
 
-export function CategoryTabs ({
+export function CategoryTabs({
     categories,
     onClick,
     currentCategory,
-    setCurrentCategory
+    setCurrentCategory,
 }: CategoryTabsProps) {
     return (
       <div className={styles.categories}>

@@ -10,7 +10,6 @@ import appZh from './lang/app.zh'
 import toolsEn from './lang/tools.en'
 import toolsZh from './lang/tools.zh'
 
-
 import type { Locale } from '.'
 
 const resources = {
@@ -29,7 +28,7 @@ const resources = {
       // tools
       tools: toolsZh,
     },
-  }
+  },
 }
 
 i18n.use(initReactI18next)

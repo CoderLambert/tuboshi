@@ -1,28 +1,27 @@
-import Image from "next/image";
-import maomaoPng from "@/assets/maomao@2x.png";
+import Image from 'next/image'
+import maomaoPng from '@/assets/maomao@2x.png'
 import styles from './chatPage.module.css'
 import FAQGuide from '@/app/components/FAQGuide'
-import {MessageInfo} from '@/app/components/chat/message'
-import {INaviAppSuggestionQuestionItem} from "@/types/app"
-import TranslationTest from '@/app/components/TranslationTest'
+import { MessageInfo } from '@/app/components/chat/message'
+import type { INaviAppSuggestionQuestionItem } from '@/types/app'
 
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
   const questions: INaviAppSuggestionQuestionItem[] = [
     {
-        "收派": [
-            "联系不上客户怎么办？",
-            "打火机可以寄吗？",
-            "包装破损了怎么办？"
-        ]
-    }, 
+        收派: [
+            '联系不上客户怎么办？',
+            '打火机可以寄吗？',
+            '包装破损了怎么办？',
+        ],
+    },
     {
-        "数据统计": [
-          "最近七天订单数量？",
-          "打火机可以寄吗？",
-          "包装破损了怎么办？"
-        ]
-    }
+        数据统计: [
+          '最近七天订单数量？',
+          '打火机可以寄吗？',
+          '包装破损了怎么办？',
+        ],
+    },
 ]
 
   return (
@@ -44,5 +43,5 @@ export default function Home() {
 
       <MessageInfo></MessageInfo>
     </div>
-  );
+  )
 }

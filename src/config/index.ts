@@ -1,4 +1,4 @@
-import type { AppInfo, INaviAppConfig, IAPPConfig } from '@/types/app'
+import type { AppInfo, IAPPConfig, INaviAppConfig } from '@/types/app'
 export const API_KEY = 'app-Bw7GY5U1f7d4XIxXxWRuHueC'
 export const APP_ID = 'a486b436-4997-4331-b6ec-a78d6f47122c'
 export const API_URL = 'http://10.21.61.78:31092/v1'
@@ -18,7 +18,7 @@ export const APP_CONFIG: IAPPConfig = {
   app_id: APP_ID,
   api_url: API_URL,
   conversation_id: null,
-  first_id: null
+  first_id: null,
 }
 
 // 业务 app 配置
@@ -26,9 +26,8 @@ export const APP_CONFIG: IAPPConfig = {
 export const NavieAppConfig: INaviAppConfig = {
   token: '',
   user: '',
-  suggestions: []
+  suggestions: [],
 }
-
 
 export const isShowPrompt = false
 export const promptTemplate = 'I want you to act as a javascript console.'

@@ -45,9 +45,9 @@ export type SelectTypeFormItem = {
 export type UserInputFormItem = {
   'text-input': TextTypeFormItem
 } | {
-  'select': SelectTypeFormItem
+  select: SelectTypeFormItem
 } | {
-  'paragraph': TextTypeFormItem
+  paragraph: TextTypeFormItem
 }
 
 export const MessageRatings = ['like', 'dislike', null] as const
@@ -231,7 +231,7 @@ export enum CodeLanguage {
 }
 
 // 大模型 APP 配置项
-export interface IAPPConfig {
+export type IAPPConfig = {
   app_info: AppInfo
   app_key: string
   app_id: string
@@ -239,8 +239,8 @@ export interface IAPPConfig {
 
   // conversation_id 和 first_id 如果前端可以直接本地存储，长久化保持，可以由前端生成
   // 否则需要 jsBridge 调用app进行存储，在下次打开 app 时传回进行初始化配置, 建议直接app提供存储，方便后续存在多轮历史对话管理
-  conversation_id: string | null  // 为 null 代表是新会话  存在值的话需要凭借这个 id 获取历史会话消息
-  first_id: string | null           // 默认为 null， 当存在会话消息存在的时候，为当前会话记录第一条消息， 用于向上拉取历史会话消息
+  conversation_id: string | null // 为 null 代表是新会话  存在值的话需要凭借这个 id 获取历史会话消息
+  first_id: string | null // 默认为 null， 当存在会话消息存在的时候，为当前会话记录第一条消息， 用于向上拉取历史会话消息
 
   // 如果之后需要做会话管理，则需要再添加 会话管理初始化配置
   // current_conversation: string | null
@@ -260,5 +260,3 @@ export type INaviAppSuggesQuestionItemDetail = string
 export type INavieAppSuggesQuestionCategory = string
 // 分类配置详情
 export type INaviAppSuggestionQuestionItem = Record<INavieAppSuggesQuestionCategory, INaviAppSuggesQuestionItemDetail[]>
-
-

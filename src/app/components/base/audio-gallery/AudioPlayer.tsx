@@ -286,9 +286,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src }) => {
   }, [duration])
 
   return (
-    <div className='flex h-9 min-w-[240px] max-w-[420px] items-end gap-2 rounded-[10px] border border-components-panel-border-subtle bg-components-chat-input-audio-bg-alt p-2 shadow-xs backdrop-blur-sm'>
+    <div className='border-components-panel-border-subtle bg-components-chat-input-audio-bg-alt shadow-xs flex h-9 min-w-[240px] max-w-[420px] items-end gap-2 rounded-[10px] border p-2 backdrop-blur-sm'>
       <audio ref={audioRef} src={src} preload="auto"/>
-      <button className='inline-flex shrink-0 cursor-pointer items-center justify-center border-none text-text-accent transition-all hover:text-text-accent-secondary disabled:text-components-button-primary-bg-disabled' onClick={togglePlay} disabled={!isAudioAvailable}>
+      <button className='text-text-accent hover:text-text-accent-secondary disabled:text-components-button-primary-bg-disabled inline-flex shrink-0 cursor-pointer items-center justify-center border-none transition-all' onClick={togglePlay} disabled={!isAudioAvailable}>
         {isPlaying
           ? (
             <RiPauseCircleFill className='h-5 w-5' />
@@ -306,12 +306,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src }) => {
             onMouseMove={handleMouseMove}
             onMouseDown={handleCanvasInteraction}
           />
-          <div className='system-xs-medium inline-flex min-w-[100px] items-center justify-center text-text-accent-secondary'>
+          <div className='system-xs-medium text-text-accent-secondary inline-flex min-w-[100px] items-center justify-center'>
             <span className='rounded-[10px] px-0.5 py-1'>{formatTime(duration)}</span>
           </div>
         </div>
       </div>
-      <div className='absolute left-0 top-0 flex h-full w-full items-center justify-center text-text-quaternary' hidden={isAudioAvailable}>{t('common.operation.audioSourceUnavailable')}</div>
+      <div className='text-text-quaternary absolute left-0 top-0 flex h-full w-full items-center justify-center' hidden={isAudioAvailable}>{t('common.operation.audioSourceUnavailable')}</div>
     </div>
   )
 }

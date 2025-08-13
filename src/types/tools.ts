@@ -10,9 +10,9 @@ export enum AuthType {
 }
 
 export type Credential = {
-  'auth_type': AuthType
-  'api_key_header'?: string
-  'api_key_value'?: string
+  auth_type: AuthType
+  api_key_header?: string
+  api_key_value?: string
 }
 
 export enum CollectionType {

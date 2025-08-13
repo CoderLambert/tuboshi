@@ -2,7 +2,7 @@
 import { SimpleMarkdown } from './simple-markdown'
 
 export function AgentMessageFallback({
-    message
+    message,
 }: {
     message?: string;
 }) {
@@ -17,7 +17,7 @@ export function AgentMessageFallback({
 ### Additional info
 
 This is a [link](https://github.com/remarkjs/react-markdown)
-`;
+`
 
-    return <SimpleMarkdown content={markdownText} />;
+    return <SimpleMarkdown content={markdownText} />
 }

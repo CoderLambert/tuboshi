@@ -1,13 +1,13 @@
-"use client"
+'use client'
 
-import { INaviAppSuggestionQuestionItem } from '@/types/app'
+import type { INaviAppSuggestionQuestionItem } from '@/types/app'
 import styles from './style.module.css'
-import { useState, useMemo } from "react"
+import { useMemo, useState } from 'react'
 import { CategoryTabs } from './category-tabs'
 import { QuestionItems } from './question-items'
 // 常见问题引导页
 
-export interface IFAQProps {
+export type IFAQProps = {
   suggestions: INaviAppSuggestionQuestionItem[]
 }
 
@@ -17,7 +17,7 @@ export default function FAQGuide({ suggestions }: IFAQProps) {
     return suggestions.reduce((pre, cur) => {
       return {
         ...pre,
-        ...cur
+        ...cur,
       }
     }, {})
   }, [suggestions])
@@ -29,7 +29,7 @@ export default function FAQGuide({ suggestions }: IFAQProps) {
   // 直接设置默认分类，避免 useEffect 延迟
   const [currentCategory, setCurrentCategory] = useState<string>(() => {
     const cats = Object.keys(suggestionGroup)
-    return cats.length > 0 ? cats[0] : ""
+    return cats.length > 0 ? cats[0] : ''
   })
 
   const questions = useMemo(() => {
@@ -37,9 +37,8 @@ export default function FAQGuide({ suggestions }: IFAQProps) {
   }, [suggestionGroup, currentCategory])
 
   // 如果没有数据，直接返回 null
-  if (categories.length === 0) {
+  if (categories.length === 0)
     return null
-  }
 
   return (
     <div className={styles.suggestion}>

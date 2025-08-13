@@ -1,12 +1,12 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react'
 // import { Textarea } from "@/components/ui/textarea";
 // import { Button } from "@/components/ui/button";
 
 export default function Home() {
   // const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   // const originalHeight = useRef<number>(0); // 初始为空值
 
   // useEffect(() => {
@@ -51,27 +51,26 @@ export default function Home() {
 
 useEffect(() => {
     const handleResize = () => {
-      if (document.activeElement === textareaRef.current) {
-        textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+      if (document.activeElement === textareaRef.current)
+        textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   return (
-    <div className="w-full h-full flex flex-col px-[32px]">
-      <div className="suggestions text-[38px] leading-[48px] text-[#262222] font-[500]">我是MAOMAO，你的智能助手</div>
-      <footer className="absolute bottom-0 flex justify-center bg-chat-input-mask pb-4 max-h-[158px] overflow-auto w-full">
+    <div className="flex h-full w-full flex-col px-[32px]">
+      <div className="suggestions text-[38px] font-[500] leading-[48px] text-[#262222]">我是MAOMAO，你的智能助手</div>
+      <footer className="bg-chat-input-mask absolute bottom-0 flex max-h-[158px] w-full justify-center overflow-auto pb-4">
         <textarea
           ref={textareaRef}
           className="w-[452px]"
           placeholder="请输入"
           onFocus={() => {
-              textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
             }}
         />
       </footer>
     </div>
-  );
+  )
 }

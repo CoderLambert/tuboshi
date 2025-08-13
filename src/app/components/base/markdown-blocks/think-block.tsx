@@ -38,7 +38,7 @@ const useThinkTimer = (children: any) => {
   const [startTime] = useState(Date.now())
   const [elapsedTime, setElapsedTime] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
-  const timerRef = useRef<NodeJS.Timeout|undefined>(undefined)
+  const timerRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   useEffect(() => {
     if (isComplete) return

@@ -133,7 +133,7 @@ export const PortalToFollowElemTrigger = (
       context.getReferenceProps({
         ref,
         ...props,
-        ...children.props,
+        ...(children.props as any),
         'data-state': context.open ? 'open' : 'closed',
       }),
     )

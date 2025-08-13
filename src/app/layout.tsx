@@ -12,14 +12,14 @@ export const metadata = {
 const geist = Geist({
   subsets: ['latin'],
 })
- 
+
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  viewportFit: "cover", // For iOS safe areas
-  interactiveWidget: "resizes-content", // 让视口随键盘调整（Chrome/Android支持）
+  viewportFit: 'cover', // For iOS safe areas
+  interactiveWidget: 'resizes-content', // 让视口随键盘调整（Chrome/Android支持）
 }
 
 const LocaleLayout = async ({
@@ -30,11 +30,11 @@ const LocaleLayout = async ({
   const locale = await getLocaleOnServer()
   return (
     <html lang={locale} className={`${geist.className} h-full`} style={{
-      fontSize: '100px',  // 注意：驼峰式写法 fontSize，而不是 font-size
-      '--tpx': '0.01rem'  // 自定义 CSS 变量使用字符串值
-    } as React.CSSProperties}  suppressHydrationWarning>
+      'fontSize': '100px', // 注意：驼峰式写法 fontSize，而不是 font-size
+      '--tpx': '0.01rem', // 自定义 CSS 变量使用字符串值
+    } as React.CSSProperties} suppressHydrationWarning>
       <body>
-        <div className="flex min-h-screen flex-col px-safe-left pr-safe-right pt-safe-top pb-safe-bottom overflow-auto">
+        <div className="px-safe-left pr-safe-right pt-safe-top pb-safe-bottom flex min-h-screen flex-col overflow-auto">
           <I18nProvider>
             <Suspense fallback={<div>Loading...</div>}>
               {children}

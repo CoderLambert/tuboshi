@@ -28,8 +28,6 @@ export function svgToBase64(svgGraph: string): Promise<string> {
   }
 }
 
-
-
 /**
  * Checks if mermaid code is complete and valid
  */

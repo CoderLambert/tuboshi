@@ -1,4 +1,4 @@
-import { type NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
 import { client, getInfo } from '@/app/api/utils/common'
 
 export async function POST(request: NextRequest) {
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     response_mode: responseMode,
   } = body
   const { user } = getInfo(request)
-  const isStreaming = responseMode === "streaming"
+  const isStreaming = responseMode === 'streaming'
   const res = await client.createChatMessage(inputs, query, user, responseMode, conversationId, files)
   if (isStreaming) {
     const headers = new Headers({
@@ -21,6 +21,6 @@ export async function POST(request: NextRequest) {
     return new Response(res.data as any, {
       headers,
     })
-  } else
-    return new Response(res.data as any)
+  }
+ else { return new Response(res.data as any) }
 }

@@ -135,7 +135,7 @@ type IOtherOptions = {
 
 function unicodeToChar(text: string) {
   return text.replace(/\\u[0-9a-f]{4}/g, (_match, p1) => {
-    return String.fromCharCode(parseInt(p1, 16))
+    return String.fromCharCode(Number.parseInt(p1, 16))
   })
 }
 
@@ -295,7 +295,7 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: I
                   return
                 }
                 default:
-                   
+
                   new Promise(() => {
                     bodyJson.then((data: any) => {
                       Toast.notify({ type: 'error', message: data.message })
@@ -392,7 +392,6 @@ export const ssePost = (
   globalThis.fetch(urlWithPrefix, options)
     .then((res: any) => {
       if (!/^(2|3)\d{2}$/.test(res.status)) {
-         
         new Promise(() => {
           res.json().then((data: any) => {
             Toast.notify({ type: 'error', message: data.message || 'Server Error' })

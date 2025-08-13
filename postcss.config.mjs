@@ -1,8 +1,8 @@
 const config = {
   plugins: {
     'postcss-import': {},
-    tailwindcss: {},
-    autoprefixer: {},
+    'tailwindcss': {},
+    'autoprefixer': {},
 
     'postcss-pxtorem': {
       rootValue: 200,
@@ -15,6 +15,6 @@ const config = {
       exclude: /node_modules/i,
     },
   },
-};
+}
 
-export default config;
+export default config

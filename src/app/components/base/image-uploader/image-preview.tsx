@@ -256,7 +256,7 @@ const ImagePreview: FC<ImagePreviewProps> = ({
       </Tooltip>
       <Tooltip popupContent={t('common.operation.cancel')}>
         <div
-          className='absolute right-6 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-white/8 backdrop-blur-[2px]'
+          className='bg-white/8 absolute right-6 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg backdrop-blur-[2px]'
           onClick={onCancel}>
           <RiCloseLine className='h-4 w-4 text-gray-500' />
         </div>

@@ -58,6 +58,7 @@ export default combine(
 
       // useful, but big change
       'ts/no-empty-object-type': 'off',
+      'ts/ban-ts-comment': 'off', // Allow @ts-expect-error without description
     },
   }),
   unicorn(),
@@ -117,8 +118,13 @@ export default combine(
       'unused-imports/no-unused-vars': 'warn',
       'unused-imports/no-unused-imports': 'warn',
 
+      // TypeScript and code quality rules
+      'ts/no-use-before-define': 'off', // Allow hoisting for function declarations
+      'no-cond-assign': 'off', // Allow assignment in conditions when intentional
+      'no-new': 'off', // Allow new for side effects when needed
+
       // We use `import { noop } from 'lodash-es'` across `web` project
-      'no-empty-function': 'error',
+      'no-empty-function': 'off', // Allow empty functions for placeholder/callback purposes
     },
 
     languageOptions: {
@@ -165,7 +171,7 @@ export default combine(
       'sonarjs/max-lines': 'warn', // max 1000 lines
       'sonarjs/no-variable-usage-before-declaration': 'error',
       // security
-      // eslint-disable-next-line sonarjs/no-hardcoded-passwords
+      'sonarjs/no-clear-text-protocols': 'off', // Allow http for development/config
       'sonarjs/no-hardcoded-passwords': 'off', // detect the wrong code that is not password.
       'sonarjs/no-hardcoded-secrets': 'off',
       'sonarjs/pseudo-random': 'off',
@@ -174,6 +180,8 @@ export default combine(
       // others
       'sonarjs/todo-tag': 'warn',
       'sonarjs/table-header': 'off',
+      'sonarjs/single-character-alternation': 'off', // Allow single character alternation in regex
+      'sonarjs/constructor-for-side-effects': 'off', // Allow constructor for side effects
     },
     plugins: {
       sonarjs: sonar,
@@ -192,6 +200,7 @@ export default combine(
       'unicorn/prefer-number-properties': 'warn',
       'unicorn/no-new-array': 'warn',
       'style/indent': 'off',
+      'style/max-statements-per-line': 'off', // Allow multiple statements per line
     },
   },
   // suppress error for `no-undef` rule

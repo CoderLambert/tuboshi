@@ -14,7 +14,7 @@ const initI18next = async (lng: Locale, ns: string) => {
       return import(`./lang/${namespace}.${actualLanguage}.ts`)
     }))
     .init({
-      lng: lng,
+      lng,
       ns,
       fallbackLng: 'en',
     })

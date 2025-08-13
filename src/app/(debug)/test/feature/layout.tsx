@@ -1,5 +1,5 @@
 import Link from 'next/link'
-export default function TestPage({
+export default function TestPageLayout({
   children,
 }: {
   children: React.ReactNode

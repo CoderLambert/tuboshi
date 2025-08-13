@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import ReactMarkdown from 'react-markdown'
 // import ReactEcharts from 'echarts-for-react'
@@ -190,14 +190,14 @@ const CodeBlock: any = memo(({ inline, className, children = '', ...props }: any
           </SyntaxHighlighter>
         )
     }
-  }, [children, language, isSVG, chartData, props,  match])
+  }, [children, language, isSVG, chartData, props, match])
 
   if (inline || !match)
     return <code {...props} className={className}>{children}</code>
 
   return (
     <div className='relative'>
-      <div className='flex h-8 items-center justify-between rounded-t-[10px] border-b border-divider-subtle bg-components-input-bg-normal p-1 pl-3'>
+      <div className='border-divider-subtle bg-components-input-bg-normal flex h-8 items-center justify-between rounded-t-[10px] border-b p-1 pl-3'>
         <div className='system-xs-semibold-uppercase text-text-secondary'>{languageShowName}</div>
         <div className='flex items-center gap-1'>
             btn
@@ -259,15 +259,14 @@ const Img = ({ src }: any) => {
 
 const Link = ({ node, children, ...props }: any) => {
   if (node.properties?.href && node.properties.href?.toString().startsWith('abbr')) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     // Todo: useChatContext
     // const { onSend } = useChatContext()
     const hidden_text = decodeURIComponent(node.properties.href.toString().split('abbr:')[1])
 
-    return <abbr className="cursor-pointer underline !decoration-primary-700 decoration-dashed"  title={node.children[0]?.value || ''}>{node.children[0]?.value || ''}</abbr>
+    return <abbr className="!decoration-primary-700 cursor-pointer underline decoration-dashed" title={node.children[0]?.value || ''}>{node.children[0]?.value || ''}</abbr>
   }
   else {
-    return <a {...props} target="_blank" className="cursor-pointer underline !decoration-primary-700 decoration-dashed">{children || 'Download'}</a>
+    return <a {...props} target="_blank" className="!decoration-primary-700 cursor-pointer underline decoration-dashed">{children || 'Download'}</a>
   }
 }
 
@@ -347,7 +346,7 @@ export default class ErrorBoundary extends Component {
     // @ts-expect-error
     if (this.state.hasError)
       return <div>Oops! An error occurred. This could be due to an ECharts runtime error or invalid SVG content. <br />(see the browser console for more information)</div>
-    // eslint-disable-next-line ts/ban-ts-comment
+
     // @ts-expect-error
     return this.props.children
   }

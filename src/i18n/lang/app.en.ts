@@ -1,5 +1,3 @@
-import { merge } from "lodash-es"
-
 const translation = {
   common: {
     welcome: 'Welcome to use',
