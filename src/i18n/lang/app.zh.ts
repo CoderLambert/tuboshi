@@ -26,6 +26,17 @@ const translation = {
   variableTable: {
     optional: '可选',
   },
+  mermaid: {
+    handDrawn: '手绘',
+    classic: '经典',
+  },
+  theme: {
+    light: '浅色',
+    dark: '深色',
+    system: '系统',
+    switchLight: '切换到浅色主题',
+    switchDark: '切换到深色主题',
+  },
 }
 
 export default translation

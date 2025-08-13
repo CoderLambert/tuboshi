@@ -1,3 +1,5 @@
+import { merge } from "lodash-es"
+
 const translation = {
   common: {
     welcome: 'Welcome to use',
@@ -30,6 +32,17 @@ const translation = {
   },
   variableTable: {
     optional: 'Optional',
+  },
+  mermaid: {
+    handDrawn: 'Hand Drawn',
+    classic: 'Classic',
+  },
+  theme: {
+    light: 'Light',
+    dark: 'Dark',
+    system: 'System',
+    switchLight: 'Switch to light theme',
+    switchDark: 'Switch to dark theme',
   },
 }
 

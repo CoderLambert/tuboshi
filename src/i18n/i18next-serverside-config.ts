@@ -8,9 +8,13 @@ const initI18next = async (lng: Locale, ns: string) => {
   const i18nInstance = createInstance()
   await i18nInstance
     .use(initReactI18next)
-    .use(resourcesToBackend((language: string, namespace: string) => import(`./lang/${namespace}.${language}.ts`)))
+    .use(resourcesToBackend((language: string, namespace: string) => {
+      // 将 zh-Hans 映射到 zh 文件名
+      const actualLanguage = language === 'zh-Hans' ? 'zh' : language
+      return import(`./lang/${namespace}.${actualLanguage}.ts`)
+    }))
     .init({
-      lng: lng === 'zh-Hans' ? 'zh' : lng,
+      lng: lng,
       ns,
       fallbackLng: 'en',
     })

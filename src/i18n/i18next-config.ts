@@ -36,10 +36,13 @@ i18n.use(initReactI18next)
   // init i18next
   // for all options read: https://www.i18next.com/overview/configuration-options
   .init({
-    lng: 'en',
+    lng: 'zh-Hans', // 设置默认语言为中文，与 APP_INFO.default_language 保持一致
     fallbackLng: 'en',
-    // debug: true,
+    debug: true, // 开启调试模式，方便排查问题
     resources,
+    interpolation: {
+      escapeValue: false, // React 已经默认转义
+    },
   })
 
 export const changeLanguage = (lan: Locale) => {

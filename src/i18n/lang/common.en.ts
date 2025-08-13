@@ -38,6 +38,8 @@ const translation = {
     pasteFileLinkInvalid: 'Invalid file link',
     fileExtensionNotSupport: 'File extension not supported',
   },
+  wait_for_completion: 'Wait for completion',
+  wait_for_completion_placeholder: 'Wait for completion',
 }
 
 export default translation

@@ -38,6 +38,8 @@ const translation = {
     pasteFileLinkInvalid: '文件链接无效',
     fileExtensionNotSupport: '文件类型不支持',
   },
+  wait_for_completion: '等待完成',
+  wait_for_completion_placeholder: '等待完成',
 }
 
 export default translation
