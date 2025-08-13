@@ -6,17 +6,22 @@ export default (phase: string): NextConfig => {
   // 只在开发模式下应用 Turbopack 配置
   if (phase === PHASE_DEVELOPMENT_SERVER) {
     return {
-      turbopack: {
-        rules: codeInspectorPlugin({
-          bundler: 'turbopack',  // 开发模式下使用 Turbopack
-        }),
-      },
+      // turbopack: {
+      //   rules: codeInspectorPlugin({
+      //     bundler: 'turbopack',  // 开发模式下使用 Turbopack
+      //   }),
+      // },
       output: 'standalone',  // 可选：开发模式下也保持 standalone（但实际 dev 不影响）
       webpack: (config: any) => {
         // 为 react-markdown 添加特殊处理
         config.resolve.alias = {
           ...config.resolve.alias,
         };
+        config.plugins.push(codeInspectorPlugin({ bundler: 'webpack', editor: 'code' }))
+        config.module.rules.push({
+          test: /\.md$/,
+          use: 'raw-loader',
+        });
         return config;
       },
     };

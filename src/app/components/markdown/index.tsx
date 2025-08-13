@@ -17,7 +17,7 @@ import { flow } from 'lodash-es'
 // import ActionButton from '@/app/components/base/action-button'
 // import CopyIcon from '@/app/components/base/copy-icon'
 // import SVGBtn from '@/app/components/base/svg'
-// import Flowchart from '@/app/components/base/mermaid'
+import Flowchart from '@/app/components/base/mermaid'
 import ImageGallery from '@/app/components/base/image-gallery'
 // import { useChatContext } from '@/app/components/base/chat/chat/context'
 // import VideoGallery from '@/app/components/base/video-gallery'
@@ -144,10 +144,10 @@ const CodeBlock: any = memo(({ inline, className, children = '', ...props }: any
   const renderCodeContent = useMemo(() => {
     const content = String(children).replace(/\n$/, '')
     switch (language) {
-    //   case 'mermaid':
-    //     if (isSVG)
-    //       return <Flowchart PrimitiveCode={content} />
-        // break
+      case 'mermaid':
+        if (isSVG)
+          return <Flowchart PrimitiveCode={content} />
+        break
     //   case 'echarts':
     //     return (
     //       <div style={{ minHeight: '350px', minWidth: '100%', overflowX: 'scroll' }}>
