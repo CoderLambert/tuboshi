@@ -56,7 +56,6 @@ Bob-->>John: Jolly good!
 
 ![image](https://picsum.photos/200/300)
 
-
 ## katex
 
 Lift($$L$$) can be determined by Lift Coefficient ($$C_L$$) like the following
@@ -66,7 +65,6 @@ $$
 L = \frac{1}{2} \rho v^2 S C_L
 $$
 
-
 ## svg
 
 ```svg
@@ -74,3 +72,9 @@ $$
   <rect width="100" height="100" fill="#f06"></rect>
 </svg>
 ```
+
+## markdown Button
+
+<button data-variant="primary" data-size="medium" data-message="Hello World">Click me</button>
+
+<button data-variant="warning" data-size="medium" data-message="Hello World">Click me</button>

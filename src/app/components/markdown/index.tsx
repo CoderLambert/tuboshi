@@ -24,7 +24,7 @@ import ImageGallery from '@/app/components/base/image-gallery'
 // import { useChatContext } from '@/app/components/base/chat/chat/context'
 import VideoGallery from '@/app/components/base/video-gallery'
 import AudioGallery from '@/app/components/base/audio-gallery'
-// import MarkdownButton from '@/app/components/base/markdown-blocks/button'
+import MarkdownButton from '@/app/components/base/markdown-blocks/button'
 // import MarkdownForm from '@/app/components/base/markdown-blocks/form'
 import ThinkBlock from '@/app/components/base/markdown-blocks/think-block'
 import cn from '@/utils/classnames'
@@ -193,7 +193,7 @@ const CodeBlock: any = memo(({ inline, className, children = '', ...props }: any
 
   return (
     <div className='relative'>
-      <div className='border-divider-subtle bg-components-input-bg-normal flex h-8 items-center justify-between rounded-t-[10px] border-b p-1 pl-3'>
+      <div className='flex h-8 items-center justify-between rounded-t-[10px] border-b border-divider-subtle bg-components-input-bg-normal p-1 pl-3'>
         <div className='system-xs-semibold-uppercase text-text-secondary'>{languageShowName}</div>
         <div className='flex items-center gap-1'>
           {(['mermaid', 'svg']).includes(language!) && <SVGBtn isSVG={isSVG} setIsSVG={setIsSVG} />}
@@ -224,11 +224,11 @@ const AudioBlock: any = memo(({ node }: any) => {
 })
 AudioBlock.displayName = 'AudioBlock'
 
-// const ScriptBlock = memo(({ node }: any) => {
-//   const scriptContent = node.children[0]?.value || ''
-//   return `<script>${scriptContent}</script>`
-// })
-// ScriptBlock.displayName = 'ScriptBlock'
+const ScriptBlock = memo(({ node }: any) => {
+  const scriptContent = node.children[0]?.value || ''
+  return `<script>${scriptContent}</script>`
+})
+ScriptBlock.displayName = 'ScriptBlock'
 
 const Paragraph = (paragraph: any) => {
   const { node }: any = paragraph
@@ -309,9 +309,9 @@ export function Markdown(props: { content: string; className?: string; customDis
           audio: AudioBlock,
           a: Link,
           p: Paragraph,
-        //   button: MarkdownButton,
+          button: MarkdownButton,
         //   form: MarkdownForm,
-        //   script: ScriptBlock as any,
+          script: ScriptBlock as any,
           details: ThinkBlock,
         }}
       >
