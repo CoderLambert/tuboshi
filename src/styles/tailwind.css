@@ -1,9 +1,17 @@
+@import "preflight.css";
+@import './light.css';
+@import '../app/components/base/button/index.css';
+@import '../app/components/base/action-button/index.css';
 @tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @layer base {
-  :root {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+    :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
@@ -30,44 +38,7 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem
   }
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%
-  }
-}
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-@layer base {
   * {
     @apply border-border;
   }
@@ -87,13 +58,17 @@
     touch-action: none; /* 禁用触摸滚动，当键盘打开时 */
   }
 }
-
 @supports (-webkit-touch-callout: none) {
   body {
     /* Prevent iOS from resizing font on orientation change */
     -webkit-text-size-adjust: none;
   }
 }
+
+@tailwind components;
+
+
+
 
 /* CSS Utils */
 .h1 {
@@ -651,20 +626,6 @@
 [data-theme="light"] [data-hide-on-theme="light"] {
   display: none;
 }
-
-@layer utilities {
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-}
-
 /* Custom animations */
 @keyframes spin-slow {
   from {
@@ -679,5 +640,18 @@
   animation: spin-slow 8s linear infinite;
 }
 
-@import "../app/components/base/button/index.css";
-@import "../app/components/base/action-button/index.css";
+@tailwind utilities;
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
