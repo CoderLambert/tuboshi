@@ -2,6 +2,10 @@
   "name": "ai-agent-chatflow",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.10.0",
+  "engines": {
+    "pnpm": ">=10.10.0"
+  },
   "scripts": {
     "dev": "rimraf .next && next dev",
     "dev:webpack": "next dev",
