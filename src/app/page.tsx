@@ -4,6 +4,7 @@ import styles from './chatPage.module.css'
 import FAQGuide from '@/app/components/FAQGuide'
 import { MessageInfo } from '@/app/components/chat/message'
 import type { INaviAppSuggestionQuestionItem } from '@/types/app'
+import { NaitveInfoGetter } from '@/components/NaitveInfoGetter'
 
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
@@ -26,6 +27,8 @@ export default function Home() {
 
   return (
     <div className={styles.chatPage}>
+      <NaitveInfoGetter />
+
       <div className={styles.header}>
         <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
         <h1 className={styles.intro}>我是MAOMAO，你的智能助手</h1>
