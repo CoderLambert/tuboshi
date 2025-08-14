@@ -1,4 +1,5 @@
 const { adapter } = require('./tailwind.adapter')
+const { vars } = require('./tailwind-theme-var-define')
 const unit = '--tpx'
 
 /** @type {import('tailwindcss').Config} */
@@ -58,7 +59,9 @@ module.exports = {
           4: 'hsl(var(--chart-4))',
           5: 'hsl(var(--chart-5))',
         },
+        ...vars,
       },
+
     },
   },
   plugins: [

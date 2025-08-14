@@ -42,6 +42,10 @@ const translation = {
     switchLight: 'Switch to light theme',
     switchDark: 'Switch to dark theme',
   },
+  embedded: {
+    copied: 'Copied',
+    copy: 'Copy',
+  },
 }
 
 export default translation
