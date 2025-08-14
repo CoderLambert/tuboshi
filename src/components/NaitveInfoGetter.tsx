@@ -13,7 +13,7 @@ export function NaitveInfoGetter() {
       <p>appRequestHeader: {JSON.stringify(appRequestHeader)}</p>
       <p>useInfo: {JSON.stringify(useInfo)}</p>
       <p>GPTConfig: {JSON.stringify(GPTConfig)}</p>
-      <p>statusBarHeight: {statusBarHeight}</p>
+      <p>statusBarHeight: {JSON.stringify(statusBarHeight)}</p>
     </div>
   );
 }

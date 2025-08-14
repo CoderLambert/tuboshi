@@ -14,8 +14,8 @@ const useAppStore = create((set) => ({
     app_id: string;
     api_url: string;
   }) => set({ GPTConfig }),
-  statusBarHeight: '',
-  setStatusBarHeight: (statusBarHeight: string) => set({ statusBarHeight }),
+  statusBarHeight: {},
+  setStatusBarHeight: (statusBarHeight: {top: string, bottom: string}) => set({ statusBarHeight }),
 }));
 
 export default useAppStore;
