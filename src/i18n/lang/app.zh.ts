@@ -37,6 +37,11 @@ const translation = {
     switchLight: '切换到浅色主题',
     switchDark: '切换到深色主题',
   },
+
+  embedded: {
+    copied: '已复制',
+    copy: '复制',
+  },
 }
 
 export default translation
