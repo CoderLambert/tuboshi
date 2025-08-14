@@ -1,7 +1,6 @@
 import { getLocaleOnServer } from '@/i18n/server'
 import { Suspense } from 'react'
 import { Geist } from 'next/font/google'
-import '@/styles/light.css'
 import '@/styles/tailwind.css'
 import '@/styles/markdown.css'
 import I18nProvider from '@/app/components/I18nProvider'
