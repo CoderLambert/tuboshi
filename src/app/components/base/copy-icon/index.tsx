@@ -39,10 +39,10 @@ export const CopyIcon = ({ content }: Props) => {
       <div onMouseLeave={onMouseLeave}>
         {!isCopied
           ? (
-            <Clipboard className='text-text-tertiary mx-1 h-3.5 w-3.5 cursor-pointer' onClick={onClickCopy} />
+            <Clipboard className='mx-1 h-3.5 w-3.5 cursor-pointer text-text-tertiary' onClick={onClickCopy} />
           )
           : (
-            <ClipboardCheck className='text-text-tertiary mx-1 h-3.5 w-3.5' />
+            <ClipboardCheck className='mx-1 h-3.5 w-3.5 text-text-tertiary' />
           )
         }
       </div>

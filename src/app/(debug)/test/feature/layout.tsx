@@ -1,3 +1,4 @@
+import { Button } from '@/app/components/base/button'
 import Link from 'next/link'
 export default function TestPageLayout({
   children,
@@ -47,6 +48,7 @@ export default function TestPageLayout({
                 >
                     thinking 模型测试
                 </Link>
+            <Button variant='primary'>Primary</Button>
             </div>
                 {children}
             </div>

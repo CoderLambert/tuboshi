@@ -1,6 +1,6 @@
-import { create } from "zustand";
+import { create } from 'zustand'
 
-const useAppStore = create((set) => ({
+const useAppStore = create(set => ({
   appRequestHeader: {},
   setAppRequestHeader: (appRequestHeader: {
     [key: string]: string | number | boolean;
@@ -15,7 +15,7 @@ const useAppStore = create((set) => ({
     api_url: string;
   }) => set({ GPTConfig }),
   statusBarHeight: {},
-  setStatusBarHeight: (statusBarHeight: {top: string, bottom: string}) => set({ statusBarHeight }),
-}));
+  setStatusBarHeight: (statusBarHeight: { top: string, bottom: string }) => set({ statusBarHeight }),
+}))
 
-export default useAppStore;
+export default useAppStore
