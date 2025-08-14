@@ -14,11 +14,11 @@
   }
 
   .btn-medium {
-    @apply px-3.5 h-8 rounded-lg text-[13px] leading-4 font-medium;
+    @apply px-3.5 h-8 rounded-lg text-[26px] leading-4 font-medium;
   }
 
   .btn-large {
-    @apply px-4 h-9 rounded-[10px] text-sm font-semibold;
+    @apply px-4 h-9 rounded-[20px] text-sm font-semibold;
   }
 
   .btn-primary {
@@ -58,7 +58,7 @@
 
   .btn-secondary {
     @apply
-    border-[0.5px]
+    border-[1px]
     shadow-xs
     bg-components-button-secondary-bg
     border-components-button-secondary-border
@@ -93,7 +93,7 @@
 
   .btn-secondary-accent {
     @apply
-    border-[0.5px]
+    border-[1px]
     shadow-xs
     bg-components-button-secondary-bg
     border-components-button-secondary-border
