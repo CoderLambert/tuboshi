@@ -94,10 +94,29 @@ export function useNativeBridge() {
       return GPTConfig
     }
 
+    const closeWebview = () => {
+      callNativeMethod('useFinish', {})
+    }
+
+    const useStatusBarHeight = () => {
+      const setStatusBarHeight = useAppStore((state) => state.setStatusBarHeight)
+      const statusBarHeight = useAppStore((state) => state.statusBarHeight)
+      useEffect(() => {
+        const getInfo = async () => {
+          const res = await callNativeMethod('getStatusBarHeight', {})
+          setStatusBarHeight(res)
+        }
+        getInfo()
+      }, [])
+      return statusBarHeight
+    }
+
   return {
     callNativeMethod,
     useAppRequestHeader,
     useUserInfo,
-    useGPTConfig
+    useGPTConfig,
+    closeWebview,
+    useStatusBarHeight
   }
 }
