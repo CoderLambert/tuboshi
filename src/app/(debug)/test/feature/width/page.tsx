@@ -1,55 +1,11 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-// import { Textarea } from "@/components/ui/textarea";
-// import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  // const [keyboardHeight, setKeyboardHeight] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  // const originalHeight = useRef<number>(0); // 初始为空值
 
-  // useEffect(() => {
-  //   // 只在客户端执行
-  //   originalHeight.current = window.visualViewport?.height || window.innerHeight;
-
-  //   const handleResize = () => {
-  //     const currentHeight = window.visualViewport?.height || window.innerHeight;
-  //     const heightDiff = originalHeight.current - currentHeight;
-  //     setKeyboardHeight(heightDiff > 0 ? heightDiff : 0);
-  //   };
-
-  //   const handleFocus = () => {
-  //     window.addEventListener('resize', handleResize);
-  //     setTimeout(() => {
-  //       textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  //     }, 100);
-  //   };
-
-  //   const handleBlur = () => {
-  //     window.removeEventListener('resize', handleResize);
-  //     setKeyboardHeight(0);
-  //   };
-
-  //   const textarea = textareaRef.current;
-  //   if (textarea) {
-  //     textarea.addEventListener('focus', handleFocus);
-  //     textarea.addEventListener('blur', handleBlur);
-  //   }
-
-  //   // 初始调用
-  //   handleResize();
-
-  //   return () => {
-  //     if (textarea) {
-  //       textarea.removeEventListener('focus', handleFocus);
-  //       textarea.removeEventListener('blur', handleBlur);
-  //     }
-  //     window.removeEventListener('resize', handleResize);
-  //   };
-  // }, []); // 空依赖，只在挂载时执行
-
-useEffect(() => {
+  useEffect(() => {
     const handleResize = () => {
       if (document.activeElement === textareaRef.current)
         textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })

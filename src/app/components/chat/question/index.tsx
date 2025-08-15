@@ -11,8 +11,7 @@ type IQuestionProps = Pick<IChatItem, 'id' | 'content' | 'useCurrentUserAvatar'>
   imgSrcs?: string[]
 }
 
-const Question: FC<IQuestionProps> = ({ id, content, useCurrentUserAvatar, imgSrcs }) => {
-  const userName = ''
+const Question: FC<IQuestionProps> = ({ id, content, useCurrentUserAvatar: _useCurrentUserAvatar, imgSrcs }) => {
   return (
     <div className='flex items-start justify-end' key={id}>
       <div>
@@ -27,15 +26,6 @@ const Question: FC<IQuestionProps> = ({ id, content, useCurrentUserAvatar, imgSr
           </div>
         </div>
       </div>
-      {/* {useCurrentUserAvatar
-        ? (
-          <div className='bg-primary-600 mr-2 h-10 w-10 shrink-0 rounded-full text-center leading-10 text-white'>
-            {userName?.[0].toLocaleUpperCase()}
-          </div>
-        )
-        : (
-          <div className={`${s.questionIcon} h-10 w-10 shrink-0 `}></div>
-        )} */}
     </div>
   )
 }

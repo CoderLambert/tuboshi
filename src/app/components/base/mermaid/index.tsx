@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import mermaid from 'mermaid'
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import LoadingAnim from '@/app/components/base/chat/chat/loading-anim'
@@ -120,7 +120,7 @@ const Flowchart = React.forwardRef((props: {
   /**
    * Renders Mermaid chart
    */
-  const renderMermaidChart = async (code: string) => {
+  const renderMermaidChart = useCallback(async (code: string) => {
     try {
       if (containerRef.current)
         containerRef.current.innerHTML = `<div id="${chartId}"></div>`
@@ -134,12 +134,12 @@ const Flowchart = React.forwardRef((props: {
       console.error('Mermaid render error:', error)
       throw error
     }
-  }
+  }, [chartId])
 
   /**
    * Handle rendering errors
    */
-  const handleRenderError = (error: any) => {
+  const handleRenderError = useCallback((error: any) => {
     console.error('Mermaid rendering error:', error)
     const errorMsg = (error as Error).message
 
@@ -170,12 +170,12 @@ const Flowchart = React.forwardRef((props: {
     }
 
     setIsLoading(false)
-  }
+  }, [])
 
   /**
    * Renders flowchart based on provided code
    */
-  const renderFlowchart = async (primitiveCode: string) => {
+  const renderFlowchart = useCallback(async (primitiveCode: string) => {
     if (!isInitialized || !containerRef.current) {
       setIsLoading(false)
       setErrMsg(!isInitialized ? 'Mermaid 初始化失败' : '容器元素未找到')
@@ -210,7 +210,7 @@ const Flowchart = React.forwardRef((props: {
       // 错误处理
       handleRenderError(error)
     }
-  }
+  }, [isInitialized, isCodeComplete, renderMermaidChart, handleRenderError])
 
   // Initialize mermaid
   useEffect(() => {
@@ -267,13 +267,14 @@ const Flowchart = React.forwardRef((props: {
       if (renderTimeoutRef.current)
         clearTimeout(renderTimeoutRef.current)
     }
-  }, [props.PrimitiveCode, isInitialized, isCodeComplete])
+  }, [props.PrimitiveCode, isInitialized, isCodeComplete, renderFlowchart])
 
   // Cleanup on unmount
   useEffect(() => {
+    const container = containerRef.current
     return () => {
-      if (containerRef.current)
-        containerRef.current.innerHTML = ''
+      if (container)
+        container.innerHTML = ''
 
       if (renderTimeoutRef.current)
         clearTimeout(renderTimeoutRef.current)

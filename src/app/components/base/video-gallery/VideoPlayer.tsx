@@ -111,8 +111,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src }) => {
       const newMutedState = !video.muted
       video.muted = newMutedState
       setIsMuted(newMutedState)
-      setVolume(newMutedState ? 0 : (video.volume > 0 ? video.volume : 1))
-      video.volume = newMutedState ? 0 : (video.volume > 0 ? video.volume : 1)
+      const targetVolume = newMutedState ? 0 : (video.volume > 0 ? video.volume : 1)
+      setVolume(targetVolume)
+      video.volume = targetVolume
     }
   }, [])
 

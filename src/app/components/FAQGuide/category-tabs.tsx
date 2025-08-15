@@ -9,7 +9,7 @@ export type CategoryTabsProps = {
 
 export function CategoryTabs({
     categories,
-    onClick,
+    onClick: _onClick,
     currentCategory,
     setCurrentCategory,
 }: CategoryTabsProps) {

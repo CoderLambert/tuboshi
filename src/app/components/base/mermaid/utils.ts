@@ -49,15 +49,18 @@ export function isMermaidCodeComplete(code: string): boolean {
     const hasValidStart = /^(graph|flowchart|sequenceDiagram|classDiagram|classDef|class|stateDiagram|gantt|pie|er|journey|requirementDiagram)/.test(trimmedCode)
 
     // Check for balanced brackets and parentheses
-    const isBalanced = (() => {
+    const checkBalanced = () => {
       const stack = []
       const pairs = { '{': '}', '[': ']', '(': ')' }
+      const closingChars = Object.values(pairs)
 
       for (const char of trimmedCode) {
         if (char in pairs) {
           stack.push(char)
+          continue
         }
-        else if (Object.values(pairs).includes(char)) {
+
+        if (closingChars.includes(char)) {
           const last = stack.pop()
           if (pairs[last as keyof typeof pairs] !== char)
             return false
@@ -65,13 +68,16 @@ export function isMermaidCodeComplete(code: string): boolean {
       }
 
       return stack.length === 0
-    })()
+    }
+    const isBalanced = checkBalanced()
 
     // Check for common syntax errors
     const hasNoSyntaxErrors = !trimmedCode.includes('undefined')
       && !trimmedCode.includes('[object Object]')
-      && trimmedCode.split('\n').every(line =>
-        !(line.includes('-->') && !line.match(/\S+\s*-->\s*\S+/)))
+      && trimmedCode.split('\n').every((line) => {
+        if (!line.includes('-->')) return true
+        return /\S+\s*-->\s*\S+/.test(line)
+      })
 
     return hasValidStart && isBalanced && hasNoSyntaxErrors
   }

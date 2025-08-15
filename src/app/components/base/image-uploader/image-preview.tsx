@@ -20,7 +20,7 @@ const isBase64 = (str: string): boolean => {
   try {
     return btoa(atob(str)) === str
   }
-  catch (err) {
+  catch {
     return false
   }
 }
@@ -59,15 +59,7 @@ const ImagePreview: FC<ImagePreviewProps> = ({
 
   const downloadImage = () => {
     // Open in a new window, considering the case when the page is inside an iframe
-    if (url.startsWith('http') || url.startsWith('https')) {
-      const a = document.createElement('a')
-      a.href = url
-      a.target = '_blank'
-      a.download = title
-      a.click()
-    }
-    else if (url.startsWith('data:image')) {
-      // Base64 image
+    if (url.startsWith('http') || url.startsWith('https') || url.startsWith('data:image')) {
       const a = document.createElement('a')
       a.href = url
       a.target = '_blank'

@@ -150,8 +150,6 @@ const Answer: FC<IAnswerProps> = ({
           {item.thought && (
             <Markdown content={item.thought} />
           )}
-          {/* {item.tool} */}
-          {/* perhaps not use tool */}
           {!!item.tool && (
             <Thought
               thought={item}
@@ -182,17 +180,26 @@ const Answer: FC<IAnswerProps> = ({
         <div className={`${s.answerWrap}`}>
           <div className={`${s.answer} relative text-sm text-gray-900`}>
             <div className={'ml-2 rounded-b-[32px] rounded-tr-[32px] bg-gray-100 px-4 py-3 '}>
-              {(isResponding && (isAgentMode ? (!content && (agent_thoughts || []).filter(item => !!item.thought || !!item.tool).length === 0) : !content))
-                ? (
-                  <div className='flex h-5 w-6 items-center justify-center'>
-                    <LoadingAnim type='text' />
-                  </div>
+              {(() => {
+                const shouldShowLoading = isResponding && (
+                  isAgentMode
+                    ? (!content && (agent_thoughts || []).filter(item => !!item.thought || !!item.tool).length === 0)
+                    : !content
                 )
-                : (isAgentMode
-                  ? agentModeAnswer
-                  : (
-                    <Markdown content={content} />
-                  ))}
+
+                if (shouldShowLoading) {
+                  return (
+                    <div className='flex h-5 w-6 items-center justify-center'>
+                      <LoadingAnim type='text' />
+                    </div>
+                  )
+                }
+
+                if (isAgentMode)
+                  return agentModeAnswer
+
+                return <Markdown content={content} />
+              })()}
               {suggestedQuestions.length > 0 && (
                 <div className='mt-3'>
                   <div className='mt-1 flex flex-wrap gap-1'>

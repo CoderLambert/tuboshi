@@ -2,10 +2,10 @@ import { client } from '@/app/api/utils/common'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 // 模拟获取请求信息的函数
-function getInfo(request: NextRequest) {
+function getInfo(_request: NextRequest) {
   return {
     sessionId: `session-${Date.now()}`,
-    user: { id: `user-${Math.random().toString(36).substr(2, 9)}` },
+    user: { id: `user-${Math.random().toString(36).substring(2, 11)}` },
   }
 }
 
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       headers: setSession(sessionId),
     })
   }
- catch (error) {
+  catch (error) {
     console.error('获取参数失败:', error)
     return NextResponse.json({ error: '获取参数失败' }, { status: 500 })
   }

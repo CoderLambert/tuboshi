@@ -25,57 +25,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src }) => {
   const [hoverTime, setHoverTime] = useState(0)
   const [isAudioAvailable, setIsAudioAvailable] = useState(true)
   const theme = Theme.light
-
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio)
-      return
-
-    const handleError = () => {
-      setIsAudioAvailable(false)
-    }
-
-    const setAudioData = () => {
-      setDuration(audio.duration)
-    }
-
-    const setAudioTime = () => {
-      setCurrentTime(audio.currentTime)
-    }
-
-    const handleProgress = () => {
-      if (audio.buffered.length > 0)
-        setBufferedTime(audio.buffered.end(audio.buffered.length - 1))
-    }
-
-    const handleEnded = () => {
-      setIsPlaying(false)
-    }
-
-    audio.addEventListener('loadedmetadata', setAudioData)
-    audio.addEventListener('timeupdate', setAudioTime)
-    audio.addEventListener('progress', handleProgress)
-    audio.addEventListener('ended', handleEnded)
-    audio.addEventListener('error', handleError)
-
-    // Preload audio metadata
-    audio.load()
-
-    // Delayed generation of waveform data
-
-    const timer = setTimeout(() => generateWaveformData(src), 1000)
-
-    return () => {
-      audio.removeEventListener('loadedmetadata', setAudioData)
-      audio.removeEventListener('timeupdate', setAudioTime)
-      audio.removeEventListener('progress', handleProgress)
-      audio.removeEventListener('ended', handleEnded)
-      audio.removeEventListener('error', handleError)
-      clearTimeout(timer)
-    }
-  }, [src])
-
-  const generateWaveformData = async (audioSrc: string) => {
+  const generateWaveformData = useCallback(async (audioSrc: string) => {
     if (!window.AudioContext && !(window as any).webkitAudioContext) {
       setIsAudioAvailable(false)
       Toast.notify({
@@ -144,7 +94,55 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src }) => {
     finally {
       await audioContext.close()
     }
-  }
+  }, [src])
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio)
+      return
+
+    const handleError = () => {
+      setIsAudioAvailable(false)
+    }
+
+    const setAudioData = () => {
+      setDuration(audio.duration)
+    }
+
+    const setAudioTime = () => {
+      setCurrentTime(audio.currentTime)
+    }
+
+    const handleProgress = () => {
+      if (audio.buffered.length > 0)
+        setBufferedTime(audio.buffered.end(audio.buffered.length - 1))
+    }
+
+    const handleEnded = () => {
+      setIsPlaying(false)
+    }
+
+    audio.addEventListener('loadedmetadata', setAudioData)
+    audio.addEventListener('timeupdate', setAudioTime)
+    audio.addEventListener('progress', handleProgress)
+    audio.addEventListener('ended', handleEnded)
+    audio.addEventListener('error', handleError)
+
+    // Preload audio metadata
+    audio.load()
+
+    // Delayed generation of waveform data
+
+    const timer = setTimeout(() => generateWaveformData(src), 1000)
+
+    return () => {
+      audio.removeEventListener('loadedmetadata', setAudioData)
+      audio.removeEventListener('timeupdate', setAudioTime)
+      audio.removeEventListener('progress', handleProgress)
+      audio.removeEventListener('ended', handleEnded)
+      audio.removeEventListener('error', handleError)
+      clearTimeout(timer)
+    }
+  }, [src, generateWaveformData])
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current
@@ -286,7 +284,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src }) => {
   }, [duration])
 
   return (
-    <div className='shadow-xs flex h-9 min-w-[240px] max-w-[420px] items-end gap-2 rounded-[10px] border border-components-panel-border-subtle bg-components-chat-input-audio-bg-alt p-2 backdrop-blur-sm'>
+    <div className='flex h-9 min-w-[240px] max-w-[420px] items-end gap-2 rounded-[10px] border border-components-panel-border-subtle bg-components-chat-input-audio-bg-alt p-2 shadow-xs backdrop-blur-sm'>
       <audio ref={audioRef} src={src} preload="auto"/>
       <button className='inline-flex shrink-0 cursor-pointer items-center justify-center border-none text-text-accent transition-all hover:text-text-accent-secondary disabled:text-components-button-primary-bg-disabled' onClick={togglePlay} disabled={!isAudioAvailable}>
         {isPlaying

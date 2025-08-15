@@ -28,7 +28,7 @@ export const useToastContext = () => useContext(ToastContext)
 
 const Toast = ({
   type = 'info',
-  duration,
+  duration: _duration,
   message,
   children,
 }: IToastProps) => {
@@ -99,7 +99,7 @@ export const ToastProvider = ({
         setMounted(false)
       }, params.duration || defaultDuring)
     }
-  }, [mounted])
+  }, [mounted, params.duration])
 
   return <ToastContext.Provider value={{
     notify: (props) => {

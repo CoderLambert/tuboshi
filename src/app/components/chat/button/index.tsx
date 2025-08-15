@@ -19,7 +19,7 @@ const Button: FC<IButtonProps> = ({
   onClick,
   loading = false,
 }) => {
-  let style = 'cursor-pointer'
+  let style: string
   switch (type) {
     case 'link':
       style = disabled ? 'border-solid border border-gray-200 bg-gray-200 cursor-not-allowed text-gray-800' : 'border-solid border border-gray-200 cursor-pointer text-blue-600 bg-white hover:shadow-sm hover:border-gray-300'
@@ -34,7 +34,7 @@ const Button: FC<IButtonProps> = ({
 
   return (
     <div
-      className={`flex h-9 content-center items-center justify-center rounded-lg px-4 py-2 text-base leading-5 ${style} ${className && className}`}
+      className={`flex h-9 content-center items-center justify-center rounded-lg px-4 py-2 text-base leading-5 ${style} ${className || ''}`}
       onClick={disabled ? undefined : onClick}
     >
       {children}

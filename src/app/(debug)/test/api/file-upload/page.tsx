@@ -37,8 +37,7 @@ export default function FileUpload() {
         type: selectedFile.type,
       })
 
-      // TODO: 建议在 src/services/index.ts 中封装 fileUpload 方法
-      // 这里暂时保留 fetch，如需可补充 service 方法
+      // Note: Consider encapsulating fileUpload method in src/services/index.ts
       const response = await fetch('/api/file-upload', {
         method: 'POST',
         body: formData,

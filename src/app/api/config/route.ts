@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { API_KEY, API_URL, APP_ID } from '@/config'
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // 返回配置信息，隐藏敏感数据
     const config = {
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(config)
   }
- catch (error: any) {
+  catch (error: any) {
     return NextResponse.json({
       error: error.message,
       timestamp: new Date().toISOString(),

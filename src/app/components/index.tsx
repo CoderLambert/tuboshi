@@ -33,7 +33,7 @@ const Main: FC<IMainProps> = () => {
   const [isUnknownReason, setIsUnknownReason] = useState<boolean>(false)
   const [promptConfig, setPromptConfig] = useState<PromptConfig | null>(null)
   const [inited, setInited] = useState<boolean>(false)
-  const [isShowSidebar, { setTrue: showSidebar, setFalse: hideSidebar }] = useBoolean(false)
+  // const [, { setFalse: hideSidebar }] = useBoolean(false)
   const [visionConfig, setVisionConfig] = useState<VisionSettings | undefined>({
     enabled: true,
     number_limits: 2,
@@ -44,7 +44,7 @@ const Main: FC<IMainProps> = () => {
   useEffect(() => {
     if (APP_INFO?.title)
       document.title = `${APP_INFO.title} - Powered by AI Agent`
-  }, [APP_INFO?.title])
+  }, [])
 
   // onData change thought (the produce obj). https://github.com/immerjs/immer/issues/576
   useEffect(() => {
@@ -63,7 +63,6 @@ const Main: FC<IMainProps> = () => {
     currConversationId,
     getCurrConversationId,
     setCurrConversationId,
-    getConversationIdFromStorage,
     isNewConversation,
     currConversationInfo,
     currInputs,
@@ -75,23 +74,23 @@ const Main: FC<IMainProps> = () => {
   } = useConversation()
 
   const [conversationIdChangeBecauseOfNew, setConversationIdChangeBecauseOfNew, getConversationIdChangeBecauseOfNew] = useGetState(false)
-  const [isChatStarted, { setTrue: setChatStarted, setFalse: setChatNotStarted }] = useBoolean(false)
-  const handleStartChat = (inputs: Record<string, any>) => {
-    createNewChat()
-    setConversationIdChangeBecauseOfNew(true)
-    setCurrInputs(inputs)
-    setChatStarted()
-    // parse variables in introduction
-    setChatList(generateNewChatListWithOpenStatement('', inputs))
-  }
-  const hasSetInputs = (() => {
-    if (!isNewConversation)
-      return true
+  const [isChatStarted, { setFalse: setChatNotStarted }] = useBoolean(false)
+  // const handleStartChat = (inputs: Record<string, any>) => {
+  //   createNewChat()
+  //   setConversationIdChangeBecauseOfNew(true)
+  //   setCurrInputs(inputs)
+  //   setChatStarted()
+  //   // parse variables in introduction
+  //   setChatList(generateNewChatListWithOpenStatement('', inputs))
+  // }
+  // const hasSetInputs = (() => {
+  //   if (!isNewConversation)
+  //     return true
 
-    return isChatStarted
-  })()
+  //   return isChatStarted
+  // })()
 
-  const conversationName = currConversationInfo?.name || t('app.chat.newChatDefaultName') as string
+  // const conversationName = currConversationInfo?.name || t('app.chat.newChatDefaultName') as string
   const conversationIntroduction = currConversationInfo?.introduction || ''
   const suggestedQuestions = currConversationInfo?.suggested_questions || []
 
@@ -150,18 +149,18 @@ const Main: FC<IMainProps> = () => {
   }
   useEffect(handleConversationSwitch, [currConversationId, inited])
 
-  const handleConversationIdChange = (id: string) => {
-    if (id === '-1') {
-      createNewChat()
-      setConversationIdChangeBecauseOfNew(true)
-    }
-    else {
-      setConversationIdChangeBecauseOfNew(false)
-    }
-    // trigger handleConversationSwitch
-    setCurrConversationId(id, APP_ID)
-    hideSidebar()
-  }
+  // const handleConversationIdChange = (id: string) => {
+  //   if (id === '-1') {
+  //     createNewChat()
+  //     setConversationIdChangeBecauseOfNew(true)
+  //   }
+  //   else {
+  //     setConversationIdChangeBecauseOfNew(false)
+  //   }
+  //   // trigger handleConversationSwitch
+  //   setCurrConversationId(id, APP_ID)
+  //   hideSidebar()
+  // }
 
   /*
   * chat info. chat is under conversation.

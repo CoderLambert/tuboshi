@@ -47,8 +47,6 @@ export default function ChatMessages() {
         },
         onCompleted: (data) => {
           console.log('onCompleted: ', data)
-
-          // setResponse(resultData);
         },
         onFile: () => {},
         onThought: () => {},
