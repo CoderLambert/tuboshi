@@ -98,6 +98,8 @@ export type INaviAppSuggestionQuestionItem = Record<INavieAppSuggesQuestionCateg
 
 ## 功能迁移
 
+### 已完成
+
 1. markdown
    1. 代码块
    2. 链接
@@ -109,7 +111,15 @@ export type INaviAppSuggestionQuestionItem = Record<INavieAppSuggesQuestionCateg
    8. 水平线
    9. 思考
 
-2. 语音
+### 待完成
+
+1. 语音
    1. 录制
    2. 转换文本  
    3. 取消转换
+
+2. 消息会话
+   1. feedback 反馈
+   2. suggestion 建议
+   3. question 问题
+   4. answer 回答
