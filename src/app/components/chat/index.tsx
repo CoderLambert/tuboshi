@@ -50,6 +50,7 @@ const Chat: FC<IChatProps> = ({
   const { t } = useTranslation()
   const { notify } = Toast
   const isUseInputMethod = useRef(false)
+  const chatListRef = useRef<HTMLDivElement>(null)
 
   const [query, setQuery] = React.useState('')
   const queryRef = useRef('')
@@ -79,6 +80,12 @@ const Chat: FC<IChatProps> = ({
       queryRef.current = ''
     }
   }, [controlClearQuery])
+
+  // 自动滚动到底部
+  useEffect(() => {
+    if (chatListRef.current)
+      chatListRef.current.scrollTop = chatListRef.current.scrollHeight
+  }, [chatList, isResponding])
   const {
     files,
     onUpload,
@@ -134,36 +141,39 @@ const Chat: FC<IChatProps> = ({
   }
 
   return (
-    <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full')}>
-      {/* Chat List */}
-      <div className="h-full space-y-[30px]">
-        {chatList.map((item) => {
-          if (item.isAnswer) {
-            const isLast = item.id === chatList[chatList.length - 1].id
-            return <Answer
-              key={item.id}
-              item={item}
-              feedbackDisabled={feedbackDisabled}
-              onFeedback={onFeedback}
-              isResponding={isResponding && isLast}
-              suggestionClick={suggestionClick}
-            />
-          }
-          return (
-            <Question
-              key={item.id}
-              id={item.id}
-              content={item.content}
-              useCurrentUserAvatar={useCurrentUserAvatar}
-              imgSrcs={(item.message_files && item.message_files?.length > 0) ? item.message_files.map(item => item.url) : []}
-            />
-          )
-        })}
-      </div>
+    <div className={cn(!feedbackDisabled && 'px-3.5', 'flex h-full flex-col')}>
+      {/* Chat List - 可滚动区域 */}
+      {chatList.length > 0 && (
+        <div ref={chatListRef} className="flex-1 space-y-[30px] overflow-y-auto pb-4">
+          {chatList.map((item) => {
+            if (item.isAnswer) {
+              const isLast = item.id === chatList[chatList.length - 1].id
+              return <Answer
+                key={item.id}
+                item={item}
+                feedbackDisabled={feedbackDisabled}
+                onFeedback={onFeedback}
+                isResponding={isResponding && isLast}
+                suggestionClick={suggestionClick}
+              />
+            }
+            return (
+              <Question
+                key={item.id}
+                id={item.id}
+                content={item.content}
+                useCurrentUserAvatar={useCurrentUserAvatar}
+                imgSrcs={(item.message_files && item.message_files?.length > 0) ? item.message_files.map(item => item.url) : []}
+              />
+            )
+          })}
+        </div>
+      )}
+      {/* 输入框 */}
       {
         !isHideSendInput && (
-          <div className={cn(!feedbackDisabled && '!left-3.5 !right-3.5', 'absolute bottom-0 left-0 right-0 z-10')}>
-            <div className='max-h-[300px] overflow-y-auto rounded-[24px] border-[3px] border-gray-200 bg-white p-[11px]'>
+          <div className={cn(!feedbackDisabled && 'mx-0', chatList.length > 0 ? 'mt-4 shrink-0' : 'w-full')}>
+            <div className='relative max-h-[300px] overflow-y-auto rounded-[24px] border-[3px] border-gray-200 bg-white p-[11px]'>
               {
                 visionConfig?.enabled && (
                   <>

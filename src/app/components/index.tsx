@@ -10,6 +10,7 @@ import { fetchAppParams, fetchChatList, fetchConversations, generationConversati
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
 import Chat from '@/app/components/chat'
+import InputBox from '@/app/components/chat/input-box'
 import { setLocaleOnClient } from '@/i18n/client'
 import Loading from '@/app/components/base/loading'
 import { replaceVarWithValues, userInputsFormToPromptVariables } from '@/utils/prompt'
@@ -20,11 +21,14 @@ import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 
 export type IMainProps = {
   params: any
+  headerContent?: React.ReactNode
+  faqContent?: React.ReactNode
 }
 
-const Main: FC<IMainProps> = () => {
+const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const { t } = useTranslation()
   const hasSetAppConfig = APP_ID && API_KEY
+  const [query, setQuery] = React.useState('')
 
   /*
   * app info
@@ -351,6 +355,8 @@ const Main: FC<IMainProps> = () => {
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
     }
+    // 清空输入框
+    setQuery('')
     const toServerInputs: Record<string, any> = {}
     if (currInputs) {
       Object.keys(currInputs).forEach((key) => {
@@ -640,22 +646,51 @@ const Main: FC<IMainProps> = () => {
     return <Loading type='app' />
 
   return (
-    <div className='h-full bg-gray-100'>
-      <div className="flex overflow-hidden  bg-white">
-        <div className='flex  grow flex-col overflow-y-auto'>
-              <div className='relative mx-auto mb-3.5 w-full max-w-full grow overflow-hidden pb-[66px]'>
-                <div className='h-full overflow-y-auto' ref={chatListDomRef}>
-                  <Chat
-                    chatList={chatList}
-                    onSend={handleSend}
-                    onFeedback={handleFeedback}
-                    isResponding={isResponding}
-                    checkCanSend={checkCanSend}
-                    visionConfig={visionConfig}
-                  />
-                </div>
-             </div>
+    <div className='flex h-full max-w-full flex-col bg-gray-100'>
+      {/* 可滚动的内容区域 */}
+      <div className='flex-1 overflow-x-auto overflow-y-auto'>
+        <div className='flex min-h-full flex-col bg-white'>
+          {/* 头部内容 */}
+          {headerContent && (
+            <div className='shrink-0'>
+              {headerContent}
+            </div>
+          )}
+
+          {/* FAQ内容 */}
+          {faqContent && (
+            <div className='shrink-0'>
+              {faqContent}
+            </div>
+          )}
+
+          {/* 聊天消息区域 - 占据剩余空间 */}
+          <div className='flex-1 p-4'>
+            <div className='h-full'>
+              <Chat
+                chatList={chatList}
+                onSend={handleSend}
+                onFeedback={handleFeedback}
+                isResponding={isResponding}
+                checkCanSend={checkCanSend}
+                visionConfig={visionConfig}
+                isHideSendInput={true}
+              />
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* 固定在底部的输入框 */}
+      <div className='shrink-0 border-t border-gray-200 bg-white p-4'>
+        <InputBox
+          query={query}
+          onQueryChange={setQuery}
+          onSend={handleSend}
+          checkCanSend={checkCanSend}
+          visionConfig={visionConfig}
+          isResponding={isResponding}
+        />
       </div>
     </div>
   )
