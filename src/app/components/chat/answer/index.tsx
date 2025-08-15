@@ -171,16 +171,17 @@ const Answer: FC<IAnswerProps> = ({
   return (
     <div key={id}>
       <div className='flex items-start'>
-        <div className={`${s.answerIcon} h-10 w-10 shrink-0`}>
+        {/* <div className={`${s.answerIcon} h-10 w-10 shrink-0`}>
+
+        </div> */}
           {isResponding
             && <div className={s.typeingIcon}>
               <LoadingAnim type='avatar' />
             </div>
           }
-        </div>
         <div className={`${s.answerWrap}`}>
           <div className={`${s.answer} relative text-sm text-gray-900`}>
-            <div className={'ml-2 rounded-b-2xl rounded-tr-[32px] bg-gray-100 px-4 py-3 '}>
+            <div className={'ml-2 rounded-b-[32px] rounded-tr-[32px] bg-gray-100 px-4 py-3 '}>
               {(isResponding && (isAgentMode ? (!content && (agent_thoughts || []).filter(item => !!item.thought || !!item.tool).length === 0) : !content))
                 ? (
                   <div className='flex h-5 w-6 items-center justify-center'>

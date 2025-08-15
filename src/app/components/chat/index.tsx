@@ -163,7 +163,7 @@ const Chat: FC<IChatProps> = ({
       {
         !isHideSendInput && (
           <div className={cn(!feedbackDisabled && '!left-3.5 !right-3.5', 'absolute bottom-0 left-0 right-0 z-10')}>
-            <div className='max-h-[150px] overflow-y-auto rounded-xl border-[1.5px] border-gray-200 bg-white p-[5.5px]'>
+            <div className='max-h-[300px] overflow-y-auto rounded-[24px] border-[3px] border-gray-200 bg-white p-[11px]'>
               {
                 visionConfig?.enabled && (
                   <>
@@ -189,7 +189,7 @@ const Chat: FC<IChatProps> = ({
               }
               <Textarea
                 className={`
-                  block max-h-none w-full resize-none appearance-none px-2 py-[7px] pr-[118px] text-sm leading-5 text-gray-700 outline-none
+                  mt-2 block max-h-none w-full resize-none appearance-none px-2 py-[7px] pr-[118px] text-sm leading-5 text-gray-700 outline-none
                   ${visionConfig?.enabled && 'pl-12'}
                 `}
                 value={query}

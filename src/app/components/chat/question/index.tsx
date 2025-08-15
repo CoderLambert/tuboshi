@@ -18,7 +18,7 @@ const Question: FC<IQuestionProps> = ({ id, content, useCurrentUserAvatar, imgSr
       <div>
         <div className={`${s.question} relative text-sm text-gray-900`}>
           <div
-            className={'mr-2 rounded-b-2xl rounded-tl-2xl bg-blue-500 px-4 py-3'}
+            className={'mr-2 rounded-b-[32px] rounded-tl-[32px] bg-[#D1E9FF]/50 px-4 py-3'}
           >
             {imgSrcs && imgSrcs.length > 0 && (
               <ImageGallery srcs={imgSrcs} />
@@ -27,7 +27,7 @@ const Question: FC<IQuestionProps> = ({ id, content, useCurrentUserAvatar, imgSr
           </div>
         </div>
       </div>
-      {useCurrentUserAvatar
+      {/* {useCurrentUserAvatar
         ? (
           <div className='bg-primary-600 mr-2 h-10 w-10 shrink-0 rounded-full text-center leading-10 text-white'>
             {userName?.[0].toLocaleUpperCase()}
@@ -35,7 +35,7 @@ const Question: FC<IQuestionProps> = ({ id, content, useCurrentUserAvatar, imgSr
         )
         : (
           <div className={`${s.questionIcon} h-10 w-10 shrink-0 `}></div>
-        )}
+        )} */}
     </div>
   )
 }
