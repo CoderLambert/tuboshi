@@ -14,6 +14,7 @@ export type IInputBoxProps = {
   query: string
   onQueryChange: (query: string) => void
   onSend: (message: string, files: VisionFile[]) => void
+  onStop?: () => void
   checkCanSend?: () => boolean
   visionConfig?: VisionSettings
   isResponding?: boolean
@@ -23,6 +24,7 @@ const InputBox: FC<IInputBoxProps> = ({
   query,
   onQueryChange,
   onSend,
+  onStop,
   checkCanSend,
   visionConfig,
   isResponding,
@@ -48,6 +50,11 @@ const InputBox: FC<IInputBoxProps> = ({
   }
 
   const handleSend = () => {
+    if (isResponding) {
+      // 如果正在响应中，显示提示
+      return
+    }
+
     if (!query.trim() || (checkCanSend && !checkCanSend()))
       return
 
@@ -62,10 +69,22 @@ const InputBox: FC<IInputBoxProps> = ({
       onClear()
   }
 
+  const handleStop = () => {
+    if (onStop)
+      onStop()
+  }
+
+  const handleButtonClick = () => {
+    if (isResponding)
+      handleStop()
+     else
+      handleSend()
+  }
+
   const handleKeyUp = (e: any) => {
     if (e.code === 'Enter') {
       e.preventDefault()
-      if (!e.shiftKey && !isUseInputMethod.current)
+      if (!e.shiftKey && !isUseInputMethod.current && !isResponding)
         handleSend()
     }
   }
@@ -109,24 +128,47 @@ const InputBox: FC<IInputBoxProps> = ({
         className={`
           mt-2 block max-h-none w-full resize-none appearance-none px-2 py-[7px] pr-[118px] text-sm leading-5 text-gray-700 outline-none
           ${visionConfig?.enabled && 'pl-12'}
+          ${isResponding ? 'cursor-not-allowed opacity-60' : ''}
         `}
         value={query}
         onChange={handleContentChange}
         onKeyUp={handleKeyUp}
         onKeyDown={handleKeyDown}
         autoSize
+        disabled={isResponding}
+        placeholder={isResponding ? t('app.errorMessage.waitForResponse') : ''}
       />
       <div className="absolute bottom-2 right-2 flex h-8 items-center">
         <div className={`${s.count} mr-4 h-5 bg-gray-50 text-sm leading-5 text-gray-500`}>{query.trim().length}</div>
         <Tooltip
           popupContent={
             <div>
-              <div>{t('common.operation.send')} Enter</div>
-              <div>{t('common.operation.lineBreak')} Shift Enter</div>
+              {isResponding ? (
+                <div>{t('app.generation.stop')}</div>
+              ) : (
+                <>
+                  <div>{t('common.operation.send')} Enter</div>
+                  <div>{t('common.operation.lineBreak')} Shift Enter</div>
+                </>
+              )}
             </div>
           }
         >
-          <div className={`${s.sendBtn} h-8 w-8 cursor-pointer rounded-md`} onClick={handleSend}></div>
+          {isResponding ? (
+            <div
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md bg-red-500 hover:bg-red-600"
+              onClick={handleStop}
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="8" height="8" rx="1" fill="white"/>
+              </svg>
+            </div>
+          ) : (
+            <div
+              className={`${s.sendBtn} h-8 w-8 cursor-pointer rounded-md ${!query.trim() ? 'cursor-not-allowed opacity-50' : ''}`}
+              onClick={handleButtonClick}
+            />
+          )}
         </Tooltip>
       </div>
     </div>

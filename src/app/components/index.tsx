@@ -6,7 +6,7 @@ import { produce, setAutoFreeze } from 'immer'
 import { useBoolean, useGetState } from 'ahooks'
 import useConversation from '@/hooks/use-conversation'
 import Toast from '@/app/components/base/toast'
-import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, sendChatMessage, updateFeedback } from '@/services'
+import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, sendChatMessage, stopChatMessage, updateFeedback } from '@/services'
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
 import Chat from '@/app/components/chat'
@@ -653,6 +653,21 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     setChatList(newChatList)
     notify({ type: 'success', message: t('common.api.success') })
   }
+
+  const handleStop = async () => {
+    if (messageTaskId && isResponding) {
+      try {
+        await stopChatMessage(messageTaskId)
+        setRespondingFalse()
+        setMessageTaskId('')
+        notify({ type: 'success', message: t('app.generation.stopped') })
+      }
+ catch (error) {
+        console.error('Failed to stop message:', error)
+        notify({ type: 'error', message: t('app.generation.stopFailed') })
+      }
+    }
+  }
   if (appUnavailable)
     return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set APP_ID and API_KEY in config/index.tsx' : ''} />
 
@@ -701,6 +716,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           query={query}
           onQueryChange={setQuery}
           onSend={handleSend}
+          onStop={handleStop}
           checkCanSend={checkCanSend}
           visionConfig={visionConfig}
           isResponding={isResponding}
