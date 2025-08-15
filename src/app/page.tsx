@@ -2,10 +2,10 @@ import Image from 'next/image'
 import maomaoPng from '@/assets/maomao@2x.png'
 import styles from './chatPage.module.css'
 import FAQGuide from '@/app/components/FAQGuide'
-import { MessageInfo } from '@/app/components/chat/message'
 import type { INaviAppSuggestionQuestionItem } from '@/types/app'
 import { NaitveInfoGetter } from '@/components/NaitveInfoGetter'
-
+// import Main from '@/app/components'
+import Link from 'next/link'
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
   const questions: INaviAppSuggestionQuestionItem[] = [
@@ -44,7 +44,11 @@ export default function Home() {
 
       {/* 消息列表 */}
 
-      <MessageInfo></MessageInfo>
+      {/* <Main params={{}}></Main> */}
+      <Link
+          className="text-sm text-blue-500 hover:text-blue-700"
+          href="/test/api">测试</Link>
+      {/* <MessageInfo></MessageInfo> */}
     </div>
   )
 }
