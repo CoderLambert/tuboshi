@@ -1,11 +1,14 @@
+'use client'
 import Image from 'next/image'
 import maomaoPng from '@/assets/maomao@2x.png'
 import styles from './chatPage.module.css'
 import FAQGuide from '@/app/components/FAQGuide'
 import type { INaviAppSuggestionQuestionItem } from '@/types/app'
+import { EVENTS, eventBus } from '@/app/utils/event-bus'
 // import { NaitveInfoGetter } from '@/components/NaitveInfoGetter'
 import Main from '@/app/components'
 // import Link from 'next/link'
+
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
   const questions: INaviAppSuggestionQuestionItem[] = [
@@ -25,6 +28,10 @@ export default function Home() {
     },
 ]
 
+  const handleQuestionClick = (question: string) => {
+    eventBus.emit(EVENTS.SEND_MESSAGE, question)
+  }
+
   return (
     <div className={styles.chatPage}>
       {/* <NaitveInfoGetter /> */}
@@ -33,7 +40,10 @@ export default function Home() {
         <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
         <h1 className={styles.intro}>我是MAOMAO，你的智能助手</h1>
       </div>
-      <FAQGuide suggestions={questions}></FAQGuide>
+      <FAQGuide
+        suggestions={questions}
+        onQuestionClick={handleQuestionClick}
+      />
 
       {/* 消息列表 - 占据剩余空间 */}
       <div className="min-h-0 flex-1">

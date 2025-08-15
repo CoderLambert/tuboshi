@@ -5,12 +5,14 @@ export type QuestionItemsProps = {
     questions: string[];
     currentCategory: string;
     onClick: (question: string) => void;
+    onQuestionClick?: (question: string) => void;
 }
 
 export function QuestionItems({
     currentCategory,
     questions,
     onClick,
+    onQuestionClick,
 }: QuestionItemsProps) {
   const [isAnimating, setIsAnimating] = useState(false)
   const [displayQuestions, setDisplayQuestions] = useState(questions)
@@ -50,7 +52,7 @@ export function QuestionItems({
             style={{
               animationDelay: `${index * 60}ms`, // 交错动画
             }}
-            onClick={() => onClick(question)}
+            onClick={() => onQuestionClick ? onQuestionClick(question) : onClick(question)}
           >
             {question}
           </div>

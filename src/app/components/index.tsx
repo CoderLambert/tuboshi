@@ -11,6 +11,7 @@ import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
 import Chat from '@/app/components/chat'
 import InputBox from '@/app/components/chat/input-box'
+import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import { setLocaleOnClient } from '@/i18n/client'
 import Loading from '@/app/components/base/loading'
 import { replaceVarWithValues, userInputsFormToPromptVariables } from '@/utils/prompt'
@@ -284,6 +285,19 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         }
       }
     })()
+  }, [])
+
+  // 监听FAQ问题点击事件
+  useEffect(() => {
+    const handleSendMessage = (message: string) => {
+      handleSend(message)
+    }
+
+    eventBus.on(EVENTS.SEND_MESSAGE, handleSendMessage)
+
+    return () => {
+      eventBus.off(EVENTS.SEND_MESSAGE, handleSendMessage)
+    }
   }, [])
 
   const [isResponding, { setTrue: setRespondingTrue, setFalse: setRespondingFalse }] = useBoolean(false)

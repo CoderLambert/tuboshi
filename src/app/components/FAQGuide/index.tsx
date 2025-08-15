@@ -9,9 +9,10 @@ import { QuestionItems } from './question-items'
 
 export type IFAQProps = {
   suggestions: INaviAppSuggestionQuestionItem[]
+  onQuestionClick?: (question: string) => void
 }
 
-export default function FAQGuide({ suggestions }: IFAQProps) {
+export default function FAQGuide({ suggestions, onQuestionClick }: IFAQProps) {
   // 直接处理数据，避免异步状态更新
   const suggestionGroup = useMemo(() => {
     return suggestions.reduce((pre, cur) => {
@@ -57,6 +58,7 @@ export default function FAQGuide({ suggestions }: IFAQProps) {
         currentCategory={currentCategory}
         questions={questions}
         onClick={setCurrentCategory}
+        onQuestionClick={onQuestionClick}
       />
     </div>
   )
