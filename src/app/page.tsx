@@ -3,9 +3,9 @@ import maomaoPng from '@/assets/maomao@2x.png'
 import styles from './chatPage.module.css'
 import FAQGuide from '@/app/components/FAQGuide'
 import type { INaviAppSuggestionQuestionItem } from '@/types/app'
-import { NaitveInfoGetter } from '@/components/NaitveInfoGetter'
-// import Main from '@/app/components'
-import Link from 'next/link'
+// import { NaitveInfoGetter } from '@/components/NaitveInfoGetter'
+import Main from '@/app/components'
+// import Link from 'next/link'
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
   const questions: INaviAppSuggestionQuestionItem[] = [
@@ -27,27 +27,22 @@ export default function Home() {
 
   return (
     <div className={styles.chatPage}>
-      <NaitveInfoGetter />
+      {/* <NaitveInfoGetter /> */}
 
       <div className={styles.header}>
         <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
         <h1 className={styles.intro}>我是MAOMAO，你的智能助手</h1>
       </div>
 
-      {/* i18n 测试组件 */}
-      {/* <div className="mb-4">
-        <TranslationTest />
-      </div> */}
-
       {/* 问题建议 */}
       <FAQGuide suggestions={questions}></FAQGuide>
 
       {/* 消息列表 */}
 
-      {/* <Main params={{}}></Main> */}
-      <Link
+      <Main params={{}}></Main>
+      {/* <Link
           className="text-sm text-blue-500 hover:text-blue-700"
-          href="/test/api">测试</Link>
+          href="/test/api">测试</Link> */}
       {/* <MessageInfo></MessageInfo> */}
     </div>
   )

@@ -9,7 +9,7 @@ import Toast from '@/app/components/base/toast'
 import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, sendChatMessage, updateFeedback } from '@/services'
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
-import Chat from '@/app/components'
+import Chat from '@/app/components/chat'
 import { setLocaleOnClient } from '@/i18n/client'
 import Loading from '@/app/components/base/loading'
 import { replaceVarWithValues, userInputsFormToPromptVariables } from '@/utils/prompt'
@@ -24,7 +24,6 @@ export type IMainProps = {
 
 const Main: FC<IMainProps> = () => {
   const { t } = useTranslation()
-  const isMobile = true
   const hasSetAppConfig = APP_ID && API_KEY
 
   /*
@@ -34,7 +33,6 @@ const Main: FC<IMainProps> = () => {
   const [isUnknownReason, setIsUnknownReason] = useState<boolean>(false)
   const [promptConfig, setPromptConfig] = useState<PromptConfig | null>(null)
   const [inited, setInited] = useState<boolean>(false)
-  // in mobile, show sidebar by click button
   const [isShowSidebar, { setTrue: showSidebar, setFalse: hideSidebar }] = useBoolean(false)
   const [visionConfig, setVisionConfig] = useState<VisionSettings | undefined>({
     enabled: true,
@@ -234,9 +232,13 @@ const Main: FC<IMainProps> = () => {
           Toast.notify({ type: 'error', message: error })
           throw new Error(error)
         }
-        const _conversationId = getConversationIdFromStorage(APP_ID)
-        const currentConversation = conversations.find(item => item.id === _conversationId)
+        // const _conversationId = getConversationIdFromStorage(APP_ID)
+        // const currentConversation = conversations.find(item => item.id === _conversationId)
+        const currentConversation = conversations[0]
+        const _conversationId = currentConversation?.id || '-1'
+
         const isNotNewConversation = !!currentConversation
+        console.log('currentConversation', currentConversation)
 
         // fetch new conversation info
         const { user_input_form, opening_statement: introduction, file_upload, system_parameters, suggested_questions = [] }: any = appParams
@@ -632,20 +634,6 @@ const Main: FC<IMainProps> = () => {
     setChatList(newChatList)
     notify({ type: 'success', message: t('common.api.success') })
   }
-
-  // const renderSidebar = () => {
-  //   if (!APP_ID || !APP_INFO || !promptConfig)
-  //     return null
-  //   return (
-  //     <Sidebar
-  //       list={conversationList}
-  //       onCurrentIdChange={handleConversationIdChange}
-  //       currentId={currConversationId}
-  //       copyRight={APP_INFO.copyright || APP_INFO.title}
-  //     />
-  //   )
-  // }
-
   if (appUnavailable)
     return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set APP_ID and API_KEY in config/index.tsx' : ''} />
 
@@ -653,43 +641,10 @@ const Main: FC<IMainProps> = () => {
     return <Loading type='app' />
 
   return (
-    <div className='bg-gray-100'>
-      {/* <Header
-        title={APP_INFO.title}
-        isMobile={isMobile}
-        onShowSideBar={showSidebar}
-        onCreateNewChat={() => handleConversationIdChange('-1')}
-      /> */}
-      <div className="flex overflow-hidden rounded-t-2xl bg-white">
-        {/* sidebar */}
-        {/* {!isMobile && renderSidebar()} */}
-        {/* {isMobile && isShowSidebar && (
-          <div className='fixed inset-0 z-50'
-            style={{ backgroundColor: 'rgba(35, 56, 118, 0.2)' }}
-            onClick={hideSidebar}
-          >
-            <div className='inline-block' onClick={e => e.stopPropagation()}>
-              {renderSidebar()}
-            </div>
-          </div>
-        )} */}
-        {/* main */}
+    <div className='h-full bg-gray-100'>
+      <div className="flex overflow-hidden  bg-white">
         <div className='flex  grow flex-col overflow-y-auto'>
-          {/* <ConfigSence
-            conversationName={conversationName}
-            hasSetInputs={hasSetInputs}
-            isPublicVersion={isShowPrompt}
-            siteInfo={APP_INFO}
-            promptConfig={promptConfig}
-            onStartChat={handleStartChat}
-            canEditInputs={canEditInputs}
-            savedInputs={currInputs as Record<string, any>}
-            onInputsChange={setCurrInputs}
-          ></ConfigSence> */}
-
-          {
-            hasSetInputs && (
-              <div className='pc:w-[794px] mobile:w-full relative mx-auto mb-3.5 h-[200px] max-w-full grow overflow-hidden pb-[66px]'>
+              <div className='relative mx-auto mb-3.5 w-full max-w-full grow overflow-hidden pb-[66px]'>
                 <div className='h-full overflow-y-auto' ref={chatListDomRef}>
                   <Chat
                     chatList={chatList}
@@ -700,8 +655,7 @@ const Main: FC<IMainProps> = () => {
                     visionConfig={visionConfig}
                   />
                 </div>
-              </div>)
-          }
+             </div>
         </div>
       </div>
     </div>

@@ -180,10 +180,7 @@ const Answer: FC<IAnswerProps> = ({
         </div>
         <div className={`${s.answerWrap}`}>
           <div className={`${s.answer} relative text-sm text-gray-900`}>
-            <div className={'ml-2 rounded-b-2xl rounded-tr-2xl bg-gray-100 px-4 py-3 '}>
-              {/* {workflowProcess && (
-                <WorkflowProcess data={workflowProcess} hideInfo />
-              )} */}
+            <div className={'ml-2 rounded-b-2xl rounded-tr-[32px] bg-gray-100 px-4 py-3 '}>
               {(isResponding && (isAgentMode ? (!content && (agent_thoughts || []).filter(item => !!item.thought || !!item.tool).length === 0) : !content))
                 ? (
                   <div className='flex h-5 w-6 items-center justify-center'>
