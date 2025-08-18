@@ -748,7 +748,17 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       return item
     })
     setChatList(newChatList)
-    notify({ type: 'success', message: t('common.api.success') })
+    // 根据反馈结果进行提示
+    if (feedback.rating) {
+      if(feedback.rating === 'like')
+        notify({ type: 'success', message: t('common.operation.likeSuccess') })
+
+      if(feedback.rating === 'dislike')
+                notify({ type: 'success', message: t('common.operation.dislikeSuccess') })
+    }
+    else{
+          notify({ type: 'success', message: t('common.operation.likeCancel') })
+        }
   }
 
   const handleStop = async () => {
@@ -775,7 +785,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     <div className='flex h-full max-w-full flex-col bg-white'>
       {/* 可滚动的内容区域 - 动态计算底部空间 */}
       <div
-        className='flex-1 overflow-x-auto overflow-y-auto'
+        className='flex-1 overflow-auto'
         style={{ paddingBottom: `${inputBoxHeight}px` }}
       >
         <div className='flex min-h-full flex-col bg-white'>

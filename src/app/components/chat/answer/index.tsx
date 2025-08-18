@@ -8,9 +8,7 @@ import type { FeedbackFunc } from '../type'
 import s from '../style.module.css'
 import ImageGallery from '../../base/image-gallery'
 import Thought from '../thought'
-import { randomString } from '@/utils/string'
 import type { ChatItem, MessageRating, VisionFile } from '@/types/app'
-import Tooltip from '../tooltip'
 // import WorkflowProcess from '@/app/components/workflow/workflow-process'
 import { Markdown } from '@/app/components/markdown'
 import Button from '../button'
@@ -93,10 +91,10 @@ const Answer: FC<IAnswerProps> = ({
     const ratingIconClassname = isLike ? 'text-primary-600 bg-primary-100 hover:bg-primary-200' : 'text-red-600 bg-red-100 hover:bg-red-200'
     // The tooltip is always displayed, but the content is different for different scenarios.
     return (
-      <Tooltip
-        selector={`user-feedback-${randomString(16)}`}
-        content={isLike ? '取消赞同' : '取消反对'}
-      >
+      // <Tooltip
+      //   selector={`user-feedback-${randomString(16)}`}
+      //   content={isLike ? '取消赞同' : '取消反对'}
+      // >
         <div
           className={'relative box-border flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg bg-white p-0.5 text-gray-500 hover:text-gray-800'}
           style={{ boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.05)' }}
@@ -108,7 +106,7 @@ const Answer: FC<IAnswerProps> = ({
             <RatingIcon isLike={isLike} />
           </div>
         </div>
-      </Tooltip>
+      // </Tooltip>
     )
   }
 
@@ -121,12 +119,12 @@ const Answer: FC<IAnswerProps> = ({
       return feedback?.rating
         ? null
         : <div className='flex gap-1'>
-          <Tooltip selector={`user-feedback-${randomString(16)}`} content={t('common.operation.like') as string}>
+          {/* <Tooltip selector={`user-feedback-${randomString(16)}`} content={t('common.operation.like') as string}> */}
             {OperationBtn({ innerContent: <IconWrapper><RatingIcon isLike={true} /></IconWrapper>, onClick: () => onFeedback?.(id, { rating: 'like' }) })}
-          </Tooltip>
-          <Tooltip selector={`user-feedback-${randomString(16)}`} content={t('common.operation.dislike') as string}>
+          {/* </Tooltip> */}
+          {/* <Tooltip selector={`user-feedback-${randomString(16)}`} content={t('common.operation.dislike') as string}> */}
             {OperationBtn({ innerContent: <IconWrapper><RatingIcon isLike={false} /></IconWrapper>, onClick: () => onFeedback?.(id, { rating: 'dislike' }) })}
-          </Tooltip>
+          {/* </Tooltip> */}
         </div>
     }
 
@@ -212,7 +210,7 @@ const Answer: FC<IAnswerProps> = ({
                 </div>
               )}
             </div>
-            <div className='absolute right-[-14px] top-[-14px] flex flex-row justify-end gap-1'>
+            <div className='absolute bottom-[-28px] left-[8px] flex flex-row justify-end gap-1'>
               {!feedbackDisabled && !item.feedbackDisabled && renderItemOperation()}
               {/* User feedback must be displayed */}
               {!feedbackDisabled && renderFeedbackRating(feedback?.rating)}
