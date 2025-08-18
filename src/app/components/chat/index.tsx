@@ -10,7 +10,6 @@ import Question from './question'
 import type { FeedbackFunc } from './type'
 import type { ChatItem, VisionFile, VisionSettings } from '@/types/app'
 import { TransferMethod } from '@/types/app'
-import Tooltip from '@/app/components/base/tooltip'
 import Toast from '@/app/components/base/toast'
 import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-uploader'
 import ImageList from '@/app/components/base/image-uploader/image-list'
@@ -169,7 +168,8 @@ const Chat: FC<IChatProps> = ({
           })}
         </div>
       )}
-      {/* 输入框 */}
+
+      {/* 输入框 - 现在由主组件控制显示 */}
       {
         !isHideSendInput && (
           <div className={cn(!feedbackDisabled && 'mx-0', chatList.length > 0 ? 'mt-4 shrink-0' : 'w-full')}>
@@ -210,17 +210,7 @@ const Chat: FC<IChatProps> = ({
               />
               <div className="absolute bottom-2 right-2 flex h-8 items-center">
                 <div className={`${s.count} mr-4 h-5 bg-gray-50 text-sm leading-5 text-gray-500`}>{query.trim().length}</div>
-                <Tooltip
-                  // selector='send-tip'
-                  popupContent={
-                    <div>
-                      <div>{t('common.operation.send')} Enter</div>
-                      <div>{t('common.operation.lineBreak')} Shift Enter</div>
-                    </div>
-                  }
-                >
                   <div className={`${s.sendBtn} h-8 w-8 cursor-pointer rounded-md`} onClick={handleSend}></div>
-                </Tooltip>
               </div>
             </div>
           </div>

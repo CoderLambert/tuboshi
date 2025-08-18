@@ -679,8 +679,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   return (
     <div className='flex h-full max-w-full flex-col bg-gray-100'>
-      {/* 可滚动的内容区域 */}
-      <div className='flex-1 overflow-x-auto overflow-y-auto'>
+      {/* 可滚动的内容区域 - 为固定输入框留出空间 */}
+      <div className='flex-1 overflow-x-auto overflow-y-auto' style={{ paddingBottom: '120px' }}>
         <div className='flex min-h-full flex-col bg-white'>
           {/* 头部内容 */}
           {headerContent && (
@@ -713,8 +713,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         </div>
       </div>
 
-      {/* 固定在底部的输入框 */}
-      <div className='shrink-0 border-t border-gray-200 bg-white p-4'>
+      {/* 固定在窗口底部的输入框 */}
+      <div className='fixed bottom-0 left-0 right-0 z-50  p-4'>
         <InputBox
           query={query}
           onQueryChange={setQuery}
