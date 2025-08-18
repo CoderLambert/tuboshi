@@ -50,6 +50,14 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     transfer_methods: [TransferMethod.local_file],
   })
 
+  const updateInputBoxHeight = () => {
+    if (inputBoxRef.current) {
+      const height = inputBoxRef.current.offsetHeight
+      console.log('输入框高度更新:', height) // 调试日志
+      setInputBoxHeight(height)
+    }
+  }
+
   useEffect(() => {
     if (APP_INFO?.title)
       document.title = `${APP_INFO.title} - Powered by AI Agent`
@@ -65,14 +73,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   // 动态计算输入框高度
   useEffect(() => {
-    const updateInputBoxHeight = () => {
-      if (inputBoxRef.current) {
-        const height = inputBoxRef.current.offsetHeight
-        console.log('输入框高度更新:', height) // 调试日志
-        setInputBoxHeight(height)
-      }
-    }
-
     // 延迟初始计算，确保DOM已渲染
     const timer = setTimeout(() => {
       updateInputBoxHeight()
@@ -97,14 +97,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         // 如果ref还没有设置，延迟重试
         setTimeout(setupObservers, 100)
         return
-      }
-
-      const updateInputBoxHeight = () => {
-        if (inputBoxRef.current) {
-          const height = inputBoxRef.current.offsetHeight
-          console.log('输入框高度更新:', height) // 调试日志
-          setInputBoxHeight(height)
-        }
       }
 
       // 立即更新一次
