@@ -1,15 +1,8 @@
 import type { FC } from 'react'
-import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Uploader from './uploader'
 import ImagePlus from '@/app/components/base/icons/src/vender/line/image-plus'
 import { TransferMethod } from '@/types/app'
-import {
-  PortalToFollowElem,
-  PortalToFollowElemContent,
-  PortalToFollowElemTrigger,
-} from '@/app/components/base/portal-to-follow-elem'
-import Upload03 from '@/app/components/base/icons/src/vender/line/upload-03'
+
 import type { ImageFile, VisionSettings } from '@/types/app'
 
 type UploadOnlyFromLocalProps = {
@@ -50,62 +43,25 @@ const UploaderButton: FC<UploaderButtonProps> = ({
   disabled,
   limit,
 }) => {
-  const { t } = useTranslation()
-  const [open, setOpen] = useState(false)
-
   const hasUploadFromLocal = methods.find(method => method === TransferMethod.local_file)
 
-  const handleUpload = (imageFile: ImageFile) => {
-    setOpen(false)
-    onUpload(imageFile)
-  }
-
-  const handleToggle = () => {
-    if (disabled)
-      return
-
-    setOpen(v => !v)
-  }
+  if (!hasUploadFromLocal)
+    return null
 
   return (
-    <PortalToFollowElem
-      open={open}
-      onOpenChange={setOpen}
-      placement='top-start'
-    >
-      <PortalToFollowElemTrigger onClick={handleToggle}>
-        <div className={`
-          relative flex h-8 w-8 items-center justify-center rounded-[32px] hover:bg-gray-100
-          ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
-        `}>
-          <ImagePlus className='h-4 w-4 text-gray-500' />
-        </div>
-      </PortalToFollowElemTrigger>
-      <PortalToFollowElemContent className='z-50'>
-        <div className='w-[620px] rounded-[16px] border-[1px] border-gray-200 bg-white p-2 shadow-lg'>
-          {/* <ImageLinkInput onUpload={handleUpload} /> */}
-          {
-            hasUploadFromLocal && (
-              <>
-                <Uploader onUpload={handleUpload} limit={limit}>
-                  {
-                    hovering => (
-                      <div className={`
-                        flex h-8 cursor-pointer items-center justify-center rounded-[32px] text-[26px] font-medium text-[#155EEF]
-                        ${hovering && 'bg-primary-50'}
-                      `}>
-                        <Upload03 className='mr-1 h-4 w-4' />
-                        {t('common.imageUploader.uploadFromComputer')}
-                      </div>
-                    )
-                  }
-                </Uploader>
-              </>
-            )
-          }
-        </div>
-      </PortalToFollowElemContent>
-    </PortalToFollowElem>
+    <Uploader onUpload={onUpload} disabled={disabled} limit={limit}>
+      {
+        hovering => (
+          <div className={`
+            relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-[32px]
+            ${hovering && 'bg-gray-100'}
+            ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
+          `}>
+            <ImagePlus className='h-4 w-4 text-gray-500' />
+          </div>
+        )
+      }
+    </Uploader>
   )
 }
 
