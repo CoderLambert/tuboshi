@@ -265,8 +265,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           prompt_variables,
         } as PromptConfig)
         setVisionConfig({
-          ...file_upload?.image,
-          image_file_size_limit: system_parameters?.system_parameters || 0,
+            enabled: file_upload?.enabled || false,
+            number_limits: file_upload?.number_limits || 2,
+            detail: Resolution.low,
+            transfer_methods: file_upload?.allowed_file_upload_methods || [TransferMethod.local_file],
+            image_file_size_limit: system_parameters?.image_file_size_limit || 0,
         })
         setConversationList(conversations as ConversationItem[])
 
