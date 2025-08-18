@@ -1,15 +1,15 @@
 // 简单的事件总线，用于组件间通信
 class EventBus {
-  private events: { [key: string]: Function[] } = {}
+  private events: { [key: string]: ((...args: any[]) => void)[] } = {}
 
-  on(event: string, callback: Function) {
+  on(event: string, callback: (...args: any[]) => void) {
     if (!this.events[event])
       this.events[event] = []
 
     this.events[event].push(callback)
   }
 
-  off(event: string, callback: Function) {
+  off(event: string, callback: (...args: any[]) => void) {
     if (!this.events[event]) return
     this.events[event] = this.events[event].filter(cb => cb !== callback)
   }
