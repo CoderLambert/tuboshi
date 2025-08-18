@@ -8,12 +8,14 @@ export function NaitveInfoGetter() {
   const useInfo = useUserInfo()
   const GPTConfig = useGPTConfig()
   const statusBarHeight = useStatusBarHeight()
+  const qaData = useNativeBridge().useQaData()
   return (
     <div style={styles.text}>
       <p>appRequestHeader: {JSON.stringify(appRequestHeader)}</p>
       <p>useInfo: {JSON.stringify(useInfo)}</p>
       <p>GPTConfig: {JSON.stringify(GPTConfig)}</p>
       <p>statusBarHeight: {JSON.stringify(statusBarHeight)}</p>
+      <p>qaData: {JSON.stringify(qaData)}</p>
     </div>
   )
 }
