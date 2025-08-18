@@ -3,12 +3,12 @@
 import { useNativeBridge } from '@/hooks/useNativeBridge'
 
 export function NaitveInfoGetter() {
-  const { useAppRequestHeader, useGPTConfig, useUserInfo, useStatusBarHeight } = useNativeBridge()
+  const { useAppRequestHeader, useGPTConfig, useUserInfo, useStatusBarHeight, useQaData } = useNativeBridge()
   const appRequestHeader = useAppRequestHeader()
   const useInfo = useUserInfo()
   const GPTConfig = useGPTConfig()
   const statusBarHeight = useStatusBarHeight()
-  const qaData = useNativeBridge().useQaData()
+  const qaData = useQaData()
   return (
     <div style={styles.text}>
       <p>appRequestHeader: {JSON.stringify(appRequestHeader)}</p>

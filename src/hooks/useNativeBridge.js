@@ -136,6 +136,6 @@ export function useNativeBridge() {
     useGPTConfig,
     closeWebview,
     useStatusBarHeight,
-    useQaData
+    useQaData,
   }
 }
