@@ -2,7 +2,6 @@ import type { FC } from 'react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Uploader from './uploader'
-import ImageLinkInput from './image-link-input'
 import ImagePlus from '@/app/components/base/icons/src/vender/line/image-plus'
 import { TransferMethod } from '@/types/app'
 import {
@@ -28,7 +27,7 @@ const UploadOnlyFromLocal: FC<UploadOnlyFromLocalProps> = ({
       {
         hovering => (
           <div className={`
-            relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg
+            relative flex h-8 w-8 cursor-pointer items-center justify-center
             ${hovering && 'bg-gray-100'}
           `}>
             <ImagePlus className='h-4 w-4 text-gray-500' />
@@ -76,28 +75,23 @@ const UploaderButton: FC<UploaderButtonProps> = ({
     >
       <PortalToFollowElemTrigger onClick={handleToggle}>
         <div className={`
-          relative flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100
+          relative flex h-8 w-8 items-center justify-center rounded-[32px] hover:bg-gray-100
           ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
         `}>
           <ImagePlus className='h-4 w-4 text-gray-500' />
         </div>
       </PortalToFollowElemTrigger>
       <PortalToFollowElemContent className='z-50'>
-        <div className='w-[260px] rounded-lg border-[0.5px] border-gray-200 bg-white p-2 shadow-lg'>
-          <ImageLinkInput onUpload={handleUpload} />
+        <div className='w-[620px] rounded-[16px] border-[1px] border-gray-200 bg-white p-2 shadow-lg'>
+          {/* <ImageLinkInput onUpload={handleUpload} /> */}
           {
             hasUploadFromLocal && (
               <>
-                <div className='mt-2 flex items-center px-2 text-xs font-medium text-gray-400'>
-                  <div className='mr-3 h-[1px] w-[93px] bg-gradient-to-l from-[#F3F4F6]' />
-                  OR
-                  <div className='ml-3 h-[1px] w-[93px] bg-gradient-to-r from-[#F3F4F6]' />
-                </div>
                 <Uploader onUpload={handleUpload} limit={limit}>
                   {
                     hovering => (
                       <div className={`
-                        flex h-8 cursor-pointer items-center justify-center rounded-lg text-[13px] font-medium text-[#155EEF]
+                        flex h-8 cursor-pointer items-center justify-center rounded-[32px] text-[26px] font-medium text-[#155EEF]
                         ${hovering && 'bg-primary-50'}
                       `}>
                         <Upload03 className='mr-1 h-4 w-4' />

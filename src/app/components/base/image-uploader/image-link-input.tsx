@@ -28,9 +28,9 @@ const ImageLinkInput: FC<ImageLinkInputProps> = ({
   }
 
   return (
-    <div className='flex h-8 items-center rounded-lg border border-gray-200 bg-white pl-1.5 pr-1 shadow-xs'>
+    <div className='flex h-8 items-center rounded-[32px] border border-gray-200 bg-white pl-1.5 pr-1 shadow-xs'>
       <input
-        className='mr-0.5 h-[18px] grow appearance-none px-1 text-[13px] outline-none'
+        className='mr-0.5 h-[36px] grow appearance-none px-1 text-[26px] outline-none'
         value={imageLink}
         onChange={e => setImageLink(e.target.value)}
         placeholder={t('common.imageUploader.pasteImageLinkInputPlaceholder') || ''}
