@@ -34,7 +34,7 @@ const LocaleLayout = async ({
       '--tpx': '0.01rem', // 自定义 CSS 变量使用字符串值
     } as React.CSSProperties} suppressHydrationWarning>
       <body>
-        <div className="px-safe-left pr-safe-right pt-safe-top pb-safe-bottom flex min-h-screen flex-col overflow-auto">
+        <div className="px-safe-left pr-safe-right pt-safe-top pb-safe-bottom flex min-h-screen flex-col overflow-auto bg-white">
           <I18nProvider>
             <Suspense fallback={<div>Loading...</div>}>
               {children}

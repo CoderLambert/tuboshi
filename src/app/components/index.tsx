@@ -31,6 +31,10 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const hasSetAppConfig = APP_ID && API_KEY
   const [query, setQuery] = React.useState('')
 
+  // 动态高度计算相关状态
+  const [inputBoxHeight, setInputBoxHeight] = useState<number>(120) // 默认高度
+  const inputBoxRef = useRef<HTMLDivElement>(null)
+
   /*
   * app info
   */
@@ -58,6 +62,96 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       setAutoFreeze(true)
     }
   }, [])
+
+  // 动态计算输入框高度
+  useEffect(() => {
+    const updateInputBoxHeight = () => {
+      if (inputBoxRef.current) {
+        const height = inputBoxRef.current.offsetHeight
+        console.log('输入框高度更新:', height) // 调试日志
+        setInputBoxHeight(height)
+      }
+    }
+
+    // 延迟初始计算，确保DOM已渲染
+    const timer = setTimeout(() => {
+      updateInputBoxHeight()
+    }, 100)
+
+    // 监听窗口大小变化
+    const handleResize = () => {
+      updateInputBoxHeight()
+    }
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  // 设置观察器来监听输入框高度变化
+  useEffect(() => {
+    const setupObservers = () => {
+      if (!inputBoxRef.current) {
+        // 如果ref还没有设置，延迟重试
+        setTimeout(setupObservers, 100)
+        return
+      }
+
+      const updateInputBoxHeight = () => {
+        if (inputBoxRef.current) {
+          const height = inputBoxRef.current.offsetHeight
+          console.log('输入框高度更新:', height) // 调试日志
+          setInputBoxHeight(height)
+        }
+      }
+
+      // 立即更新一次
+      updateInputBoxHeight()
+
+      // 监听输入框内容变化（使用ResizeObserver）
+      let resizeObserver: ResizeObserver | null = null
+      if (window.ResizeObserver) {
+        resizeObserver = new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            // 使用 borderBoxSize 获取包含边框和padding的完整高度
+            const height = entry.borderBoxSize?.[0]?.blockSize || entry.contentRect.height + 32
+            console.log('ResizeObserver检测到高度变化:', height) // 调试日志
+            setInputBoxHeight(height)
+          }
+        })
+        resizeObserver.observe(inputBoxRef.current)
+      }
+
+      // 监听DOM变化（使用MutationObserver）
+      let mutationObserver: MutationObserver | null = null
+      if (window.MutationObserver) {
+        mutationObserver = new MutationObserver(() => {
+          // 延迟一点执行，确保DOM更新完成
+          setTimeout(updateInputBoxHeight, 50)
+        })
+        mutationObserver.observe(inputBoxRef.current, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['style', 'class'],
+        })
+      }
+
+      // 返回清理函数
+      return () => {
+        if (resizeObserver)
+          resizeObserver.disconnect()
+
+        if (mutationObserver)
+          mutationObserver.disconnect()
+      }
+    }
+
+    const cleanup = setupObservers()
+    return cleanup
+  }, []) // 空依赖数组，但内部会重试直到ref可用
 
   /*
   * conversation info
@@ -678,9 +772,12 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     return <Loading type='app' />
 
   return (
-    <div className='flex h-full max-w-full flex-col bg-gray-100'>
-      {/* 可滚动的内容区域 - 为固定输入框留出空间 */}
-      <div className='flex-1 overflow-x-auto overflow-y-auto' style={{ paddingBottom: '120px' }}>
+    <div className='flex h-full max-w-full flex-col bg-white'>
+      {/* 可滚动的内容区域 - 动态计算底部空间 */}
+      <div
+        className='flex-1 overflow-x-auto overflow-y-auto'
+        style={{ paddingBottom: `${inputBoxHeight}px` }}
+      >
         <div className='flex min-h-full flex-col bg-white'>
           {/* 头部内容 */}
           {headerContent && (
@@ -714,7 +811,10 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       </div>
 
       {/* 固定在窗口底部的输入框 */}
-      <div className='fixed bottom-0 left-0 right-0 z-50  p-4'>
+      <div
+        ref={inputBoxRef}
+        className='fixed bottom-0 left-0 right-0 z-50 p-4'
+      >
         <InputBox
           query={query}
           onQueryChange={setQuery}

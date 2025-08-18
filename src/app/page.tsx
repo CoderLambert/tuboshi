@@ -50,7 +50,6 @@ export default function Home() {
         <Main params={{}}></Main>
       </div>
 
-      {/* <MessageInfo></MessageInfo> */}
     </div>
   )
 }
