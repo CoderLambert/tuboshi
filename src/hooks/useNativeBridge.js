@@ -116,6 +116,19 @@ export function useNativeBridge() {
     return statusBarHeight
   }
 
+  const useQaData = () => {
+    const setQaData = useAppStore(state => state.setQaData)
+    const qaData = useAppStore(state => state.qaData)
+    useEffect(() => {
+      const getInfo = async () => {
+        const res = await callNativeMethod('qaData', {})
+        setQaData(res)
+      }
+      getInfo()
+    }, [])
+    return qaData
+  }
+
   return {
     callNativeMethod,
     useAppRequestHeader,
@@ -123,5 +136,6 @@ export function useNativeBridge() {
     useGPTConfig,
     closeWebview,
     useStatusBarHeight,
+    useQaData,
   }
 }

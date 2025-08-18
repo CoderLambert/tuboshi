@@ -16,6 +16,8 @@ const useAppStore = create(set => ({
   }) => set({ GPTConfig }),
   statusBarHeight: {},
   setStatusBarHeight: (statusBarHeight: { top: string, bottom: string }) => set({ statusBarHeight }),
+  qaData: {},
+  setQaData: (qaData: { top: string, bottom: string }) => set({ qaData }),
 }))
 
 export default useAppStore
