@@ -47,6 +47,8 @@ export default function ChatMessages() {
         },
         onCompleted: (data) => {
           console.log('onCompleted: ', data)
+          // 阻塞模式下，直接 setResponse
+          // callBack  设置 suggestions
         },
         onFile: () => {},
         onThought: () => {},
@@ -164,8 +166,6 @@ export default function ChatMessages() {
             <p className="whitespace-pre-wrap text-sm">{error}</p>
           </div>
         )}
-
-            {/* <AgentMessage message={response}></AgentMessage> */}
 
             <Markdown content={response}></Markdown>
       </main>

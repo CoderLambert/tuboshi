@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 export default function ScrollTestPage() {
   const [messages, setMessages] = useState<string[]>([
@@ -40,8 +40,8 @@ export default function ScrollTestPage() {
   }
 
   const addMultipleMessages = () => {
-    const newMessages = Array.from({ length: 5 }, (_, i) => 
-      `批量消息 ${messages.length + i + 1} - ${new Date().toLocaleTimeString()}`
+    const newMessages = Array.from({ length: 5 }, (_, i) =>
+      `批量消息 ${messages.length + i + 1} - ${new Date().toLocaleTimeString()}`,
     )
     setMessages(prev => [...prev, ...newMessages])
   }
@@ -49,7 +49,7 @@ export default function ScrollTestPage() {
   return (
     <div className="flex h-screen flex-col p-4">
       <h1 className="mb-4 text-2xl font-bold">智能滚动测试页面</h1>
-      
+
       <div className="mb-4 flex gap-2">
         <button
           onClick={addMessage}
@@ -127,7 +127,7 @@ export default function ScrollTestPage() {
 
       <div className="mt-4 text-sm text-gray-600">
         <h3 className="font-semibold">测试说明：</h3>
-        <ul className="mt-2 list-disc pl-5 space-y-1">
+        <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>点击"添加消息"或"添加5条消息"来模拟新消息</li>
           <li>当自动滚动启用时，新消息会自动滚动到底部</li>
           <li>手动向上滚动会禁用自动滚动，并显示滚动到底部按钮</li>

@@ -166,22 +166,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   const [conversationIdChangeBecauseOfNew, setConversationIdChangeBecauseOfNew, getConversationIdChangeBecauseOfNew] = useGetState(false)
   const [isChatStarted, { setFalse: setChatNotStarted }] = useBoolean(false)
-  // const handleStartChat = (inputs: Record<string, any>) => {
-  //   createNewChat()
-  //   setConversationIdChangeBecauseOfNew(true)
-  //   setCurrInputs(inputs)
-  //   setChatStarted()
-  //   // parse variables in introduction
-  //   setChatList(generateNewChatListWithOpenStatement('', inputs))
-  // }
-  // const hasSetInputs = (() => {
-  //   if (!isNewConversation)
-  //     return true
-
-  //   return isChatStarted
-  // })()
-
-  // const conversationName = currConversationInfo?.name || t('app.chat.newChatDefaultName') as string
   const conversationIntroduction = currConversationInfo?.introduction || ''
   const suggestedQuestions = currConversationInfo?.suggested_questions || []
 
@@ -191,7 +175,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
     // update inputs of current conversation
     let notSyncToStateIntroduction = ''
-    let notSyncToStateInputs: Record<string, any> | undefined | null = {}
+    let notSyncToStateInputs: Record<string, any> | undefined | null = {
+      // token: APP_TOKEN,
+    }
     if (!isNewConversation) {
       const item = conversationList.find(item => item.id === currConversationId)
       notSyncToStateInputs = item?.inputs || {}
@@ -240,30 +226,15 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   }
   useEffect(handleConversationSwitch, [currConversationId, inited])
 
-  // const handleConversationIdChange = (id: string) => {
-  //   if (id === '-1') {
-  //     createNewChat()
-  //     setConversationIdChangeBecauseOfNew(true)
-  //   }
-  //   else {
-  //     setConversationIdChangeBecauseOfNew(false)
-  //   }
-  //   // trigger handleConversationSwitch
-  //   setCurrConversationId(id, APP_ID)
-  //   hideSidebar()
-  // }
-
   /*
   * chat info. chat is under conversation.
   */
   const [chatList, setChatList, getChatList] = useGetState<ChatItem[]>([])
 
   useEffect(() => {
-    setCurrConversationId(chatList[0]?.id, APP_ID, false)
+    setCurrConversationId(chatList[0]?.id || '-1', APP_ID, false)
   }, [])
 
-  // user can not edit inputs if user had send message
-  const canEditInputs = !chatList.some(item => item.isAnswer === false) && isNewConversation
   const createNewChat = () => {
     // if new chat is already exist, do not create new chat
     if (conversationList.some(item => item.id === '-1'))
@@ -472,7 +443,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     }
     // 清空输入框
     setQuery('')
-    const toServerInputs: Record<string, any> = {}
+    const toServerInputs: Record<string, any> = {
+      // token: APP_TOKEN,
+    }
     if (currInputs) {
       Object.keys(currInputs).forEach((key) => {
         const value = currInputs[key]
@@ -814,7 +787,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
                 checkCanSend={checkCanSend}
                 visionConfig={visionConfig}
                 isHideSendInput={true}
-
               />
             </div>
           </div>
