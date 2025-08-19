@@ -175,10 +175,8 @@ export class ChatClient extends DifyClient {
     first_id: string | null = null,
     limit: number | null = null,
   ) {
-    const params: Params = { user }
-    if (conversation_id) params.conversation_id = conversation_id
-    if (first_id) params.first_id = first_id
-    if (limit) params.limit = limit
+    const params: Params = { user, conversation_id, first_id, limit }
+    console.log(params)
     return this.sendRequest(
       routes.getConversationMessages.method,
       routes.getConversationMessages.url(),

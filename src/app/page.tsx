@@ -32,7 +32,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex h-screen min-h-0 flex-col bg-white">
       {/* <NaitveInfoGetter /> */}
 
       <div className={styles.header}>
@@ -45,7 +45,7 @@ export default function Home() {
       />
 
       {/* 消息列表 - 占据剩余空间 */}
-      <div className="flex-1">
+      <div className="min-h-0 flex-1">
         <Main params={{}}></Main>
       </div>
 
