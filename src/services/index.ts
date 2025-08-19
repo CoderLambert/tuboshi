@@ -68,3 +68,7 @@ export const stopChatMessage = async (taskId: string) => {
     },
   })
 }
+
+export const fetchSuggestedQuestions = async (messageId: string) => {
+  return get(`/suggested-questions/${messageId}`)
+}

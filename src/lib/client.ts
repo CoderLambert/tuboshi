@@ -37,6 +37,8 @@ export const routes = {
   deleteConversation: { method: 'DELETE' as const, url: (conversation_id: string) => `/conversations/${conversation_id}` },
   fileUpload: { method: 'POST' as const, url: () => '/files/upload' },
   runWorkflow: { method: 'POST' as const, url: () => '/workflows/run' },
+  stopChatMessage: { method: 'POST' as const, url: (taskId: string) => `/chat-messages/${taskId}/stop` },
+  fetchSuggestedQuestions: { method: 'GET' as const, url: (messageId: string) => `/messages/${messageId}/suggested` },
 }
 
 export class DifyClient {
@@ -210,6 +212,25 @@ export class ChatClient extends DifyClient {
       routes.deleteConversation.method,
       routes.deleteConversation.url(conversation_id),
       data,
+    )
+  }
+
+  stopChatMessage(taskId: string, user: User) {
+    const data = { user }
+    return this.sendRequest(
+      routes.stopChatMessage.method,
+      routes.stopChatMessage.url(taskId),
+      data,
+    )
+  }
+
+  fetchSuggestedQuestions(messageId: string, user: User) {
+    const params: Params = { user }
+    return this.sendRequest(
+      routes.fetchSuggestedQuestions.method,
+      routes.fetchSuggestedQuestions.url(messageId),
+      undefined,
+      params,
     )
   }
 }

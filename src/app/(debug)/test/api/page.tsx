@@ -58,6 +58,13 @@ export default function ApiTestIndex() {
       path: '/test/api/conversation-name',
       method: 'POST',
     },
+
+    {
+      name: '获取建议问题',
+      description: '测试获取建议问题功能',
+      path: '/test/api/suggested-questions',
+      method: 'GET',
+    },
   ]
 
   return (
