@@ -22,6 +22,7 @@ const translation = {
       'privacy policy',
     privacyPolicyRight:
       ' provided by the app developer.',
+    scrollToBottom: 'Scroll to bottom',
   },
   errorMessage: {
     valueOfVarRequired: 'Variables value can not be empty',

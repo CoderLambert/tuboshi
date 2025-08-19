@@ -257,12 +257,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   * chat info. chat is under conversation.
   */
   const [chatList, setChatList, getChatList] = useGetState<ChatItem[]>([])
-  const chatListDomRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    // scroll to bottom
-    if (chatListDomRef.current)
-      chatListDomRef.current.scrollTop = chatListDomRef.current.scrollHeight
-  }, [chatList, currConversationId])
 
   useEffect(() => {
     setCurrConversationId(chatList[0]?.id, APP_ID, false)
@@ -359,8 +353,13 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         })
         setConversationList(conversations as ConversationItem[])
 
-        if (isNotNewConversation)
+        if (isNotNewConversation) {
           setCurrConversationId(_conversationId, APP_ID, false)
+        }
+ else if (conversations.length > 0) {
+          // 如果没有当前会话但有历史会话，使用第一个历史会话避免默认新会话状态
+          setCurrConversationId(conversations[0].id, APP_ID, false)
+        }
 
         setInited(true)
       }
@@ -379,6 +378,19 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   // 监听FAQ问题点击事件
   useEffect(() => {
     const handleSendMessage = (message: string) => {
+      // 如果当前是新会话状态，先确保有一个有效的会话
+      if (isNewConversation && conversationList.length > 0) {
+        // 使用第一个现有会话，避免创建新会话
+        const firstConversation = conversationList[0]
+        if (firstConversation && firstConversation.id !== '-1') {
+          setCurrConversationId(firstConversation.id, APP_ID, false)
+          // 等待会话切换完成后再发送消息
+          setTimeout(() => {
+            handleSend(message)
+          }, 100)
+          return
+        }
+      }
       handleSend(message)
     }
 
@@ -387,7 +399,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     return () => {
       eventBus.off(EVENTS.SEND_MESSAGE, handleSendMessage)
     }
-  }, [])
+  }, [isNewConversation, conversationList])
 
   const [isResponding, { setTrue: setRespondingTrue, setFalse: setRespondingFalse }] = useBoolean(false)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
@@ -774,13 +786,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     return <Loading type='app' />
 
   return (
-    <div className='flex h-full max-w-full flex-col bg-white'>
-      {/* 可滚动的内容区域 - 动态计算底部空间 */}
-      <div
-        className='flex-1 overflow-auto'
-        style={{ paddingBottom: `${inputBoxHeight}px` }}
-      >
-        <div className='flex min-h-full flex-col bg-white'>
+    <div className='flex min-h-screen max-w-full flex-col bg-white' style={{ paddingBottom: `${inputBoxHeight}px` }}>
+      {/* 页面内容区域 - 使用页面级滚动 */}
+      <div className='flex flex-col bg-white'>
           {/* 头部内容 */}
           {headerContent && (
             <div className='shrink-0'>
@@ -806,11 +814,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
                 checkCanSend={checkCanSend}
                 visionConfig={visionConfig}
                 isHideSendInput={true}
+
               />
             </div>
           </div>
         </div>
-      </div>
 
       {/* 固定在窗口底部的输入框 */}
       <div

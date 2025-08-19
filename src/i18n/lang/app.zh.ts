@@ -18,6 +18,7 @@ const translation = {
     privacyPolicyLeft: '请阅读由该应用开发者提供的',
     privacyPolicyMiddle: '隐私政策',
     privacyPolicyRight: '。',
+    scrollToBottom: '滚动到底部',
   },
   errorMessage: {
     valueOfVarRequired: '变量值必填',

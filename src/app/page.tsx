@@ -5,7 +5,6 @@ import styles from './chatPage.module.css'
 import FAQGuide from '@/app/components/FAQGuide'
 import type { INaviAppSuggestionQuestionItem } from '@/types/app'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
-import { NaitveInfoGetter } from '@/components/NaitveInfoGetter'
 import Main from '@/app/components'
 // import Link from 'next/link'
 
@@ -33,8 +32,8 @@ export default function Home() {
   }
 
   return (
-    <div className={styles.chatPage}>
-      <NaitveInfoGetter />
+    <div className="flex h-screen min-h-0 flex-col bg-white">
+      {/* <NaitveInfoGetter /> */}
 
       <div className={styles.header}>
         <Image className={styles.logo} src={maomaoPng} alt="Maomao" />

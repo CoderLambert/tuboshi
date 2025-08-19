@@ -1,6 +1,6 @@
 'use client'
 import type { FC } from 'react'
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import cn from 'clsx'
 import { useTranslation } from 'react-i18next'
 import Textarea from 'rc-textarea'
@@ -49,7 +49,79 @@ const Chat: FC<IChatProps> = ({
   const { t } = useTranslation()
   const { notify } = Toast
   const isUseInputMethod = useRef(false)
+
+  // 简化的页面级滚动实现
   const chatListRef = useRef<HTMLDivElement>(null)
+  const bottomRef = useRef<HTMLDivElement>(null)
+  const isScrollingProgrammaticallyRef = useRef(false)
+
+  // 简化的页面级滚动到底部
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'auto') => {
+    isScrollingProgrammaticallyRef.current = true
+
+    // 直接滚动到页面底部
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior,
+    })
+
+    // 重置标志
+    setTimeout(() => {
+      isScrollingProgrammaticallyRef.current = false
+    }, 50)
+  }, [])
+
+  // 移除所有复杂的滚动检测逻辑
+
+  // 当有新消息时立即滚动到底部（无条件滚动）
+  useEffect(() => {
+    if (chatList.length > 0) {
+      // 使用双重 requestAnimationFrame 确保 DOM 完全更新后再滚动
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          scrollToBottom('smooth')
+        })
+      })
+    }
+  }, [chatList.length, scrollToBottom])
+
+  // 监听聊天内容 DOM 变更（流式输出实时跟随）- 优化性能
+  useEffect(() => {
+    const container = chatListRef.current
+    if (!container || !isResponding) return
+
+    let scrollTimer: NodeJS.Timeout | null = null
+
+    const observer = new MutationObserver(() => {
+      // 防抖优化：避免频繁滚动
+      if (scrollTimer) clearTimeout(scrollTimer)
+      scrollTimer = setTimeout(() => {
+        scrollToBottom('auto')
+      }, 16) // 约60fps的频率
+    })
+
+    observer.observe(container, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    })
+
+    return () => {
+      observer.disconnect()
+      if (scrollTimer) clearTimeout(scrollTimer)
+    }
+  }, [scrollToBottom, isResponding])
+
+  // 响应时的实时滚动（兜底机制）- 降低频率
+  useEffect(() => {
+    if (!isResponding) return
+
+    const interval = setInterval(() => {
+      scrollToBottom('auto')
+    }, 200) // 降低到200ms，减少性能消耗
+
+    return () => clearInterval(interval)
+  }, [isResponding, scrollToBottom])
 
   const [query, setQuery] = React.useState('')
   const queryRef = useRef('')
@@ -79,12 +151,6 @@ const Chat: FC<IChatProps> = ({
       queryRef.current = ''
     }
   }, [controlClearQuery])
-
-  // 自动滚动到底部
-  useEffect(() => {
-    if (chatListRef.current)
-      chatListRef.current.scrollTop = chatListRef.current.scrollHeight
-  }, [chatList, isResponding])
   const {
     files,
     onUpload,
@@ -140,32 +206,37 @@ const Chat: FC<IChatProps> = ({
   }
 
   return (
-    <div className={cn(!feedbackDisabled && 'px-3.5', 'flex h-full flex-col')}>
+    <div className={cn(!feedbackDisabled && 'px-3.5', 'relative flex h-full flex-col')}>
       {/* Chat List - 可滚动区域 */}
       {chatList.length > 0 && (
-        <div ref={chatListRef} className="flex-1 space-y-[30px] overflow-y-auto pb-4">
-          {chatList.map((item) => {
-            if (item.isAnswer) {
-              const isLast = item.id === chatList[chatList.length - 1].id
-              return <Answer
-                key={item.id}
-                item={item}
-                feedbackDisabled={feedbackDisabled}
-                onFeedback={onFeedback}
-                isResponding={isResponding && isLast}
-                suggestionClick={suggestionClick}
-              />
-            }
-            return (
-              <Question
-                key={item.id}
-                id={item.id}
-                content={item.content}
-                useCurrentUserAvatar={useCurrentUserAvatar}
-                imgSrcs={(item.message_files && item.message_files?.length > 0) ? item.message_files.map(item => item.url) : []}
-              />
-            )
-          })}
+        <div className="relative flex-1">
+          <div ref={chatListRef} className="space-y-[30px] pb-4">
+            {chatList.map(item => (
+              item.isAnswer ? (
+                <Answer
+                  key={item.id}
+                  item={item}
+                  feedbackDisabled={feedbackDisabled}
+                  onFeedback={onFeedback}
+                  isResponding={isResponding && item.id === chatList[chatList.length - 1].id}
+                  suggestionClick={suggestionClick}
+                />
+              ) : (
+                <Question
+                  key={item.id}
+                  id={item.id}
+                  content={item.content}
+                  useCurrentUserAvatar={useCurrentUserAvatar}
+                  imgSrcs={(item.message_files && item.message_files?.length > 0) ? item.message_files.map(item => item.url) : []}
+                />
+              )
+            ))}
+            {/* 底部锚点 */}
+            <div ref={bottomRef} />
+
+          </div>
+
+          {/* 移除滚动到底部按钮 - 现在无条件自动滚动 */}
         </div>
       )}
 
