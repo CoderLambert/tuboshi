@@ -8,6 +8,12 @@ import I18nProvider from '@/app/components/I18nProvider'
 export const metadata = {
   title: 'AI Agent Chatflow',
   description: 'A chat application powered by AI agents',
+  other: {
+    // 禁用移动端浏览器的下拉刷新
+    'mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'default',
+  },
 }
 const geist = Geist({
   subsets: ['latin'],

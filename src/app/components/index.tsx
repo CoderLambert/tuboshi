@@ -9,7 +9,7 @@ import Toast from '@/app/components/base/toast'
 import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, sendChatMessage, stopChatMessage, updateFeedback } from '@/services'
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
-import Chat from '@/app/components/chat'
+import SimplePullToRefreshChat from '@/app/components/chat/simple-pull-to-refresh-chat'
 import OptimizedInput from '@/app/components/chat/optimized-input'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import { setLocaleOnClient } from '@/i18n/client'
@@ -893,7 +893,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           {/* 聊天消息区域 - 占据剩余空间 */}
           <div className='flex-1 p-4'>
             <div className='h-full'>
-              <Chat
+              <SimplePullToRefreshChat
                 chatList={chatList}
                 onSend={handleSend}
                 onFeedback={handleFeedback}
@@ -905,6 +905,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
                 isLoadingHistory={isLoadingHistory}
                 onLoadHistory={loadHistoryMessages}
                 historyMessages={historyMessages}
+                onLoadMore={loadHistoryMessages}
+                loadingMore={isLoadingHistory}
               />
             </div>
           </div>

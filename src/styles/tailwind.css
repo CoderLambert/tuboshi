@@ -12,6 +12,18 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* 禁用移动端浏览器的下拉刷新 */
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+
+  /* 针对iOS Safari */
+  @supports (-webkit-touch-callout: none) {
+    html, body {
+      overscroll-behavior-y: none;
+      -webkit-overflow-scrolling: touch;
+    }
   }
 
     :root {
@@ -664,3 +676,17 @@ html, body, :root {
   }
 }
 
+/* 下拉加载容器样式 */
+.pull-to-refresh-container {
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+/* 针对移动端的额外样式 */
+@media screen and (max-width: 768px) {
+  .pull-to-refresh-container {
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+}
