@@ -2,7 +2,7 @@
 import type { FC } from 'react'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-// import Textarea from 'rc-textarea' // 使用原生textarea
+import Textarea from 'rc-textarea' // 使用原生textarea
 import s from './style.module.css'
 import type { VisionFile, VisionSettings } from '@/types/app'
 import Tooltip from '@/app/components/base/tooltip'
@@ -123,7 +123,7 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
   }, [localQuery])
 
   return (
-    <div className='relative max-h-[300px] overflow-y-auto rounded-[24px] border-[3px] border-gray-200 bg-white p-[11px]'>
+    <div className='relative  overflow-y-auto rounded-[24px] border-[3px] border-gray-200 bg-white p-[11px]'>
       {
         visionConfig?.enabled && (
           <>
@@ -147,9 +147,9 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
           </>
         )
       }
-      <textarea
+      <Textarea
         className={`
-          mt-2 block max-h-none w-full resize-none appearance-none px-2 py-[7px] pr-[118px] text-sm leading-5 text-gray-700 outline-none
+          mt-2 block max-h-none w-full resize-none appearance-none px-2 py-[7px] pr-[68px] text-sm leading-5 text-gray-700 outline-none
           ${visionConfig?.enabled && 'pl-12'}
           ${isResponding ? 'cursor-not-allowed opacity-60' : ''}
         `}
@@ -157,14 +157,15 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
         onChange={handleContentChange}
         onKeyUp={handleKeyUp}
         onKeyDown={handleKeyDown}
+        autoSize={{ minRows: 1, maxRows: 5 }}
         disabled={isResponding}
         placeholder={isResponding ? t('app.errorMessage.waitForResponse') : '请输入消息...'}
         rows={1}
       />
       <div className="absolute bottom-2 right-2 flex h-8 items-center">
-        <div className={`${s.count} mr-4 h-5 bg-gray-50 text-sm leading-5 text-gray-500`}>
+        {/* <div className={`${s.count} mr-4 h-5 bg-gray-50 text-sm leading-5 text-gray-500`}>
           {localQuery.trim().length}
-        </div>
+        </div> */}
         <Tooltip
           popupContent={
             <div>
