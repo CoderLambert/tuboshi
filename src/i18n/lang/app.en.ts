@@ -23,6 +23,9 @@ const translation = {
     privacyPolicyRight:
       ' provided by the app developer.',
     scrollToBottom: 'Scroll to bottom',
+    loadHistoryMessages: 'Load history messages',
+    historyMessages: 'History messages',
+    loadingHistory: 'Loading...',
   },
   errorMessage: {
     valueOfVarRequired: 'Variables value can not be empty',

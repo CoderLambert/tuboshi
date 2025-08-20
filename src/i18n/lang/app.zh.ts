@@ -19,6 +19,9 @@ const translation = {
     privacyPolicyMiddle: '隐私政策',
     privacyPolicyRight: '。',
     scrollToBottom: '滚动到底部',
+    loadHistoryMessages: '加载历史消息',
+    historyMessages: '历史消息',
+    loadingHistory: '加载中...',
   },
   errorMessage: {
     valueOfVarRequired: '变量值必填',

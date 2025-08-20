@@ -99,6 +99,7 @@ export type ChatItem = IChatItem & {
   isError?: boolean
   workflow_run_id?: string
   workflowProcess?: WorkflowProcess
+  key?: string // 用于React渲染的唯一key，解决历史消息key冲突问题
 }
 
 export type ResponseHolder = {}

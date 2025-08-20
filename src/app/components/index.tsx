@@ -205,8 +205,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
     // update chat list of current conversation
     if (!isNewConversation && !conversationIdChangeBecauseOfNew && !isResponding) {
-      fetchChatList(currConversationId).then((res: any) => {
-        const { data } = res
+      // 初始加载最近5条消息
+      fetchChatList(currConversationId, undefined, 5).then((res: any) => {
+        const { data, has_more } = res
         const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs)
 
         data.forEach((item: any) => {
@@ -227,6 +228,16 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           })
         })
         setChatList(newChatList)
+
+        // 设置历史消息状态
+        setHasMoreHistory(has_more)
+        setShowLoadHistoryButton(has_more)
+      }).catch((error) => {
+        console.error('初始加载消息失败:', error)
+        // 如果加载失败，至少显示开场白
+        setChatList(generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs))
+        setHasMoreHistory(false)
+        setShowLoadHistoryButton(false)
       })
     }
 
@@ -240,9 +251,103 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   */
   const [chatList, setChatList, getChatList] = useGetState<ChatItem[]>([])
 
+  // 历史消息状态管理 - 与chatList完全分离
+  const [historyMessages, setHistoryMessages] = useState<ChatItem[]>([])
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false)
+  const [hasMoreHistory, setHasMoreHistory] = useState(true)
+  const [showLoadHistoryButton, setShowLoadHistoryButton] = useState(false)
+
   useEffect(() => {
     setCurrConversationId(chatList[0]?.id || '-1', APP_ID, false)
   }, [])
+
+  // 加载历史消息
+  const loadHistoryMessages = useCallback(async () => {
+    if (isLoadingHistory || !hasMoreHistory || isNewConversation)
+      return
+
+    setIsLoadingHistory(true)
+    try {
+      const currentChatList = getChatList()
+      if (currentChatList.length === 0) {
+        setIsLoadingHistory(false)
+        return
+      }
+
+      // 确定first_id：优先使用历史消息的最早ID，否则使用当前chatList的最早ID
+      let firstMessageId = null
+
+      if (historyMessages.length > 0) {
+        // 如果已有历史消息，使用历史消息中最早的ID（现在保留了原始ID格式）
+        for (const item of historyMessages) {
+          if (item.isAnswer && item.id && !item.id.startsWith('question-') && !item.id.includes('placeholder')) {
+            firstMessageId = item.id
+            break
+          }
+        }
+      }
+ else {
+        // 如果没有历史消息，使用当前chatList的最早ID
+        for (const item of currentChatList) {
+          if (item.isAnswer && item.id && !item.id.startsWith('question-') && !item.id.includes('placeholder')) {
+            firstMessageId = item.id
+            break
+          }
+        }
+      }
+
+      if (!firstMessageId) {
+        setIsLoadingHistory(false)
+        return
+      }
+
+      const res = await fetchChatList(currConversationId, firstMessageId, 5)
+      const { data, has_more } = res
+      console.log('loadHistoryMessages:', res)
+      if (data && data.length > 0) {
+        const historyItems: ChatItem[] = []
+
+        data.forEach((item: any) => {
+          historyItems.push({
+            id: item.id, // 保留原始ID格式
+            key: `history-question-${item.id}`, // 新增key属性用于React渲染
+            content: item.query,
+            isAnswer: false,
+            message_files: item.message_files?.filter((file: any) => file.belongs_to === 'user') || [],
+          })
+          historyItems.push({
+            id: item.id, // 保留原始ID
+            key: `history-answer-${item.id}`, // 新增key属性用于React渲染
+            content: item.answer,
+            agent_thoughts: addFileInfos(item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts, item.message_files),
+            feedback: item.feedback,
+            isAnswer: true,
+            message_files: item.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],
+          })
+        })
+
+        // 将新的历史消息插入到现有历史消息的开头
+        setHistoryMessages(prev => [...historyItems, ...prev])
+
+        // 更新状态
+        setHasMoreHistory(has_more)
+        if (!has_more)
+          setShowLoadHistoryButton(false)
+      }
+ else {
+        setHasMoreHistory(false)
+        setShowLoadHistoryButton(false)
+      }
+    }
+ catch (error) {
+      console.error('加载历史消息失败:', error)
+      // 使用Toast.notify而不是依赖中的notify
+      Toast.notify({ type: 'error', message: t('app.errorMessage.historyLoadFailed') || '加载历史消息失败' })
+    }
+ finally {
+      setIsLoadingHistory(false)
+    }
+  }, [isLoadingHistory, hasMoreHistory, isNewConversation, historyMessages, getChatList, currConversationId, setHistoryMessages, t])
 
   const createNewChat = () => {
     // if new chat is already exist, do not create new chat
@@ -796,6 +901,10 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
                 checkCanSend={checkCanSend}
                 visionConfig={visionConfig}
                 isHideSendInput={true}
+                showLoadHistoryButton={showLoadHistoryButton}
+                isLoadingHistory={isLoadingHistory}
+                onLoadHistory={loadHistoryMessages}
+                historyMessages={historyMessages}
               />
             </div>
           </div>

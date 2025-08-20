@@ -44,7 +44,7 @@ export const fetchConversations = async () => {
   return get('conversations', { params: { limit: 20, last_id: '' } })
 }
 
-export const fetchChatList = async (conversationId: string, first_id: string | null = 'f93ef40c-2e8f-453d-853a-c50c61e7e675', limit: number = 5): Promise<{
+export const fetchChatList = async (conversationId: string, first_id?: string, limit: number = 5): Promise<{
   limit: number,
   has_more: boolean,
   data: any[],
