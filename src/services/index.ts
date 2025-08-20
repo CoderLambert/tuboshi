@@ -44,8 +44,21 @@ export const fetchConversations = async () => {
   return get('conversations', { params: { limit: 20, last_id: '' } })
 }
 
-export const fetchChatList = async (conversationId: string) => {
-  return get('messages', { params: { conversation_id: conversationId, limit: 10, first_id: '' } })
+export const fetchChatList = async (conversationId: string, first_id: string | null = 'f93ef40c-2e8f-453d-853a-c50c61e7e675', limit: number = 5): Promise<{
+  limit: number,
+  has_more: boolean,
+  data: any[],
+}> => {
+  // first_id  当前页第一条聊天记录的 ID，默认 null
+  // limit 每页聊天记录数量，默认 10
+  // Response
+  // has_more (bool) 是否存在下一页
+  // limit (int) 每页聊天记录数量
+  return get('messages', { params: { conversation_id: conversationId, first_id, limit } }) as Promise<{
+    limit: number,
+    has_more: boolean,
+    data: any[],
+  }>
 }
 
 // init value. wait for server update

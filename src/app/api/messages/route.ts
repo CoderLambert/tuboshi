@@ -6,7 +6,9 @@ export async function GET(request: NextRequest) {
   const { sessionId, user } = getInfo(request)
   const { searchParams } = new URL(request.url)
   const conversationId = searchParams.get('conversation_id')
-  const { data }: any = await client.getConversationMessages(user, conversationId as string)
+  const first_id = searchParams.get('first_id')
+  const limit = searchParams.get('limit')
+  const { data }: any = await client.getConversationMessages(user, conversationId as string, limit, first_id)
   return NextResponse.json(data, {
     headers: setSession(sessionId),
   })

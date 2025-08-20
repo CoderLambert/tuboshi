@@ -172,8 +172,8 @@ export class ChatClient extends DifyClient {
   getConversationMessages(
     user: User,
     conversation_id: string = '',
+    limit: string | null = null,
     first_id: string | null = null,
-    limit: number | null = null,
   ) {
     const params: Params = { user, conversation_id, first_id, limit }
     console.log(params)
