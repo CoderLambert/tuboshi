@@ -2,7 +2,7 @@
 
 import ReactMarkdown from 'react-markdown'
 
-import ReactEcharts from 'echarts-for-react'
+// import ReactEcharts from 'echarts-for-react'
 import 'katex/dist/katex.min.css'
 
 import RemarkMath from 'remark-math'
@@ -149,14 +149,14 @@ const CodeBlock: any = memo(({ inline, className, children = '', ...props }: any
         if (isSVG)
           return <Flowchart PrimitiveCode={content} />
         break
-      case 'echarts':
-        return (
-          <div style={{ minHeight: '350px', minWidth: '100%', overflowX: 'scroll' }}>
-            <ErrorBoundary>
-              <ReactEcharts option={chartData} style={{ minWidth: '700px' }} />
-            </ErrorBoundary>
-          </div>
-        )
+      // case 'echarts':
+      //   return (
+      //     <div style={{ minHeight: '350px', minWidth: '100%', overflowX: 'scroll' }}>
+      //       <ErrorBoundary>
+      //         <ReactEcharts option={chartData} style={{ minWidth: '700px' }} />
+      //       </ErrorBoundary>
+      //     </div>
+      //   )
       case 'svg':
         if (isSVG) {
           return (

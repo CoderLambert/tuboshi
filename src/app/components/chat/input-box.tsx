@@ -1,6 +1,6 @@
 'use client'
 import type { FC } from 'react'
-import React, { useRef } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import Textarea from 'rc-textarea'
 import s from './style.module.css'
@@ -43,13 +43,13 @@ const InputBox: FC<IInputBoxProps> = ({
     onClear,
   } = useImageFiles()
 
-  const handleContentChange = (e: any) => {
+  const handleContentChange = useCallback((e: any) => {
     const value = e.target.value
     onQueryChange(value)
     queryRef.current = value
-  }
+  }, [onQueryChange])
 
-  const handleSend = () => {
+  const handleSend = useCallback(() => {
     if (isResponding) {
       // 如果正在响应中，显示提示
       return
@@ -67,7 +67,7 @@ const InputBox: FC<IInputBoxProps> = ({
 
     if (files.length)
       onClear()
-  }
+  }, [isResponding, query, checkCanSend, onSend, files, onClear])
 
   const handleStop = () => {
     if (onStop)

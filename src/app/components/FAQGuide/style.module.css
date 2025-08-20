@@ -1,5 +1,5 @@
 .suggestion {
-    @apply text-[16px] leading-[24px] font-[400] mx-[40px] mt-[40.7px] max-w-full;
+    @apply text-[16px] leading-[24px] font-[400] mx-[40px] mt-[40.7px] max-w-full overflow-auto;
 }
 
 .tip {

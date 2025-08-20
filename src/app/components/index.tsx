@@ -1,6 +1,6 @@
 'use client'
 import type { FC } from 'react'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { produce, setAutoFreeze } from 'immer'
 import { useBoolean, useGetState } from 'ahooks'
@@ -10,7 +10,7 @@ import { fetchAppParams, fetchChatList, fetchConversations, generationConversati
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
 import Chat from '@/app/components/chat'
-import InputBox from '@/app/components/chat/input-box'
+import OptimizedInput from '@/app/components/chat/optimized-input'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import { setLocaleOnClient } from '@/i18n/client'
 import Loading from '@/app/components/base/loading'
@@ -29,7 +29,16 @@ export type IMainProps = {
 const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const { t } = useTranslation()
   const hasSetAppConfig = APP_ID && API_KEY
-  const [query, setQuery] = React.useState('')
+
+  // 输入框状态管理 - 使用useRef避免频繁重渲染
+  const currentQueryRef = useRef('')
+
+  // 设置输入框内容（用于建议点击等场景）
+  // 注意：由于输入框现在完全独立，这个函数需要通过其他方式实现
+  const setInputQuery = useCallback((query: string) => {
+    currentQueryRef.current = query
+    // TODO: 通过inputRef调用输入框的方法来设置内容
+  }, [])
 
   // 动态高度计算相关状态
   const [inputBoxHeight, setInputBoxHeight] = useState<number>(120) // 默认高度
@@ -436,13 +445,13 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     }
   }
 
-  const handleSend = async (message: string, files?: VisionFile[]) => {
+  const handleSend = useCallback(async (message: string, files?: VisionFile[]) => {
     if (isResponding) {
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
     }
-    // 清空输入框
-    setQuery('')
+    // 发送成功后清空输入框状态
+    currentQueryRef.current = ''
     const toServerInputs: Record<string, any> = {
       // token: APP_TOKEN,
     }
@@ -711,7 +720,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         }))
       },
     })
-  }
+  }, [isResponding, notify, t, currInputs, visionConfig, isNewConversation, currConversationId, getChatList, setChatList, setRespondingTrue, setMessageTaskId, setRespondingFalse])
 
   const handleFeedback = async (messageId: string, feedback: Feedbacktype) => {
     await updateFeedback({ url: `/messages/${messageId}/feedbacks`, body: { rating: feedback.rating } })
@@ -797,9 +806,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         ref={inputBoxRef}
         className='fixed bottom-0 left-0 right-0 z-50 p-4'
       >
-        <InputBox
-          query={query}
-          onQueryChange={setQuery}
+        <OptimizedInput
           onSend={handleSend}
           onStop={handleStop}
           checkCanSend={checkCanSend}
