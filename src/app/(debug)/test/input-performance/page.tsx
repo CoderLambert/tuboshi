@@ -112,7 +112,6 @@ export default function InputPerformancePage() {
           <h3 className="mb-4 text-lg font-semibold">优化后的输入框</h3>
           <OptimizedInput
             onSend={handleSend}
-            onQueryChange={handleQueryChange}
             initialQuery=""
           />
         </div>
