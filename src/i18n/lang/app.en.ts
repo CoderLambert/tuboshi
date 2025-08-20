@@ -26,6 +26,11 @@ const translation = {
     loadHistoryMessages: 'Load history messages',
     historyMessages: 'History messages',
     loadingHistory: 'Loading...',
+    releaseToLoadMore: 'Release to load more',
+    loadingMore: 'Loading...',
+    noMoreMessages: 'No more messages',
+    pullToLoadMore: 'Pull to load more',
+    loadingMoreHistory: 'Loading...',
   },
   errorMessage: {
     valueOfVarRequired: 'Variables value can not be empty',

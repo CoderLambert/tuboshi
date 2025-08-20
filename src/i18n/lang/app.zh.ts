@@ -22,6 +22,12 @@ const translation = {
     loadHistoryMessages: '加载历史消息',
     historyMessages: '历史消息',
     loadingHistory: '加载中...',
+    releaseToLoadMore: '释放以加载更多',
+    loadingMore: '加载中...',
+    noMoreMessages: '没有更多消息了',
+    pullToLoadMore: '下拉以加载更多',
+    loadingMoreHistory: '加载中...',
+
   },
   errorMessage: {
     valueOfVarRequired: '变量值必填',
