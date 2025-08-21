@@ -23,7 +23,7 @@ export default function HistoryLoadingTestPage() {
     firstIdRef.current = null
 
     try {
-      const res = await fetchChatList(conversationId, null, 5)
+      const res = await fetchChatList(conversationId, undefined, 5)
       const { data, has_more } = res
 
       setMessages(data || [])
