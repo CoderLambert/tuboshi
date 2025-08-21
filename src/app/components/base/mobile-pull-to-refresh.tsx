@@ -1,0 +1,293 @@
+'use client'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import cn from 'clsx'
+
+export type IMobilePullToRefreshProps = {
+  children: React.ReactNode
+  onLoadMore?: () => Promise<void>
+  loadingMore?: boolean
+  hasMoreData?: boolean
+  noMoreDataText?: string
+  className?: string
+}
+
+const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
+  children,
+  onLoadMore,
+  loadingMore = false,
+  hasMoreData = true,
+  noMoreDataText,
+  className,
+}) => {
+  const { t } = useTranslation()
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // 下拉状态
+  const [isPulling, setIsPulling] = useState(false)
+  const [pullDistance, setPullDistance] = useState(0)
+  const [showNoMoreData, setShowNoMoreData] = useState(false)
+
+  // 触摸状态
+  const [startY, setStartY] = useState(0)
+  const [isTracking, setIsTracking] = useState(false)
+
+  // 下拉加载处理
+  const handleLoadMore = useCallback(async () => {
+    console.log('🔄 handleLoadMore called - loadingMore:', loadingMore, 'hasMoreData:', hasMoreData)
+
+    if (!hasMoreData) {
+      console.log('❌ No more data available')
+      setShowNoMoreData(true)
+      setTimeout(() => {
+        setShowNoMoreData(false)
+        setIsPulling(false)
+        setPullDistance(0)
+      }, 2000)
+      return
+    }
+
+    if (onLoadMore && !loadingMore) {
+      console.log('✅ Starting load more...')
+      try {
+        await onLoadMore()
+        console.log('✅ Load more completed')
+      }
+ finally {
+        setIsPulling(false)
+        setPullDistance(0)
+      }
+    }
+ else {
+      console.log('⚠️ Load more skipped - already loading or no handler')
+    }
+  }, [onLoadMore, loadingMore, hasMoreData])
+
+  // 触摸开始
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+    if (scrollTop > 0) return
+
+    const touch = e.touches[0]
+    setStartY(touch.clientY)
+    setIsTracking(true)
+
+    // 只在页面顶部时阻止默认行为
+    if (scrollTop === 0)
+      e.preventDefault()
+  }, [])
+
+  // 触摸移动
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (!isTracking) return
+
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+    if (scrollTop > 0) {
+      setIsTracking(false)
+      setIsPulling(false)
+      setPullDistance(0)
+      return
+    }
+
+    const touch = e.touches[0]
+    const deltaY = touch.clientY - startY
+
+    if (deltaY > 0) {
+      // 向下拖拽时才阻止默认行为
+      e.preventDefault()
+      e.stopPropagation()
+
+      const distance = Math.min(deltaY * 0.5, 80) // 限制最大下拉距离为80px
+      setPullDistance(distance)
+      setIsPulling(distance > 10)
+    }
+ else {
+      // 向上拖拽时重置状态，允许正常滚动
+      setIsPulling(false)
+      setPullDistance(0)
+    }
+  }, [isTracking, startY])
+
+  // 触摸结束
+  const handleTouchEnd = useCallback(() => {
+    if (!isTracking) return
+
+    setIsTracking(false)
+
+    // 检查页面滚动位置
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+    if (scrollTop > 0) {
+      // 如果页面已经滚动，重置状态并允许正常滚动
+      setIsPulling(false)
+      setPullDistance(0)
+      return
+    }
+
+    if (pullDistance >= 80 && hasMoreData) {
+      // 触发加载
+      handleLoadMore()
+    }
+ else if (pullDistance >= 80 && !hasMoreData) {
+      // 显示无更多数据
+      setShowNoMoreData(true)
+      setTimeout(() => {
+        setShowNoMoreData(false)
+        setIsPulling(false)
+        setPullDistance(0)
+      }, 2000)
+    }
+ else {
+      // 回弹
+      setIsPulling(false)
+      setPullDistance(0)
+    }
+  }, [isTracking, pullDistance, hasMoreData, handleLoadMore])
+
+  // 添加事件监听器
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    // 添加CSS样式
+    const style = document.createElement('style')
+    style.textContent = `
+      body {
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+      .mobile-pull-to-refresh {
+        overscroll-behavior-y: none;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .mobile-pull-to-refresh * {
+        /* 确保所有子元素都能传播触摸事件 */
+        pointer-events: auto;
+        touch-action: inherit;
+      }
+    `
+    document.head.appendChild(style)
+
+    // 添加触摸事件监听器到容器 - 使用事件委托确保全页面响应
+    container.addEventListener('touchstart', handleTouchStart, { passive: true, capture: true })
+    container.addEventListener('touchmove', handleTouchMove, { passive: false, capture: true })
+    container.addEventListener('touchend', handleTouchEnd, { passive: true, capture: true })
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart)
+      container.removeEventListener('touchmove', handleTouchMove)
+      container.removeEventListener('touchend', handleTouchEnd)
+      if (document.head.contains(style))
+        document.head.removeChild(style)
+    }
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd])
+
+  // 渲染下拉指示器
+  const renderPullIndicator = () => {
+    if (!isPulling && !loadingMore && !showNoMoreData) return null
+
+    // 无更多数据提示
+    if (showNoMoreData) {
+      return (
+        <div className="flex h-full w-full flex-col items-center justify-center">
+          <div className="mb-2 flex h-6 w-6 items-center justify-center rounded-full bg-green-100">
+            <svg className="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <span className="text-xs font-medium text-gray-600">
+            {noMoreDataText || t('app.chat.noMoreHistory') || '已加载全部会话'}
+          </span>
+        </div>
+      )
+    }
+
+    // 加载中状态
+    if (loadingMore) {
+      return (
+        <div className="flex h-full w-full flex-col items-center justify-center">
+          <div className="mb-2 h-5 w-5 animate-spin rounded-full border-2 border-blue-200 border-t-blue-600"></div>
+          <span className="text-xs font-medium text-blue-600">
+            {t('app.chat.loadingMoreHistory') || '正在加载...'}
+          </span>
+        </div>
+      )
+    }
+
+    // 拖拽状态
+    const canRelease = pullDistance >= 80
+    const progress = Math.min(pullDistance / 80, 1)
+
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center">
+        {/* 圆形进度指示器 */}
+        <div className="relative mb-2">
+          <div className="h-6 w-6 rounded-full border-2 border-gray-200"></div>
+          <div
+            className={cn(
+              'absolute inset-0 h-6 w-6 rounded-full border-2 border-t-transparent transition-all duration-200',
+              canRelease ? 'animate-spin border-green-500' : 'border-blue-500',
+            )}
+            style={{
+              transform: `rotate(${progress * 360}deg)`,
+              opacity: 0.3 + (progress * 0.7),
+            }}
+          ></div>
+          {canRelease && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
+            </div>
+          )}
+        </div>
+
+        {/* 文字提示 */}
+        <span className={cn(
+          'text-xs font-medium transition-colors duration-200',
+          canRelease ? 'text-green-600' : 'text-gray-500',
+        )}>
+          {canRelease
+            ? (hasMoreData ? t('app.chat.releaseToLoadMore') : t('app.chat.noMoreMessages'))
+            : (hasMoreData ? t('app.chat.pullToLoadMore') : t('app.chat.loadHistoryMessages'))
+          }
+        </span>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      {/* 下拉指示器 - 优化样式，更自然 */}
+      {(isPulling || loadingMore || showNoMoreData) && (
+        <div
+          className="fixed left-0 right-0 top-0 z-[9999]"
+          style={{
+            height: '80px',
+            transform: `translateY(${isPulling ? Math.max(-80, pullDistance - 80) : 0}px)`,
+            transition: isPulling ? 'none' : 'transform 0.3s ease-out',
+            background: 'linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0.8))',
+          }}
+        >
+          {renderPullIndicator()}
+        </div>
+      )}
+
+      {/* 页面内容容器 */}
+      <div
+        ref={containerRef}
+        className={cn('mobile-pull-to-refresh min-h-screen', className)}
+        style={{
+          transform: `translateY(${isPulling ? Math.min(pullDistance, 80) : 0}px)`,
+          transition: isPulling ? 'none' : 'transform 0.3s ease-out',
+        }}
+      >
+        {children}
+      </div>
+    </>
+  )
+}
+
+export default MobilePullToRefresh

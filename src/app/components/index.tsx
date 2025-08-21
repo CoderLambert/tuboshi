@@ -9,7 +9,8 @@ import Toast from '@/app/components/base/toast'
 import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, sendChatMessage, stopChatMessage, updateFeedback } from '@/services'
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
-import SimplePullToRefreshChat from '@/app/components/chat/simple-pull-to-refresh-chat'
+import SimpleChat from '@/app/components/chat/simple-chat'
+import MobilePullToRefresh from '@/app/components/base/mobile-pull-to-refresh'
 import OptimizedInput from '@/app/components/chat/optimized-input'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import { setLocaleOnClient } from '@/i18n/client'
@@ -261,11 +262,25 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     setCurrConversationId(chatList[0]?.id || '-1', APP_ID, false)
   }, [])
 
+  // 使用ref来避免闭包问题
+  const isLoadingHistoryRef = useRef(false)
+  const historyMessagesRef = useRef<ChatItem[]>([])
+
+  // 同步historyMessages到ref
+  useEffect(() => {
+    historyMessagesRef.current = historyMessages
+  }, [historyMessages])
+
   // 加载历史消息
   const loadHistoryMessages = useCallback(async () => {
-    if (isLoadingHistory || !hasMoreHistory || isNewConversation)
-      return
+    console.log('🔄 loadHistoryMessages called - isLoadingHistoryRef:', isLoadingHistoryRef.current, 'hasMoreHistory:', hasMoreHistory)
 
+    if (isLoadingHistoryRef.current || !hasMoreHistory || isNewConversation) {
+      console.log('❌ loadHistoryMessages blocked')
+      return
+    }
+
+    isLoadingHistoryRef.current = true
     setIsLoadingHistory(true)
     try {
       const currentChatList = getChatList()
@@ -277,9 +292,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       // 确定first_id：优先使用历史消息的最早ID，否则使用当前chatList的最早ID
       let firstMessageId = null
 
-      if (historyMessages.length > 0) {
-        // 如果已有历史消息，使用历史消息中最早的ID（现在保留了原始ID格式）
-        for (const item of historyMessages) {
+      const currentHistoryMessages = historyMessagesRef.current
+      if (currentHistoryMessages.length > 0) {
+        // 如果已有历史消息，使用历史消息中第一个回答消息的ID
+        // 由于新消息插入到开头，第一个回答消息就是最新加载的消息
+        for (const item of currentHistoryMessages) {
           if (item.isAnswer && item.id && !item.id.startsWith('question-') && !item.id.includes('placeholder')) {
             firstMessageId = item.id
             break
@@ -287,7 +304,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         }
       }
  else {
-        // 如果没有历史消息，使用当前chatList的最早ID
+        // 如果没有历史消息，使用当前chatList的第一个回答消息ID
         for (const item of currentChatList) {
           if (item.isAnswer && item.id && !item.id.startsWith('question-') && !item.id.includes('placeholder')) {
             firstMessageId = item.id
@@ -301,15 +318,23 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         return
       }
 
+      console.log('🔍 loadHistoryMessages - firstMessageId:', firstMessageId)
+      console.log('🔍 loadHistoryMessages - historyMessages.length:', currentHistoryMessages.length)
+      console.log('🔍 loadHistoryMessages - currentChatList.length:', currentChatList.length)
+      if (currentHistoryMessages.length > 0) {
+        const answerIds = currentHistoryMessages.filter(item => item.isAnswer).map(item => item.id)
+        console.log('🔍 loadHistoryMessages - current history answer IDs:', answerIds)
+      }
+
       const res = await fetchChatList(currConversationId, firstMessageId, 5)
       const { data, has_more } = res
-      console.log('loadHistoryMessages:', res)
+      console.log('📥 loadHistoryMessages API response:', res)
       if (data && data.length > 0) {
         const historyItems: ChatItem[] = []
 
         data.forEach((item: any) => {
           historyItems.push({
-            id: item.id, // 保留原始ID格式
+            id: `question-${item.id}`, // 问题ID格式
             key: `history-question-${item.id}`, // 新增key属性用于React渲染
             content: item.query,
             isAnswer: false,
@@ -327,7 +352,15 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         })
 
         // 将新的历史消息插入到现有历史消息的开头
-        setHistoryMessages(prev => [...historyItems, ...prev])
+        console.log('📝 Adding new history items:', historyItems.length)
+        console.log('📝 New history items:', historyItems.map(item => ({ id: item.id, key: item.key, isAnswer: item.isAnswer })))
+
+        setHistoryMessages((prev) => {
+          const newHistory = [...historyItems, ...prev]
+          console.log('📝 Updated history length:', newHistory.length)
+
+          return newHistory
+        })
 
         // 更新状态
         setHasMoreHistory(has_more)
@@ -345,9 +378,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       Toast.notify({ type: 'error', message: t('app.errorMessage.historyLoadFailed') || '加载历史消息失败' })
     }
  finally {
+      isLoadingHistoryRef.current = false
       setIsLoadingHistory(false)
+      console.log('🏁 loadHistoryMessages finished - reset loading state')
     }
-  }, [isLoadingHistory, hasMoreHistory, isNewConversation, historyMessages, getChatList, currConversationId, setHistoryMessages, t])
+  }, [hasMoreHistory, isNewConversation, getChatList, currConversationId, setHistoryMessages, t])
 
   const createNewChat = () => {
     // if new chat is already exist, do not create new chat
@@ -874,8 +909,14 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   return (
     <div className='flex min-h-screen max-w-full flex-col bg-white' style={{ paddingBottom: `${inputBoxHeight}px` }}>
-      {/* 页面内容区域 - 使用页面级滚动 */}
-      <div className='flex flex-col bg-white'>
+      <MobilePullToRefresh
+        onLoadMore={loadHistoryMessages}
+        loadingMore={isLoadingHistory}
+        hasMoreData={hasMoreHistory}
+        noMoreDataText="已加载全部会话"
+      >
+        {/* 页面内容区域 - 包含所有内容的页面级滚动 */}
+        <div className='flex flex-col bg-white'>
           {/* 头部内容 */}
           {headerContent && (
             <div className='shrink-0'>
@@ -893,7 +934,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           {/* 聊天消息区域 - 占据剩余空间 */}
           <div className='flex-1 p-4'>
             <div className='h-full'>
-              <SimplePullToRefreshChat
+              <SimpleChat
                 chatList={chatList}
                 onSend={handleSend}
                 onFeedback={handleFeedback}
@@ -905,12 +946,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
                 isLoadingHistory={isLoadingHistory}
                 onLoadHistory={loadHistoryMessages}
                 historyMessages={historyMessages}
-                onLoadMore={loadHistoryMessages}
-                loadingMore={isLoadingHistory}
               />
             </div>
           </div>
         </div>
+      </MobilePullToRefresh>
 
       {/* 固定在窗口底部的输入框 */}
       <div

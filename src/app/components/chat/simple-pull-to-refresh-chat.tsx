@@ -54,31 +54,41 @@ const SimplePullToRefreshChat: FC<ISimplePullToRefreshChatProps> = ({
 
   // 禁用浏览器默认的下拉刷新
   useEffect(() => {
-    // 添加CSS样式禁用下拉刷新
+    // 添加CSS样式禁用下拉刷新（更温和的方式）
     const style = document.createElement('style')
     style.textContent = `
-      html, body {
+      .pull-to-refresh-container {
         overscroll-behavior-y: contain;
         -webkit-overflow-scrolling: touch;
-      }
-      .pull-to-refresh-container {
-        overscroll-behavior-y: none;
-        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
       }
     `
     document.head.appendChild(style)
 
     const preventPullToRefresh = (e: TouchEvent) => {
-      // 检查是否在容器顶部
-      if (containerRef.current) {
+      // 只在特定条件下阻止默认行为
+      if (containerRef.current && e.touches.length === 1) {
         const scrollTop = containerRef.current.scrollTop
         const target = e.target as Element
 
-        // 检查触摸是否发生在我们的容器内
-        if (containerRef.current.contains(target) && scrollTop === 0 && e.touches.length === 1) {
-          // 在顶部且是单指触摸时，阻止默认行为
-          e.preventDefault()
-          e.stopPropagation()
+        // 检查触摸是否发生在我们的容器内，且在顶部，且是向下拖拽
+        if (containerRef.current.contains(target) && scrollTop === 0) {
+          // 只有在检测到向下拖拽时才阻止默认行为
+          const touch = e.touches[0]
+          const startY = touch.clientY
+
+          // 存储初始触摸位置
+          if (e.type === 'touchstart') {
+            containerRef.current.dataset.startY = startY.toString()
+          }
+ else if (e.type === 'touchmove') {
+            const savedStartY = Number.parseFloat(containerRef.current.dataset.startY || '0')
+            const deltaY = touch.clientY - savedStartY
+
+            // 只有在向下拖拽超过10px时才阻止默认行为
+            if (deltaY > 10)
+              e.preventDefault()
+          }
         }
       }
     }
@@ -153,6 +163,9 @@ const SimplePullToRefreshChat: FC<ISimplePullToRefreshChatProps> = ({
       axis: 'y',
       bounds: { top: 0 },
       rubberband: true,
+      // 添加更精确的手势识别
+      filterTaps: true,
+      threshold: 10, // 需要移动10px才开始识别
     },
   )
 
