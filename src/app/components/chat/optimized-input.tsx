@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import Textarea from 'rc-textarea' // 使用原生textarea
 import s from './style.module.css'
 import type { VisionFile, VisionSettings } from '@/types/app'
-import Tooltip from '@/app/components/base/tooltip'
 import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-uploader'
 import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
@@ -123,7 +122,7 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
   }, [localQuery])
 
   return (
-    <div className='relative  overflow-y-auto rounded-[24px] border-[3px] border-gray-200 bg-white p-[11px]'>
+    <div className='relative  overflow-y-auto rounded-[24px] border-[3px] border-gray-200 bg-white p-[16px]'>
       {
         visionConfig?.enabled && (
           <>
@@ -163,23 +162,6 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
         rows={1}
       />
       <div className="absolute bottom-2 right-2 flex h-8 items-center">
-        {/* <div className={`${s.count} mr-4 h-5 bg-gray-50 text-sm leading-5 text-gray-500`}>
-          {localQuery.trim().length}
-        </div> */}
-        <Tooltip
-          popupContent={
-            <div>
-              {isResponding ? (
-                <div>{t('app.generation.stop')}</div>
-              ) : (
-                <>
-                  <div>{t('common.operation.send')} Enter</div>
-                  <div>{t('common.operation.lineBreak')} Shift Enter</div>
-                </>
-              )}
-            </div>
-          }
-        >
           {isResponding ? (
             <div
               className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md bg-red-500 hover:bg-red-600"
@@ -195,7 +177,6 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
               onClick={handleButtonClick}
             />
           )}
-        </Tooltip>
       </div>
     </div>
   )

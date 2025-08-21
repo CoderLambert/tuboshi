@@ -31,6 +31,11 @@ const translation = {
     noMoreMessages: 'No more messages',
     pullToLoadMore: 'Pull to load more',
     loadingMoreHistory: 'Loading...',
+
+  },
+  generation: {
+    stopped: 'Generation stopped',
+    stopFailed: 'Generation stop failed',
   },
   errorMessage: {
     valueOfVarRequired: 'Variables value can not be empty',

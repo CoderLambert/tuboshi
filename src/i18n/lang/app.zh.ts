@@ -29,6 +29,10 @@ const translation = {
     loadingMoreHistory: '加载中...',
 
   },
+  generation: {
+    stopped: '生成已停止',
+    stopFailed: '生成停止失败',
+  },
   errorMessage: {
     valueOfVarRequired: '变量值必填',
     waitForResponse: '请等待上条信息响应完成',
