@@ -60,6 +60,19 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     transfer_methods: [TransferMethod.local_file],
   })
 
+  const [abortController, setAbortController] = useState<AbortController | null>(null)
+  const { notify } = Toast
+  const [controlFocus, setControlFocus] = useState(0)
+  const [openingSuggestedQuestions, setOpeningSuggestedQuestions] = useState<string[]>([])
+  const hasStopResponded = useRef(false)
+  const taskIdRef = useRef('')
+  const isRespondingRef = useRef(false)
+
+  // const [hasStopResponded, setHasStopResponded, getHasStopResponded] = useGetState(false)
+  const [isRespondingConIsCurrCon, setIsRespondingConCurrCon, getIsRespondingConIsCurrCon] = useGetState(true)
+  const [userQuery, setUserQuery] = useState('')
+  const conversationMessagesAbortControllerRef = useRef<AbortController | null>(null)
+  const suggestedQuestionsAbortControllerRef = useRef<AbortController | null>(null)
   const updateInputBoxHeight = () => {
     if (inputBoxRef.current) {
       const height = inputBoxRef.current.offsetHeight
@@ -67,6 +80,18 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       setInputBoxHeight(height)
     }
   }
+
+    /*
+  * chat info. chat is under conversation.
+  */
+  const [chatList, setChatList, getChatList] = useGetState<ChatItem[]>([])
+
+  // 历史消息状态管理 - 与chatList完全分离
+  const [historyMessages, setHistoryMessages] = useState<ChatItem[]>([])
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false)
+  const [hasMoreHistory, setHasMoreHistory] = useState(true)
+  const [showLoadHistoryButton, setShowLoadHistoryButton] = useState(false)
+  const [isResponding, setIsResponding] = useState(false)
 
   useEffect(() => {
     if (APP_INFO?.title)
@@ -246,17 +271,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       setChatList(generateNewChatListWithOpenStatement())
   }
   useEffect(handleConversationSwitch, [currConversationId, inited])
-
-  /*
-  * chat info. chat is under conversation.
-  */
-  const [chatList, setChatList, getChatList] = useGetState<ChatItem[]>([])
-
-  // 历史消息状态管理 - 与chatList完全分离
-  const [historyMessages, setHistoryMessages] = useState<ChatItem[]>([])
-  const [isLoadingHistory, setIsLoadingHistory] = useState(false)
-  const [hasMoreHistory, setHasMoreHistory] = useState(true)
-  const [showLoadHistoryButton, setShowLoadHistoryButton] = useState(false)
 
   useEffect(() => {
     setCurrConversationId(chatList[0]?.id || '-1', APP_ID, false)
@@ -521,9 +535,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     }
   }, [isNewConversation, conversationList])
 
-  const [isResponding, { setTrue: setRespondingTrue, setFalse: setRespondingFalse }] = useBoolean(false)
-  const [abortController, setAbortController] = useState<AbortController | null>(null)
-  const { notify } = Toast
   const logError = (message: string) => {
     notify({ type: 'error', message })
   }
@@ -545,13 +556,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     }
     return true
   }
-
-  const [controlFocus, setControlFocus] = useState(0)
-  const [openingSuggestedQuestions, setOpeningSuggestedQuestions] = useState<string[]>([])
-  const [messageTaskId, setMessageTaskId] = useState('')
-  const [hasStopResponded, setHasStopResponded, getHasStopResponded] = useGetState(false)
-  const [isRespondingConIsCurrCon, setIsRespondingConCurrCon, getIsRespondingConIsCurrCon] = useGetState(true)
-  const [userQuery, setUserQuery] = useState('')
 
   const updateCurrentQA = ({
     responseItem,
@@ -661,7 +665,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     const prevTempNewConversationId = getCurrConversationId() || '-1'
     let tempNewConversationId = ''
 
-    setRespondingTrue()
+    handleResponding(true)
+    // setRespondingTrue()
     sendChatMessage(data, {
       getAbortController: (abortController) => {
         setAbortController(abortController)
@@ -683,7 +688,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         if (isFirstMessage && newConversationId)
           tempNewConversationId = newConversationId
 
-        setMessageTaskId(taskId)
+        taskIdRef.current = taskId
+        // setMessageTaskId(taskId)
         // has switched to other conversation
         if (prevTempNewConversationId !== getCurrConversationId()) {
           setIsRespondingConCurrCon(false)
@@ -713,7 +719,21 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         resetNewConversationInputs()
         setChatNotStarted()
         setCurrConversationId(tempNewConversationId, APP_ID, true)
-        setRespondingFalse()
+        // setRespondingFalse()
+        handleResponding(false)
+      //  if (config?.suggested_questions_after_answer?.enabled && !hasStopResponded.current && onGetSuggestedQuestions) {
+      //       try {
+      //         const { data }: any = await onGetSuggestedQuestions(
+      //           responseItem.id,
+      //           newAbortController => suggestedQuestionsAbortControllerRef.current = newAbortController,
+      //         )
+      //         setSuggestQuestions(data)
+      //       }
+      //       // eslint-disable-next-line unused-imports/no-unused-vars
+      //       catch (e) {
+      //         setSuggestQuestions([])
+      //       }
+      //     }
       },
       onFile(file) {
         const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
@@ -807,14 +827,14 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         ))
       },
       onError() {
-        setRespondingFalse()
+        handleResponding(false)
         // role back placeholder answer
         setChatList(produce(getChatList(), (draft) => {
           draft.splice(draft.findIndex(item => item.id === placeholderAnswerId), 1)
         }))
       },
       onWorkflowStarted: ({ workflow_run_id, task_id }) => {
-        // taskIdRef.current = task_id
+        taskIdRef.current = task_id
         responseItem.workflow_run_id = workflow_run_id
         responseItem.workflowProcess = {
           status: WorkflowRunningStatus.Running,
@@ -860,7 +880,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         }))
       },
     })
-  }, [isResponding, notify, t, currInputs, visionConfig, isNewConversation, currConversationId, getChatList, setChatList, setRespondingTrue, setMessageTaskId, setRespondingFalse])
+  }, [isResponding, notify, t, currInputs, visionConfig, isNewConversation, currConversationId, getChatList, setChatList])
 
   const handleFeedback = async (messageId: string, feedback: Feedbacktype) => {
     await updateFeedback({ url: `/messages/${messageId}/feedbacks`, body: { rating: feedback.rating } })
@@ -886,21 +906,33 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           notify({ type: 'success', message: t('common.operation.likeCancel') })
         }
   }
-
-  const handleStop = async () => {
-    if (messageTaskId && isResponding) {
+  const handleResponding = useCallback((isResponding: boolean) => {
+    setIsResponding(isResponding)
+    isRespondingRef.current = isResponding
+  }, [])
+  const handleStop = useCallback(async () => {
+    hasStopResponded.current = true
+    handleResponding(false)
+    if (taskIdRef.current) {
+      console.log('taskIdRef.current', taskIdRef.current)
       try {
-        await stopChatMessage(messageTaskId)
-        setRespondingFalse()
-        setMessageTaskId('')
+        await stopChatMessage(taskIdRef.current)
+         handleResponding(false)
         notify({ type: 'success', message: t('app.generation.stopped') })
       }
- catch (error) {
-        console.error('Failed to stop message:', error)
-        notify({ type: 'error', message: t('app.generation.stopFailed') })
-      }
-    }
-  }
+      catch (error) {
+              console.error('Failed to stop message:', error)
+              notify({ type: 'error', message: t('app.generation.stopFailed') })
+            }
+          }
+
+          if (conversationMessagesAbortControllerRef.current)
+            conversationMessagesAbortControllerRef.current.abort()
+          if (suggestedQuestionsAbortControllerRef.current)
+            suggestedQuestionsAbortControllerRef.current.abort()
+        },
+      [handleResponding])
+
   if (appUnavailable)
     return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set APP_ID and API_KEY in config/index.tsx' : ''} />
 
