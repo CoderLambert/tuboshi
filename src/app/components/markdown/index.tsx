@@ -1,4 +1,5 @@
 'use client'
+import dynamic from 'next/dynamic'
 
 import ReactMarkdown from 'react-markdown'
 
@@ -10,7 +11,7 @@ import RemarkBreaks from 'remark-breaks'
 import RehypeKatex from 'rehype-katex'
 import RemarkGfm from 'remark-gfm'
 import RehypeRaw from 'rehype-raw'
-import SyntaxHighlighter from 'react-syntax-highlighter'
+// import SyntaxHighlighter from 'react-syntax-highlighter'
 import {
   atelierHeathLight,
 } from 'react-syntax-highlighter/dist/esm/styles/hljs'
@@ -29,6 +30,7 @@ import MarkdownButton from '@/app/components/base/markdown-blocks/button'
 import ThinkBlock from '@/app/components/base/markdown-blocks/think-block'
 import cn from '@/utils/classnames'
 import SVGRenderer from '@/app/components/base/svg-gallery'
+const SyntaxHighlighter = dynamic(() => import('react-syntax-highlighter'), { ssr: false })
 
 // Available language https://github.com/react-syntax-highlighter/react-syntax-highlighter/blob/master/AVAILABLE_LANGUAGES_HLJS.MD
 const capitalizationLanguageNameMap: Record<string, string> = {
