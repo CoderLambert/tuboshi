@@ -1,14 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import VoiceInput from '@/app/components/base/voice-input'
+import { useToastContext } from '@/app/components/base/toast'
+import Recorder from 'js-audio-recorder'
+import { useTranslation } from 'react-i18next'
 
 export default function VoiceInputTest() {
   const [isRecording, setIsRecording] = useState(false)
   const [convertedText, setConvertedText] = useState('')
   const [status, setStatus] = useState<'idle' | 'recording' | 'converting'>('idle')
+  const [showVoiceInput, setShowVoiceInput] = useState(false)
+  const { notify } = useToastContext()
+  const { t } = useTranslation()
 
   const handleStartRecording = () => {
     setIsRecording(true)
@@ -17,16 +23,26 @@ export default function VoiceInputTest() {
   }
 
   const handleConverted = (text: string) => {
+    console.log('handleConverted called with text:', text) // 添加调试日志
     setConvertedText(text)
     setStatus('idle')
     setIsRecording(false)
   }
 
   const handleCancel = () => {
+    console.log('handleCancel called')
     setIsRecording(false)
     setStatus('idle')
-    setConvertedText('')
+    // setConvertedText('')
   }
+
+  useEffect(() => {
+    (Recorder as any).getPermission().then(() => {
+      setShowVoiceInput(true)
+    }, () => {
+      notify({ type: 'error', message: t('common.voiceInput.notAllow') })
+    })
+  }, [t, notify])
 
   return (
     <div className="w-full p-2 font-sans">
@@ -56,13 +72,16 @@ export default function VoiceInputTest() {
 
           <div className="mt-6">
             <h2 className="text-xl font-semibold">测试区域</h2>
-
+            <p className="mt-2">权限状态: {showVoiceInput ? '已授权' : '未授权'}</p>
+            <p className="mt-2">当前状态: {isRecording ? '正在录制中' : '空闲'}</p>
+            <p className="mt-2">转换结果: {convertedText || '无'}</p>
             <div className="mt-4 rounded-lg border bg-gray-50 p-4">
               {!isRecording ? (
                 <div className="flex flex-col items-center gap-4">
                   <Button
                     onClick={handleStartRecording}
                     className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                    disabled={!showVoiceInput}
                   >
                     开始录音
                   </Button>
@@ -73,6 +92,7 @@ export default function VoiceInputTest() {
                 </div>
               ) : (
                 <div className="relative h-20">
+                  {/* 移除了 showVoiceInput 条件，确保组件在录音时始终渲染 */}
                   <VoiceInput
                     onConverted={handleConverted}
                     onCancel={handleCancel}

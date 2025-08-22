@@ -7,7 +7,7 @@
     "pnpm": ">=10.10.0"
   },
   "scripts": {
-    "dev": "rimraf .next && next dev",
+    "dev": "rimraf .next && next dev --experimental-https",
     "dev:webpack": "next dev",
     "build": "next build",
     "start": "next start",

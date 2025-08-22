@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { usePathname } from 'next/navigation'
 import {
   RiCloseLine,
   RiLoader2Line,
@@ -35,7 +34,6 @@ const VoiceInput = ({
   const [originDuration, setOriginDuration] = useState(0)
   const [startRecord, setStartRecord] = useState(false)
   const [startConvert, setStartConvert] = useState(false)
-  const pathname = usePathname()
   const clearInterval = useRafInterval(() => {
     setOriginDuration(originDuration + 1)
   }, 1000)
@@ -87,12 +85,9 @@ const VoiceInput = ({
     const mp3File = new File([mp3Blob], 'temp.mp3', { type: 'audio/mp3' })
     const formData = new FormData()
     formData.append('file', mp3File)
-    console.log('handleStopRecorder formData', formData)
 
     try {
       const audioResponse = await audioToText(formData)
-      console.log(`audioResponse ${audioResponse}`)
-
       onConverted(audioResponse.text)
       onCancel()
     }
