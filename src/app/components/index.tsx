@@ -6,8 +6,8 @@ import { produce, setAutoFreeze } from 'immer'
 import { useBoolean, useGetState } from 'ahooks'
 import useConversation from '@/hooks/use-conversation'
 import Toast from '@/app/components/base/toast'
-import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, sendChatMessage, stopChatMessage, updateFeedback } from '@/services'
-import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
+import { fetchAppParams, fetchChatList, fetchConversations, fetchSuggestedQuestions, generationConversationName, sendChatMessage, stopChatMessage, updateFeedback } from '@/services'
+import type { ChatConfig, ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
 import SimpleChat from '@/app/components/chat/simple-chat'
 import MobilePullToRefresh from '@/app/components/base/mobile-pull-to-refresh'
@@ -20,7 +20,7 @@ import AppUnavailable from './chat/app-unavailable'
 import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
-
+import TryToAsk from './chat/try-to-ask'
 export type IMainProps = {
   params: any
   headerContent?: React.ReactNode
@@ -36,11 +36,12 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   // 设置输入框内容（用于建议点击等场景）
   // 注意：由于输入框现在完全独立，这个函数需要通过其他方式实现
-  const setInputQuery = useCallback((query: string) => {
-    currentQueryRef.current = query
-    // TODO: 通过inputRef调用输入框的方法来设置内容
-  }, [])
+  // const setInputQuery = useCallback((query: string) => {
+  //   currentQueryRef.current = query
+  //   // TODO: 通过inputRef调用输入框的方法来设置内容
+  // }, [])
 
+  const [chatConfig, setChatConfig] = useState<ChatConfig>()
   // 动态高度计算相关状态
   const [inputBoxHeight, setInputBoxHeight] = useState<number>(120) // 默认高度
   const inputBoxRef = useRef<HTMLDivElement>(null)
@@ -73,6 +74,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const [userQuery, setUserQuery] = useState('')
   const conversationMessagesAbortControllerRef = useRef<AbortController | null>(null)
   const suggestedQuestionsAbortControllerRef = useRef<AbortController | null>(null)
+  const [suggestQuestionsAfterAnswer, setSuggestQuestionsAfterAnswer] = useState<string[]>([])
   const updateInputBoxHeight = () => {
     if (inputBoxRef.current) {
       const height = inputBoxRef.current.offsetHeight
@@ -92,11 +94,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const [hasMoreHistory, setHasMoreHistory] = useState(true)
   const [showLoadHistoryButton, setShowLoadHistoryButton] = useState(false)
   const [isResponding, setIsResponding] = useState(false)
-
-  useEffect(() => {
-    if (APP_INFO?.title)
-      document.title = `${APP_INFO.title} - Powered by AI Agent`
-  }, [])
 
   // onData change thought (the produce obj). https://github.com/immerjs/immer/issues/576
   useEffect(() => {
@@ -444,19 +441,20 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     (async () => {
       try {
         const [conversationData, appParams] = await Promise.all([fetchConversations(), fetchAppParams()])
+
+        setChatConfig(appParams)
+
         // handle current conversation id
         const { data: conversations, error } = conversationData as { data: ConversationItem[]; error: string }
         if (error) {
           Toast.notify({ type: 'error', message: error })
           throw new Error(error)
         }
-        // const _conversationId = getConversationIdFromStorage(APP_ID)
-        // const currentConversation = conversations.find(item => item.id === _conversationId)
         const currentConversation = conversations[0]
         const _conversationId = currentConversation?.id || '-1'
 
         const isNotNewConversation = !!currentConversation
-        console.log('currentConversation', currentConversation)
+        // console.log('currentConversation', currentConversation)
 
         // fetch new conversation info
         const { user_input_form, opening_statement: introduction, file_upload, system_parameters, suggested_questions = [] }: any = appParams
@@ -594,8 +592,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
     }
-    // 发送成功后清空输入框状态
+    // 发送成功后清空输入框状态、建议问题
     currentQueryRef.current = ''
+    setSuggestQuestionsAfterAnswer([])
     const toServerInputs: Record<string, any> = {
       // token: APP_TOKEN,
     }
@@ -666,7 +665,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     let tempNewConversationId = ''
 
     handleResponding(true)
-    // setRespondingTrue()
+
     sendChatMessage(data, {
       getAbortController: (abortController) => {
         setAbortController(abortController)
@@ -721,19 +720,22 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         setCurrConversationId(tempNewConversationId, APP_ID, true)
         // setRespondingFalse()
         handleResponding(false)
-      //  if (config?.suggested_questions_after_answer?.enabled && !hasStopResponded.current && onGetSuggestedQuestions) {
-      //       try {
-      //         const { data }: any = await onGetSuggestedQuestions(
-      //           responseItem.id,
-      //           newAbortController => suggestedQuestionsAbortControllerRef.current = newAbortController,
-      //         )
-      //         setSuggestQuestions(data)
-      //       }
-      //       // eslint-disable-next-line unused-imports/no-unused-vars
-      //       catch (e) {
-      //         setSuggestQuestions([])
-      //       }
-      //     }
+        console.log('chatConfig ', chatConfig)
+
+        // 开启建议问题后，且没有停止对话时，请求建议问题
+       if (chatConfig?.suggested_questions_after_answer?.enabled && !hasStopResponded.current) {
+            try {
+              // 添加获取建议问题 api 调用
+              const { data } = await fetchSuggestedQuestions(
+                responseItem.id,
+              )
+              setSuggestQuestionsAfterAnswer(data)
+            }
+            // eslint-disable-next-line unused-imports/no-unused-vars
+            catch (e) {
+              setSuggestQuestionsAfterAnswer([])
+            }
+          }
       },
       onFile(file) {
         const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
@@ -988,14 +990,27 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       <div
         ref={inputBoxRef}
         className='fixed bottom-0 left-0 right-0 z-50 p-4'
+
       >
-        <OptimizedInput
+      {
+          chatConfig?.suggested_questions_after_answer?.enabled && !!suggestQuestionsAfterAnswer?.length && (
+            <TryToAsk
+              suggestedQuestions={suggestQuestionsAfterAnswer}
+              onSend={handleSend}
+              isMobile={true}
+            />
+          )
+      }
+
+      <OptimizedInput
           onSend={handleSend}
           onStop={handleStop}
           checkCanSend={checkCanSend}
           visionConfig={visionConfig}
+          chatConfig={chatConfig}
           isResponding={isResponding}
         />
+
       </div>
     </div>
   )

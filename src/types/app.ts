@@ -261,3 +261,39 @@ export type INaviAppSuggesQuestionItemDetail = string
 export type INavieAppSuggesQuestionCategory = string
 // 分类配置详情
 export type INaviAppSuggestionQuestionItem = Record<INavieAppSuggesQuestionCategory, INaviAppSuggesQuestionItemDetail[]>
+
+export type ChatConfig = {
+  opening_statement: string
+  suggested_questions?: string[]
+  pre_prompt: string
+  user_input_form: UserInputFormItem[]
+  dataset_query_variable?: string
+  more_like_this: {
+    enabled?: boolean
+  }
+  suggested_questions_after_answer: {
+    enabled: boolean
+  }
+  speech_to_text: {
+    enabled: boolean
+  }
+  text_to_speech: {
+    enabled: boolean
+    voice?: string
+    language?: string
+  }
+  retriever_resource: {
+    enabled: boolean
+  }
+  sensitive_word_avoidance: {
+    enabled: boolean
+  }
+  annotation_reply: {
+    enabled: boolean
+  }
+
+  file_upload?: {
+    image: VisionSettings
+    enabled: boolean
+  }
+}
