@@ -132,3 +132,56 @@ export type AnnotationReply = {
   annotation_id: string
   annotation_author_name: string
 }
+
+export enum TransferMethod {
+  all = 'all',
+  local_file = 'local_file',
+  remote_url = 'remote_url',
+}
+
+export type FileEntity = {
+  id: string
+  name: string
+  size: number
+  type: string
+  progress: number
+  transferMethod: TransferMethod
+  supportFileType: string
+  originalFile?: File
+  uploadedId?: string
+  base64Url?: string
+  url?: string
+  isRemote?: boolean
+}
+
+export enum WorkflowRunningStatus {
+  Waiting = 'waiting',
+  Running = 'running',
+  Succeeded = 'succeeded',
+  Failed = 'failed',
+  Stopped = 'stopped',
+}
+
+export type IterationDurationMap = Record<string, number>
+export type LoopDurationMap = Record<string, number>
+export type LoopVariableMap = Record<string, any>
+
+export type WorkflowProcess = {
+  status: WorkflowRunningStatus
+  tracing: any[]
+  expand?: boolean // for UI
+  resultText?: string
+  files?: FileEntity[]
+}
+
+export type ChatItem = IChatItem & {
+  isError?: boolean
+  workflowProcess?: WorkflowProcess
+  conversationId?: string
+  allFiles?: FileEntity[]
+}
+
+export type OnSend = {
+  (message: string, files?: FileEntity[]): void
+  (message: string, files: FileEntity[] | undefined, isRegenerate: boolean, lastAnswer?: ChatItem | null): void
+}

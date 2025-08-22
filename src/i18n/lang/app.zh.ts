@@ -27,7 +27,7 @@ const translation = {
     noMoreMessages: '没有更多消息了',
     pullToLoadMore: '下拉以加载更多',
     loadingMoreHistory: '加载中...',
-
+    tryToAsk: '试着问问',
   },
   generation: {
     stopped: '生成已停止',

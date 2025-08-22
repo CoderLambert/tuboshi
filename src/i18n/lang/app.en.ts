@@ -31,6 +31,7 @@ const translation = {
     noMoreMessages: 'No more messages',
     pullToLoadMore: 'Pull to load more',
     loadingMoreHistory: 'Loading...',
+    tryToAsk: 'Try to ask',
 
   },
   generation: {

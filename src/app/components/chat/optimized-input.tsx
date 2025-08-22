@@ -4,16 +4,18 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Textarea from 'rc-textarea' // 使用原生textarea
 import s from './style.module.css'
-import type { VisionFile, VisionSettings } from '@/types/app'
+import type { ChatConfig, VisionFile, VisionSettings } from '@/types/app'
 import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-uploader'
 import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
+import { useBoolean } from 'ahooks'
 
 export type IOptimizedInputProps = {
   onSend: (message: string, files: VisionFile[]) => void
   onStop?: () => void
   checkCanSend?: () => boolean
   visionConfig?: VisionSettings
+  chatConfig?: ChatConfig
   isResponding?: boolean
   initialQuery?: string
 }
@@ -26,6 +28,7 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
   checkCanSend,
   visionConfig,
   isResponding,
+  chatConfig,
   initialQuery = '',
 }) => {
   const { t } = useTranslation()
@@ -48,6 +51,7 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
     onClear,
   } = useImageFiles()
 
+  const [speechToTextEnabled, setSpeechToTextEnabled] = useBoolean(false)
   // 同步外部初始值变化（如果需要的话）
   useEffect(() => {
     if (initialQuery && initialQuery !== localQuery) {
@@ -67,6 +71,21 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
     // 完全移除实时外部状态同步，避免频繁重渲染
     // 外部组件可以通过ref或其他方式在需要时获取当前值
   }, [])
+
+  useEffect(() => {
+    console.log('chatConfig useEffect triggered:', chatConfig)
+
+    // 当 chatConfig 为 undefined 时，设置为默认值 false
+    // 当 chatConfig 有值时，根据实际配置设置
+    if(chatConfig?.speech_to_text?.enabled) {
+      setSpeechToTextEnabled.setTrue()
+      console.log('设置 speechToTextEnabled 为 true')
+    }
+    else {
+      setSpeechToTextEnabled.setFalse()
+      console.log('设置 speechToTextEnabled 为 false')
+    }
+  }, [chatConfig])
 
   const handleSend = useCallback(() => {
     if (isResponding)
@@ -124,6 +143,7 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
   return (
     <div className='relative  overflow-y-auto rounded-[24px] border-[3px] border-gray-200 bg-white p-[16px]'>
       {
+
         visionConfig?.enabled && (
           <>
             <div className='absolute bottom-2 left-2 flex items-center'>
@@ -182,4 +202,12 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
   )
 }
 
-export default React.memo(OptimizedInput)
+export default React.memo(OptimizedInput, (prevProps, nextProps) => {
+  // 确保 chatConfig 变化时组件会重新渲染
+  return (
+    prevProps.chatConfig === nextProps.chatConfig
+    && prevProps.isResponding === nextProps.isResponding
+    && prevProps.visionConfig === nextProps.visionConfig
+    && prevProps.initialQuery === nextProps.initialQuery
+  )
+})
