@@ -26,6 +26,10 @@ export type IFileResponse = {
   created_at: number,
 }
 
+export type IAudioToTextResponse = {
+  text: string,
+}
+
 export const routes = {
   application: { method: 'GET' as const, url: () => '/parameters' },
   feedback: { method: 'POST' as const, url: (message_id: string) => `/messages/${message_id}/feedbacks` },
@@ -39,6 +43,7 @@ export const routes = {
   runWorkflow: { method: 'POST' as const, url: () => '/workflows/run' },
   stopChatMessage: { method: 'POST' as const, url: (taskId: string) => `/chat-messages/${taskId}/stop` },
   fetchSuggestedQuestions: { method: 'GET' as const, url: (messageId: string) => `/messages/${messageId}/suggested` },
+  audioToText: { method: 'POST' as const, url: () => '/audio-to-text' },
 }
 
 export class DifyClient {
@@ -229,6 +234,18 @@ export class ChatClient extends DifyClient {
       routes.fetchSuggestedQuestions.url(messageId),
       undefined,
       params,
+    )
+  }
+
+  // 语音转文字
+  audioToText(formData: FormData): Promise<AxiosResponse<IAudioToTextResponse>> {
+    return this.sendRequest<IAudioToTextResponse>(
+      routes.audioToText.method,
+      routes.audioToText.url(),
+      formData,
+      undefined,
+      false,
+      { 'Content-Type': 'multipart/form-data' },
     )
   }
 }

@@ -248,8 +248,11 @@ const handleStream = (
   read()
 }
 
-const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: IOtherOptions) => {
+const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent, deleteContentType }: IOtherOptions) => {
   const options = Object.assign({}, baseOptions, fetchOptions)
+  // 如果 deleteContentType 为 true，则删除 Content-Type header
+  if (deleteContentType)
+    options.headers.delete('Content-Type')
 
   const urlPrefix = API_PREFIX
 
@@ -270,8 +273,8 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: I
 
     delete options.params
   }
-
-  if (body)
+  // 关键修改：只有当 body 存在且不是 FormData 时才进行 JSON.stringify
+  if (body && !(body instanceof FormData))
     options.body = JSON.stringify(body)
 
   // Handle timeout
@@ -433,4 +436,30 @@ export const put = (url: string, options = {}, otherOptions?: IOtherOptions) => 
 
 export const del = (url: string, options = {}, otherOptions?: IOtherOptions) => {
   return request(url, Object.assign({}, options, { method: 'DELETE' }), otherOptions)
+}
+/**
+ * 发送 multipart/form-data 请求
+ * @param url 请求地址
+ * @param formData FormData 对象
+ * @param otherOptions 其他选项
+ * @returns Promise
+ */
+export const postForm = (
+  url: string,
+  formData: FormData,
+  otherOptions?: Omit<IOtherOptions, 'bodyStringify'>,
+): Promise<any> => {
+  // 创建不包含 Content-Type 的 headers，让浏览器自动设置 multipart/form-data 及 boundary
+  // 强制设置为 multipart/form-data
+  // headers.set('Content-Type', 'multipart/form-data')
+
+  const options = {
+    method: 'POST',
+    body: formData,
+  }
+  const finalOptions = {
+    ...otherOptions,
+    deleteContentType: true,
+  }
+  return baseFetch(url, options, finalOptions || { deleteContentType: true })
 }

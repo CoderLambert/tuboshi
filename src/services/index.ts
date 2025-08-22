@@ -1,7 +1,7 @@
 import type { IOnCompleted, IOnData, IOnError, IOnFile, IOnMessageEnd, IOnMessageReplace, IOnNodeFinished, IOnNodeStarted, IOnThought, IOnWorkflowFinished, IOnWorkflowStarted } from './base'
-import { get, post, ssePost } from './base'
+import { get, post, postForm, ssePost } from './base'
 import type { ChatConfig, Feedbacktype } from '@/types/app'
-
+import type { IAudioToTextResponse } from '@/lib/client'
 export const sendChatMessage = async (
   body: Record<string, any>,
   {
@@ -88,4 +88,10 @@ export const fetchSuggestedQuestions = async (messageId: string): Promise<{
   return get(`/suggested-questions/${messageId}`) as Promise<{
     data: string[]
   }>
+}
+
+export const audioToText = async (formData: FormData): Promise<IAudioToTextResponse> => {
+  console.log('audioToText', formData)
+  return postForm('audio-to-text', formData,
+  )
 }
