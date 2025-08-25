@@ -101,7 +101,7 @@ export function useNativeBridge() {
 
   const useInputsFormConfig = () => {
     const setInputsForm = useAppStore(state => state.setInputsForm)
-    const inputsFormConfig = useAppStore(state => state.GPTConfig)
+    const inputsFormConfig = useAppStore(state => state.inputsForm)
     useEffect(() => {
       const getInputsFormInfo = async () => {
         const res = await callNativeMethod('getInputsForm', {})
