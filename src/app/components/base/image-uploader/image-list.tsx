@@ -90,7 +90,7 @@ const ImageList: FC<ImageListProps> = ({
               )
             }
             <img
-              className='h-16 w-16 cursor-pointer rounded-lg border-[0.5px] border-black/5 object-cover'
+              className='h-16 w-16 cursor-pointer rounded-[16px] border-[0.5px] border-black/5 object-cover'
               alt=''
               onLoad={() => handleImageLinkLoadSuccess(item)}
               onError={() => handleImageLinkLoadError(item)}
@@ -101,10 +101,10 @@ const ImageList: FC<ImageListProps> = ({
               !readonly && (
                 <div
                   className={`
-                    absolute right-[18px] top-[18px] z-10 h-[36px] w-[36px] cursor-pointer items-center 
-                    justify-center rounded-2xl border-[1px] border-black/[0.02] bg-white shadow-lg
+                    absolute right-[9px] top-[9px] z-10 flex h-[36px] w-[36px] cursor-pointer 
+                    items-center justify-center rounded-2xl border-[1px] border-black/[0.02] bg-white
+                    shadow-lg
                     hover:bg-gray-50
-                    ${item.progress === -1 ? 'flex' : 'hidden group-hover:flex'}
                   `}
                   onClick={() => onRemove && onRemove(item._id)}
                 >
