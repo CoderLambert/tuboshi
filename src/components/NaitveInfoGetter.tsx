@@ -10,7 +10,7 @@ export function NaitveInfoGetter() {
   const statusBarHeight = useStatusBarHeight()
   const qaData = useQaData()
   return (
-    <div style={styles.text}>
+    <div className='prose flex w-full flex-col gap-4 overflow-auto' style={styles.text}>
       <p>appRequestHeader: {JSON.stringify(appRequestHeader)}</p>
       <p>useInfo: {JSON.stringify(useInfo)}</p>
       <p>GPTConfig: {JSON.stringify(GPTConfig)}</p>

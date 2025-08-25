@@ -6,6 +6,7 @@ import FAQGuide from '@/app/components/FAQGuide'
 import type { INaviAppSuggestionQuestionItem } from '@/types/app'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import Main from '@/app/components'
+import { NaitveInfoGetter } from '@/components/NaitveInfoGetter'
 // import Link from 'next/link'
 
 export default function Home() {
@@ -33,7 +34,7 @@ export default function Home() {
 
   return (
     <div className="flex h-screen min-h-0 flex-col bg-white">
-      {/* <NaitveInfoGetter /> */}
+      <NaitveInfoGetter />
 
       <div className={styles.header}>
         <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
