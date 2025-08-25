@@ -99,6 +99,32 @@ export function useNativeBridge() {
     return GPTConfig
   }
 
+  const useInputsFormConfig = () => {
+    const setInputsForm = useAppStore(state => state.setInputsForm)
+    const inputsFormConfig = useAppStore(state => state.GPTConfig)
+    useEffect(() => {
+      const getInputsFormInfo = async () => {
+        const res = await callNativeMethod('getInputsForm', {})
+        setInputsForm(res)
+      }
+      getInputsFormInfo()
+    }, [])
+    return inputsFormConfig
+  }
+
+  const useUserID = () => {
+    const setUserID = useAppStore(state => state.setUserID)
+    const userID = useAppStore(state => state.userID)
+    useEffect(() => {
+      const getInputsFormInfo = async () => {
+        const res = await callNativeMethod('getUserID', {})
+        setUserID(res)
+      }
+      getInputsFormInfo()
+    }, [])
+    return userID
+  }
+
   const closeWebview = () => {
     callNativeMethod('useFinish', {})
   }
@@ -137,5 +163,7 @@ export function useNativeBridge() {
     closeWebview,
     useStatusBarHeight,
     useQaData,
+    useInputsFormConfig,
+    useUserID,
   }
 }
