@@ -3,12 +3,15 @@ import type { FC } from 'react'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Textarea from 'rc-textarea' // 使用原生textarea
-import s from './style.module.css'
 import type { ChatConfig, VisionFile, VisionSettings } from '@/types/app'
 import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-uploader'
 import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
 import { useBoolean } from 'ahooks'
+import Recorder from 'js-audio-recorder'
+import Toast from '@/app/components/base/toast'
+import s from './style.module.css'
+import VoiceInput from '@/app/components/base/voice-input'
 
 export type IOptimizedInputProps = {
   onSend: (message: string, files: VisionFile[]) => void
@@ -37,9 +40,7 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
   // 本地状态，用于即时显示用户输入
   const [localQuery, setLocalQuery] = useState(initialQuery || '')
   const queryRef = useRef(initialQuery || '')
-
-  // 调试日志
-  console.log('OptimizedInput render:', { localQuery, initialQuery })
+  const [showVoiceInput, setShowVoiceInput] = useState(false)
 
   const {
     files,
@@ -52,13 +53,10 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
   } = useImageFiles()
 
   const [speechToTextEnabled, setSpeechToTextEnabled] = useBoolean(false)
-  // 同步外部初始值变化（如果需要的话）
-  useEffect(() => {
-    if (initialQuery && initialQuery !== localQuery) {
-      setLocalQuery(initialQuery)
-      queryRef.current = initialQuery
-    }
-  }, [initialQuery, localQuery])
+  // 添加语音输入状态
+  const [isVoiceInputVisible, setIsVoiceInputVisible] = useState(false)
+  // 添加录音权限状态
+  const [hasVoicePermission, setHasVoicePermission] = useState(false)
 
   const handleContentChange = useCallback((e: any) => {
     const value = e.target.value
@@ -71,9 +69,16 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
     // 完全移除实时外部状态同步，避免频繁重渲染
     // 外部组件可以通过ref或其他方式在需要时获取当前值
   }, [])
-
+  // 同步外部初始值变化（如果需要的话）
+  useEffect(() => {
+    if (initialQuery && initialQuery !== localQuery) {
+      setLocalQuery(initialQuery)
+      queryRef.current = initialQuery
+    }
+  }, [initialQuery, localQuery])
   useEffect(() => {
     console.log('chatConfig useEffect triggered:', chatConfig)
+    console.log('speech_to_text config:', chatConfig?.speech_to_text)
 
     // 当 chatConfig 为 undefined 时，设置为默认值 false
     // 当 chatConfig 有值时，根据实际配置设置
@@ -85,7 +90,42 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
       setSpeechToTextEnabled.setFalse()
       console.log('设置 speechToTextEnabled 为 false')
     }
-  }, [chatConfig])
+
+    if(chatConfig?.speech_to_text?.enabled) {
+      setShowVoiceInput(true)
+      console.log('设置 showVoiceInput 为 true')
+    }
+    else {
+      setShowVoiceInput(false)
+      console.log('设置 showVoiceInput 为 false')
+    }
+  }, [chatConfig, setSpeechToTextEnabled, setShowVoiceInput])
+
+  // 添加录音权限检查逻辑
+  useEffect(() => {
+    const checkVoicePermission = async () => {
+      try {
+        // 检查是否支持录音功能
+        if (typeof window !== 'undefined' && navigator.mediaDevices) {
+          // 尝试获取权限
+          await (Recorder as any).getPermission()
+          setHasVoicePermission(true)
+          console.log('获取录音权限成功')
+        }
+ else {
+          console.log('浏览器不支持录音功能')
+        }
+      }
+ catch (err) {
+        console.log('获取录音权限失败:', err)
+        setHasVoicePermission(false)
+      }
+    }
+
+    // 只有在启用语音转文字功能时才检查权限
+    if (chatConfig?.speech_to_text?.enabled)
+      checkVoicePermission()
+  }, [chatConfig?.speech_to_text?.enabled])
 
   const handleSend = useCallback(() => {
     if (isResponding)
@@ -140,6 +180,36 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
     }
   }, [localQuery])
 
+  const handleShowVoiceInput = useCallback(() => {
+    (Recorder as any).getPermission().then(() => {
+      setShowVoiceInput(true)
+    }, () => {
+     Toast.notify({ type: 'error', message: t('common.voiceInput.notAllow') })
+    })
+  }, [t, Toast.notify])
+
+  const handleVoiceInputClick = useCallback(() => {
+    console.log('语音输入按钮被点击')
+    console.log('当前状态 - isResponding:', isResponding, 'speechToTextEnabled:', speechToTextEnabled, 'showVoiceInput:', showVoiceInput, 'hasVoicePermission:', hasVoicePermission)
+
+    // 直接显示语音输入组件
+    setIsVoiceInputVisible(true)
+  }, [isResponding, speechToTextEnabled, showVoiceInput, hasVoicePermission])
+
+  // 添加处理语音输入结果的函数
+  const handleVoiceInputComplete = useCallback((text: string) => {
+    setIsVoiceInputVisible(false)
+    if (text) {
+      setLocalQuery(text)
+      queryRef.current = text
+    }
+  }, [])
+
+  // 添加取消语音输入的函数
+  const handleVoiceInputCancel = useCallback(() => {
+    setIsVoiceInputVisible(false)
+  }, [])
+
   return (
     <div className='relative  overflow-y-auto rounded-[24px] border-[3px] border-gray-200 bg-white p-[16px]'>
       {
@@ -166,37 +236,67 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
           </>
         )
       }
-      <Textarea
-        className={`
-          mt-2 block max-h-none w-full resize-none appearance-none px-2 py-[7px] pr-[68px] text-sm leading-5 text-gray-700 outline-none
-          ${visionConfig?.enabled && 'pl-12'}
-          ${isResponding ? 'cursor-not-allowed opacity-60' : ''}
-        `}
-        value={localQuery}
-        onChange={handleContentChange}
-        onKeyUp={handleKeyUp}
-        onKeyDown={handleKeyDown}
-        autoSize={{ minRows: 1, maxRows: 5 }}
-        disabled={isResponding}
-        placeholder={isResponding ? t('app.errorMessage.waitForResponse') : '请输入消息...'}
-        rows={1}
-      />
+      <div className="relative">
+        <Textarea
+          className={`
+            mt-2 block max-h-none w-full resize-none appearance-none px-2 py-[7px] pr-[68px] text-sm leading-5 text-gray-700 outline-none
+            ${visionConfig?.enabled && 'pl-12'}
+            ${isResponding ? 'cursor-not-allowed opacity-60' : ''}
+          `}
+          value={localQuery}
+          onChange={handleContentChange}
+          onKeyUp={handleKeyUp}
+          onKeyDown={handleKeyDown}
+          autoSize={{ minRows: 1, maxRows: 5 }}
+          disabled={isResponding}
+          placeholder={isResponding ? t('app.errorMessage.waitForResponse') : '请输入消息...'}
+          rows={1}
+        />
+
+        {/* 语音输入组件覆盖在输入框上 */}
+        {isVoiceInputVisible && (
+          <div className="absolute inset-0 right-0 top-0 z-10 overflow-hidden rounded-[20px]">
+            <VoiceInput
+              onConverted={handleVoiceInputComplete}
+              onCancel={handleVoiceInputCancel}
+            />
+          </div>
+        )}
+      </div>
+
       <div className="absolute bottom-2 right-2 flex h-8 items-center">
-          {isResponding ? (
+        {/* 添加语音输入按钮 */}
+        <div className="flex items-center">
+          {!isResponding && (speechToTextEnabled || showVoiceInput || hasVoicePermission) && (
             <div
-              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md bg-red-500 hover:bg-red-600"
-              onClick={handleStop}
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md hover:bg-gray-100"
+              onClick={handleVoiceInputClick}
             >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="2" y="2" width="8" height="8" rx="1" fill="white"/>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 11C9.65685 11 11 9.65685 11 8V4C11 2.34315 9.65685 1 8 1C6.34315 1 5 2.34315 5 4V8C5 9.65685 6.34315 11 8 11Z" stroke="#374151" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 6V8C3 11.3137 5.68629 14 9 14" stroke="#374151" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M13 6V8C13 11.3137 10.3137 14 7 14" stroke="#374151" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M8 14V16" stroke="#374151" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </div>
-          ) : (
-            <div
-              className={`${s.sendBtn} h-8 w-8 cursor-pointer rounded-md ${!localQuery.trim() ? 'cursor-not-allowed opacity-50' : ''}`}
-              onClick={handleButtonClick}
-            />
           )}
+        </div>
+
+        {isResponding ? (
+          <div
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md bg-red-500 hover:bg-red-600"
+            onClick={handleStop}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="2" width="8" height="8" rx="1" fill="white"/>
+            </svg>
+          </div>
+        ) : (
+          <div
+            className={`${s.sendBtn} h-8 w-8 cursor-pointer rounded-md ${!localQuery.trim() ? 'cursor-not-allowed opacity-50' : ''}`}
+            onClick={handleButtonClick}
+          />
+        )}
       </div>
     </div>
   )

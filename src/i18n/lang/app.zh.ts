@@ -29,6 +29,10 @@ const translation = {
     loadingMoreHistory: '加载中...',
     tryToAsk: '试着问问',
   },
+  voiceInput: {
+    speaking: '正在说话',
+    converting: '正在转换',
+  },
   generation: {
     stopped: '生成已停止',
     stopFailed: '生成停止失败',

@@ -34,6 +34,10 @@ const translation = {
     tryToAsk: 'Try to ask',
 
   },
+  voiceInput: {
+    speaking: 'Speaking',
+    converting: 'Converting',
+  },
   generation: {
     stopped: 'Generation stopped',
     stopFailed: 'Generation stop failed',
