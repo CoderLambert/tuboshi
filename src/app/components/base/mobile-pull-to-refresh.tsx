@@ -2,14 +2,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import cn from 'clsx'
+import { debounce } from 'lodash-es' // 引入 lodash 或自行实现防抖
 
 export type IMobilePullToRefreshProps = {
-  children: React.ReactNode
-  onLoadMore?: () => Promise<void>
-  loadingMore?: boolean
-  hasMoreData?: boolean
-  noMoreDataText?: string
-  className?: string
+  children: React.ReactNode;
+  onLoadMore?: () => Promise<void>;
+  loadingMore?: boolean;
+  hasMoreData?: boolean;
+  noMoreDataText?: string;
+  className?: string;
 }
 
 const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
@@ -23,112 +24,107 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
   const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // 下拉状态
   const [isPulling, setIsPulling] = useState(false)
   const [pullDistance, setPullDistance] = useState(0)
   const [showNoMoreData, setShowNoMoreData] = useState(false)
-
-  // 触摸状态
   const [startY, setStartY] = useState(0)
   const [isTracking, setIsTracking] = useState(false)
 
-  // 下拉加载处理
-  const handleLoadMore = useCallback(async () => {
-    console.log('🔄 handleLoadMore called - loadingMore:', loadingMore, 'hasMoreData:', hasMoreData)
-
-    if (!hasMoreData) {
-      console.log('❌ No more data available')
-      setShowNoMoreData(true)
-      setTimeout(() => {
-        setShowNoMoreData(false)
-        setIsPulling(false)
-        setPullDistance(0)
-      }, 2000)
-      return
-    }
-
-    if (onLoadMore && !loadingMore) {
-      console.log('✅ Starting load more...')
-      try {
-        await onLoadMore()
-        console.log('✅ Load more completed')
+  const handleLoadMore = useCallback(
+    debounce(async () => {
+      console.log('🔄 handleLoadMore called - loadingMore:', loadingMore, 'hasMoreData:', hasMoreData)
+      if (!hasMoreData) {
+        console.log('❌ No more data available')
+        setShowNoMoreData(true)
+        setTimeout(() => {
+          setShowNoMoreData(false)
+          setIsPulling(false)
+          setPullDistance(0)
+        }, 2000)
+        return
       }
+
+      if (onLoadMore && !loadingMore) {
+        console.log('✅ Starting load more...')
+        try {
+          await onLoadMore()
+          console.log('✅ Load more completed')
+        }
  finally {
+          setIsPulling(false)
+          setPullDistance(0)
+        }
+      }
+ else {
+        console.log('⚠️ Load more skipped - already loading or no handler')
+      }
+    }, 500),
+    [onLoadMore, loadingMore, hasMoreData],
+  )
+
+  const handleTouchStart = useCallback(
+    (e: TouchEvent) => {
+      if (loadingMore) return
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      if (scrollTop > 0) return
+
+      const touch = e.touches[0]
+      setStartY(touch.clientY)
+      setIsTracking(true)
+
+      if (scrollTop === 0)
+        e.preventDefault()
+    },
+    [loadingMore],
+  )
+
+  const handleTouchMove = useCallback(
+    (e: TouchEvent) => {
+      if (!isTracking || loadingMore) return
+
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      if (scrollTop > 0) {
+        setIsTracking(false)
+        setIsPulling(false)
+        setPullDistance(0)
+        return
+      }
+
+      const touch = e.touches[0]
+      const deltaY = touch.clientY - startY
+
+      if (deltaY > 0) {
+        e.preventDefault()
+        e.stopPropagation()
+
+        const distance = Math.min(deltaY * 0.5, 80)
+        setPullDistance(distance)
+        setIsPulling(distance > 10)
+      }
+ else {
         setIsPulling(false)
         setPullDistance(0)
       }
-    }
- else {
-      console.log('⚠️ Load more skipped - already loading or no handler')
-    }
-  }, [onLoadMore, loadingMore, hasMoreData])
+    },
+    [isTracking, startY, loadingMore],
+  )
 
-  // 触摸开始
-  const handleTouchStart = useCallback((e: TouchEvent) => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-    if (scrollTop > 0) return
-
-    const touch = e.touches[0]
-    setStartY(touch.clientY)
-    setIsTracking(true)
-
-    // 只在页面顶部时阻止默认行为
-    if (scrollTop === 0)
-      e.preventDefault()
-  }, [])
-
-  // 触摸移动
-  const handleTouchMove = useCallback((e: TouchEvent) => {
-    if (!isTracking) return
-
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-    if (scrollTop > 0) {
-      setIsTracking(false)
-      setIsPulling(false)
-      setPullDistance(0)
-      return
-    }
-
-    const touch = e.touches[0]
-    const deltaY = touch.clientY - startY
-
-    if (deltaY > 0) {
-      // 向下拖拽时才阻止默认行为
-      e.preventDefault()
-      e.stopPropagation()
-
-      const distance = Math.min(deltaY * 0.5, 80) // 限制最大下拉距离为80px
-      setPullDistance(distance)
-      setIsPulling(distance > 10)
-    }
- else {
-      // 向上拖拽时重置状态，允许正常滚动
-      setIsPulling(false)
-      setPullDistance(0)
-    }
-  }, [isTracking, startY])
-
-  // 触摸结束
   const handleTouchEnd = useCallback(() => {
-    if (!isTracking) return
+    if (!isTracking || loadingMore) return
 
     setIsTracking(false)
 
-    // 检查页面滚动位置
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop
     if (scrollTop > 0) {
-      // 如果页面已经滚动，重置状态并允许正常滚动
       setIsPulling(false)
       setPullDistance(0)
       return
     }
 
     if (pullDistance >= 80 && hasMoreData) {
-      // 触发加载
       handleLoadMore()
     }
  else if (pullDistance >= 80 && !hasMoreData) {
-      // 显示无更多数据
       setShowNoMoreData(true)
       setTimeout(() => {
         setShowNoMoreData(false)
@@ -137,18 +133,15 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
       }, 2000)
     }
  else {
-      // 回弹
       setIsPulling(false)
       setPullDistance(0)
     }
-  }, [isTracking, pullDistance, hasMoreData, handleLoadMore])
+  }, [isTracking, pullDistance, hasMoreData, handleLoadMore, loadingMore])
 
-  // 添加事件监听器
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
-    // 添加CSS样式
     const style = document.createElement('style')
     style.textContent = `
       body {
@@ -158,24 +151,22 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
       .mobile-pull-to-refresh {
         overscroll-behavior-y: none;
         -webkit-overflow-scrolling: touch;
-        touch-action: pan-y;
+        touch-action: pan-y pinch-zoom;
         -webkit-user-select: none;
         user-select: none;
         -webkit-touch-callout: none;
         -webkit-tap-highlight-color: transparent;
       }
       .mobile-pull-to-refresh * {
-        /* 确保所有子元素都能传播触摸事件 */
         pointer-events: auto;
         touch-action: inherit;
       }
     `
     document.head.appendChild(style)
 
-    // 添加触摸事件监听器到容器 - 使用事件委托确保全页面响应
-    container.addEventListener('touchstart', handleTouchStart, { passive: true, capture: true })
-    container.addEventListener('touchmove', handleTouchMove, { passive: false, capture: true })
-    container.addEventListener('touchend', handleTouchEnd, { passive: true, capture: true })
+    container.addEventListener('touchstart', handleTouchStart, { passive: true })
+    container.addEventListener('touchmove', handleTouchMove, { passive: false })
+    container.addEventListener('touchend', handleTouchEnd, { passive: true })
 
     return () => {
       container.removeEventListener('touchstart', handleTouchStart)
@@ -186,11 +177,9 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
     }
   }, [handleTouchStart, handleTouchMove, handleTouchEnd])
 
-  // 渲染下拉指示器
   const renderPullIndicator = () => {
     if (!isPulling && !loadingMore && !showNoMoreData) return null
 
-    // 无更多数据提示
     if (showNoMoreData) {
       return (
         <div className="flex h-full w-full flex-col items-center justify-center">
@@ -206,7 +195,6 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
       )
     }
 
-    // 加载中状态
     if (loadingMore) {
       return (
         <div className="flex h-full w-full flex-col items-center justify-center">
@@ -218,13 +206,11 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
       )
     }
 
-    // 拖拽状态
     const canRelease = pullDistance >= 80
     const progress = Math.min(pullDistance / 80, 1)
 
     return (
       <div className="flex h-full w-full flex-col items-center justify-center">
-        {/* 圆形进度指示器 */}
         <div className="relative mb-2">
           <div className="h-6 w-6 rounded-full border-2 border-gray-200"></div>
           <div
@@ -234,7 +220,7 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
             )}
             style={{
               transform: `rotate(${progress * 360}deg)`,
-              opacity: 0.3 + (progress * 0.7),
+              opacity: 0.3 + progress * 0.7,
             }}
           ></div>
           {canRelease && (
@@ -243,16 +229,19 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
             </div>
           )}
         </div>
-
-        {/* 文字提示 */}
-        <span className={cn(
-          'text-xs font-medium transition-colors duration-200',
-          canRelease ? 'text-green-600' : 'text-gray-500',
-        )}>
+        <span
+          className={cn(
+            'text-xs font-medium transition-colors duration-200',
+            canRelease ? 'text-green-600' : 'text-gray-500',
+          )}
+        >
           {canRelease
-            ? (hasMoreData ? t('app.chat.releaseToLoadMore') : t('app.chat.noMoreMessages'))
-            : (hasMoreData ? t('app.chat.pullToLoadMore') : t('app.chat.loadHistoryMessages'))
-          }
+            ? hasMoreData
+              ? t('app.chat.releaseToLoadMore')
+              : t('app.chat.noMoreMessages')
+            : hasMoreData
+            ? t('app.chat.pullToLoadMore')
+            : t('app.chat.loadHistoryMessages')}
         </span>
       </div>
     )
@@ -260,7 +249,6 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
 
   return (
     <>
-      {/* 下拉指示器 - 优化样式，更自然 */}
       {(isPulling || loadingMore || showNoMoreData) && (
         <div
           className="fixed left-0 right-0 top-0 z-[9999]"
@@ -274,8 +262,6 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
           {renderPullIndicator()}
         </div>
       )}
-
-      {/* 页面内容容器 */}
       <div
         ref={containerRef}
         className={cn('mobile-pull-to-refresh min-h-screen', className)}
