@@ -30,6 +30,19 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
   const [startY, setStartY] = useState(0)
   const [isTracking, setIsTracking] = useState(false)
 
+  let supportsPassive = false
+  try {
+    const opts = Object.defineProperty({}, 'passive', {
+      get() {
+        supportsPassive = true
+        return true
+      },
+    })
+    window.addEventListener('testPassive', () => {}, opts)
+    window.removeEventListener('testPassive', () => {}, opts)
+  }
+  catch (e) {}
+
   const handleLoadMore = useCallback(
     debounce(async () => {
       console.log('🔄 handleLoadMore called - loadingMore:', loadingMore, 'hasMoreData:', hasMoreData)
@@ -72,8 +85,10 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
       setStartY(touch.clientY)
       setIsTracking(true)
 
-      if (scrollTop === 0)
+        if (!supportsPassive) {
+        // ✅ 只在不支持 passive 时才调用 preventDefault
         e.preventDefault()
+  }
     },
     [loadingMore],
   )
