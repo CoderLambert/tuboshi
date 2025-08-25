@@ -32,6 +32,7 @@ const translation = {
   voiceInput: {
     speaking: '正在说话',
     converting: '正在转换',
+    notAllow: '浏览器不支持语音输入',
   },
   generation: {
     stopped: '生成已停止',

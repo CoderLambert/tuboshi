@@ -37,6 +37,7 @@ const translation = {
   voiceInput: {
     speaking: 'Speaking',
     converting: 'Converting',
+    notAllow: 'Browser does not support voice input',
   },
   generation: {
     stopped: 'Generation stopped',

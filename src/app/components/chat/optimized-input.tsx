@@ -110,22 +110,21 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
           // 尝试获取权限
           await (Recorder as any).getPermission()
           setHasVoicePermission(true)
-          console.log('获取录音权限成功')
         }
- else {
-          console.log('浏览器不支持录音功能')
-        }
-      }
- catch (err) {
-        console.log('获取录音权限失败:', err)
-        setHasVoicePermission(false)
-      }
+        else {
+              Toast.notify({ type: 'error', message: t('app.voiceInput.notAllow') })
+            }
+          }
+        catch (err) {
+                Toast.notify({ type: 'error', message: t('app.voiceInput.notAllow') })
+                setHasVoicePermission(false)
+              }
     }
 
     // 只有在启用语音转文字功能时才检查权限
     if (chatConfig?.speech_to_text?.enabled)
       checkVoicePermission()
-  }, [chatConfig?.speech_to_text?.enabled])
+  }, [chatConfig?.speech_to_text?.enabled, t])
 
   const handleSend = useCallback(() => {
     if (isResponding)
@@ -180,14 +179,6 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
     }
   }, [localQuery])
 
-  const handleShowVoiceInput = useCallback(() => {
-    (Recorder as any).getPermission().then(() => {
-      setShowVoiceInput(true)
-    }, () => {
-     Toast.notify({ type: 'error', message: t('common.voiceInput.notAllow') })
-    })
-  }, [t, Toast.notify])
-
   const handleVoiceInputClick = useCallback(() => {
     console.log('语音输入按钮被点击')
     console.log('当前状态 - isResponding:', isResponding, 'speechToTextEnabled:', speechToTextEnabled, 'showVoiceInput:', showVoiceInput, 'hasVoicePermission:', hasVoicePermission)
@@ -216,7 +207,7 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
 
         visionConfig?.enabled && (
           <>
-            <div className='absolute bottom-2 left-2 flex items-center'>
+            <div className='absolute bottom-2 left-2 z-50 flex items-center'>
               <ChatImageUploader
                 settings={visionConfig}
                 onUpload={onUpload}
@@ -239,7 +230,7 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
       <div className="relative">
         <Textarea
           className={`
-            mt-2 block max-h-none w-full resize-none appearance-none px-2 py-[7px] pr-[68px] text-sm leading-5 text-gray-700 outline-none
+            mt-2 block max-h-none w-full resize-none appearance-none px-2 py-[7px] pr-[110px] text-sm leading-5 text-gray-700 outline-none
             ${visionConfig?.enabled && 'pl-12'}
             ${isResponding ? 'cursor-not-allowed opacity-60' : ''}
           `}
@@ -255,18 +246,21 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
 
         {/* 语音输入组件覆盖在输入框上 */}
         {isVoiceInputVisible && (
-          <div className="absolute inset-0 right-0 top-0 z-10 overflow-hidden rounded-[20px]">
-            <VoiceInput
-              onConverted={handleVoiceInputComplete}
-              onCancel={handleVoiceInputCancel}
-            />
+          <div className='fixed bottom-[150px] left-0 right-0 z-50 mx-2'>
+            <div className="absolute inset-0 right-0 top-0 z-10 overflow-hidden rounded-[20px] py-8">
+                <VoiceInput
+                  onConverted={handleVoiceInputComplete}
+                  onCancel={handleVoiceInputCancel}
+                />
+            </div>
           </div>
         )}
       </div>
 
       <div className="absolute bottom-2 right-2 flex h-8 items-center">
         {/* 添加语音输入按钮 */}
-        <div className="flex items-center">
+        {
+         chatConfig?.speech_to_text && hasVoicePermission && <div className="flex items-center">
           {!isResponding && (speechToTextEnabled || showVoiceInput || hasVoicePermission) && (
             <div
               className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md hover:bg-gray-100"
@@ -281,6 +275,7 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
             </div>
           )}
         </div>
+        }
 
         {isResponding ? (
           <div
