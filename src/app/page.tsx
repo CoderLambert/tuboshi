@@ -16,10 +16,15 @@ import { USERID_COOKIE_NAME } from '@/config'
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
 const { t } = useTranslation()
-const { useQaData, useUserID } = useNativeBridge()
+const { useQaData, useUserID, useGPTConfig } = useNativeBridge()
 const qaData: { data: QACategory[] } = useQaData()
 // init user-id
 const userInfo = useUserID()
+const gptConfig = useGPTConfig()
+console.log('userInfo')
+console.log(userInfo)
+console.log('gptConfig')
+console.log(gptConfig)
 Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'] || 'abc-123')
 
 const faqContent = qaData?.data || []

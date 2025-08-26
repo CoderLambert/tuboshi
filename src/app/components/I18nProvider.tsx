@@ -13,8 +13,10 @@ export default function I18nProvider({ children }: I18nProviderProps) {
   const { i18n } = useTranslation()
   const { useInputsFormConfig } = useNativeBridge()
 
-  const { langType } = useInputsFormConfig()
-
+  const inputsFormConfig = useInputsFormConfig()
+  const { langType } = inputsFormConfig
+  console.log('inputsFormConfig', inputsFormConfig)
+  console.log('langType', langType)
   useEffect(() => {
     // 获取当前客户端语言设置
     const currentLocale = getLocaleOnClient()
