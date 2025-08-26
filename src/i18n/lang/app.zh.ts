@@ -1,8 +1,10 @@
 const translation = {
   common: {
-    welcome: '欢迎使用',
+    welcome: '我是MAOMAO，你的智能助手',
+    faqTip: '你可以试试这样问我',
     appUnavailable: '应用不可用',
     appUnkonwError: '应用不可用',
+
   },
   chat: {
     newChat: '新对话',
@@ -15,6 +17,7 @@ const translation = {
     configStatusDes: '开始前，您可以修改对话设置',
     configDisabled: '此次会话已使用上次会话表单',
     startChat: '开始对话',
+    startChatTip: '发送消息开始聊天，或下拉页面加载历史消息',
     privacyPolicyLeft: '请阅读由该应用开发者提供的',
     privacyPolicyMiddle: '隐私政策',
     privacyPolicyRight: '。',
@@ -28,6 +31,7 @@ const translation = {
     pullToLoadMore: '下拉以加载更多',
     loadingMoreHistory: '加载中...',
     tryToAsk: '试着问问',
+    textInputPlaceholder: '请输入问题...',
   },
   voiceInput: {
     speaking: '正在说话',
@@ -39,6 +43,7 @@ const translation = {
     stopFailed: '生成停止失败',
   },
   errorMessage: {
+    historyLoadFailed: '历史记录加载失败,请重试',
     valueOfVarRequired: '变量值必填',
     waitForResponse: '请等待上条信息响应完成',
   },

@@ -3,8 +3,10 @@
 import type { INaviAppSuggestionQuestionItem } from '@/types/app'
 import styles from './style.module.css'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CategoryTabs } from './category-tabs'
 import { QuestionItems } from './question-items'
+
 // 常见问题引导页
 
 export type IFAQProps = {
@@ -14,6 +16,7 @@ export type IFAQProps = {
 
 export default function FAQGuide({ suggestions, onQuestionClick }: IFAQProps) {
   // 直接处理数据，避免异步状态更新
+  const { t } = useTranslation()
   const suggestionGroup = useMemo(() => {
     return suggestions.reduce((pre, cur) => {
       return {
@@ -44,7 +47,7 @@ export default function FAQGuide({ suggestions, onQuestionClick }: IFAQProps) {
   return (
     <div className={styles.suggestion}>
       <div className={styles.tip}>
-        你可以试试这样问我
+        {t('app.common.faqTip')}
       </div>
 
       <CategoryTabs

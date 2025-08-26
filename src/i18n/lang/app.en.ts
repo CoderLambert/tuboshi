@@ -1,6 +1,7 @@
 const translation = {
   common: {
-    welcome: 'Welcome to use',
+    welcome: 'Welcome to use MAOMAO, your AI assistant.',
+    faqTip: 'Try asking questions like',
     appUnavailable: 'App is unavailable',
     appUnkonwError: 'App is unavailable',
   },
@@ -16,6 +17,8 @@ const translation = {
     configDisabled:
       'Previous session settings have been used for this session.',
     startChat: 'Start Chat',
+    startChatTip:
+      'Send a message to start chatting, or pull down to load previous messages',
     privacyPolicyLeft:
       'Please read the ',
     privacyPolicyMiddle:
@@ -32,7 +35,7 @@ const translation = {
     pullToLoadMore: 'Pull to load more',
     loadingMoreHistory: 'Loading...',
     tryToAsk: 'Try to ask',
-
+    textInputPlaceholder: 'Type your question...', // 添加这一行
   },
   voiceInput: {
     speaking: 'Speaking',
@@ -44,9 +47,10 @@ const translation = {
     stopFailed: 'Generation stop failed',
   },
   errorMessage: {
+    historyLoadFailed: 'History load failed, please try again',
     valueOfVarRequired: 'Variables value can not be empty',
-    waitForResponse:
-      'Please wait for the response to the previous message to complete.',
+    waitForResponse: 'Please wait for the previous response to complete.',
+
   },
   variableTable: {
     optional: 'Optional',

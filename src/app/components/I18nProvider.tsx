@@ -17,13 +17,13 @@ export default function I18nProvider({ children }: I18nProviderProps) {
     const currentLocale = getLocaleOnClient()
     const defaultLanguage = APP_INFO.default_language
 
-    console.log('I18nProvider - Current locale:', currentLocale)
-    console.log('I18nProvider - Default language:', defaultLanguage)
-    console.log('I18nProvider - i18n language:', i18n.language)
+    // console.log('I18nProvider - Current locale:', currentLocale)
+    // console.log('I18nProvider - Default language:', defaultLanguage)
+    // console.log('I18nProvider - i18n language:', i18n.language)
 
     // 如果当前语言与默认语言不一致，则设置为默认语言
     if (currentLocale !== defaultLanguage || i18n.language !== defaultLanguage) {
-      console.log('I18nProvider - Setting language to:', defaultLanguage)
+      // console.log('I18nProvider - Setting language to:', defaultLanguage)
       setLocaleOnClient(defaultLanguage, true) // 不重新加载页面
     }
   }, [i18n])

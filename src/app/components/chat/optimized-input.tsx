@@ -240,7 +240,7 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
           onKeyDown={handleKeyDown}
           autoSize={{ minRows: 1, maxRows: 5 }}
           disabled={isResponding}
-          placeholder={isResponding ? t('app.errorMessage.waitForResponse') : '请输入消息...'}
+          placeholder={isResponding ? t('app.errorMessage.waitForResponse') : t('app.chat.textInputPlaceholder')}
           rows={1}
         />
 

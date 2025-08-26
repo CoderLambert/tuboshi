@@ -947,7 +947,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         onLoadMore={loadHistoryMessages}
         loadingMore={isLoadingHistory}
         hasMoreData={hasMoreHistory}
-        noMoreDataText="已加载全部会话"
+        noMoreDataText={t('app.chat.noMoreMessages')}
       >
         {/* 页面内容区域 - 包含所有内容的页面级滚动 */}
         <div className='flex flex-col bg-white'>
