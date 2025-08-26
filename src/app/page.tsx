@@ -14,6 +14,7 @@ import { useNativeBridge } from '@/hooks/useNativeBridge'
 import { useEffect } from 'react'
 import { USERID_COOKIE_NAME } from '@/config'
 import SafeAreaLayout from './components/SafeAreaLayout'
+import Link from 'next/link'
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
 const { t } = useTranslation()
@@ -59,6 +60,8 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
             <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
             <h1 className={styles.intro}>{t('app.common.welcome')}</h1>
           </div>
+
+          <Link className='text-sm text-blue-500 hover:text-blue-700' href="/test/api"> api 测试</Link>
           {
           faqContent.length > 0 && <FAQGuide
                   suggestions={questions}
