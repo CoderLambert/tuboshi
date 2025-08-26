@@ -582,8 +582,10 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     // 发送成功后清空输入框状态、建议问题
     currentQueryRef.current = ''
     setSuggestQuestionsAfterAnswer([])
+    console.log(`inputsFormConfig ---> ${JSON.stringify(inputsFormConfig)}`)
     const toServerInputs: Record<string, any> = {
-      ...inputsFormConfig,
+      // test: '222',
+      // ...inputsFormConfig,
     }
     if (currInputs) {
       Object.keys(currInputs).forEach((key) => {
