@@ -13,7 +13,6 @@ import SimpleChat from '@/app/components/chat/simple-chat'
 import MobilePullToRefresh from '@/app/components/base/mobile-pull-to-refresh'
 import OptimizedInput from '@/app/components/chat/optimized-input'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
-import { setLocaleOnClient } from '@/i18n/client'
 import Loading from '@/app/components/base/loading'
 import { replaceVarWithValues, userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from './chat/app-unavailable'
@@ -446,7 +445,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
         // fetch new conversation info
         const { user_input_form, opening_statement: introduction, file_upload, system_parameters, suggested_questions = [] }: any = appParams
-        setLocaleOnClient(APP_INFO.default_language, true)
+        // setLocaleOnClient(APP_INFO.default_language, true)
         setNewConversationInfo({
           name: t('app.chat.newChatDefaultName'),
           introduction,
