@@ -2,13 +2,11 @@ import type { NextRequest } from 'next/server'
 import { ChatClient } from '@/lib/client'
 import { v4 } from 'uuid'
 import { API_KEY, API_URL } from '@/config'
-
-// const userPrefix = `user_${APP_ID}:`
+import { USERID_COOKIE_NAME } from '@/config'
 
 export const getInfo = (request: NextRequest) => {
   const sessionId = request.cookies.get('session_id')?.value || v4()
-  // const user = userPrefix + sessionId
-  const user = 'abc-123'
+  const user = request.cookies.get(USERID_COOKIE_NAME)?.value || ''
   return {
     sessionId,
     user,
