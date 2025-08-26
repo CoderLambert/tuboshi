@@ -13,6 +13,7 @@ import type { QACategory } from '@/hooks/useAppStore'
 import { useNativeBridge } from '@/hooks/useNativeBridge'
 import { useEffect } from 'react'
 import { USERID_COOKIE_NAME } from '@/config'
+import SafeAreaLayout from './components/SafeAreaLayout'
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
 const { t } = useTranslation()
@@ -22,7 +23,6 @@ const qaData: { data: QACategory[] } = useQaData()
 const userInfo = useUserID()
 const gptConfig = useGPTConfig()
 console.log('userInfo')
-console.log(userInfo)
 console.log('gptConfig')
 console.log(gptConfig)
 Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'] || 'abc-123')
@@ -54,8 +54,24 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
   return (
     <div className="flex h-screen min-h-0 flex-col bg-white">
 
-      {/* <SafeAreaLayout title="MaoMao AI">
+       <SafeAreaLayout title="MaoMao AI">
           <div className={styles.header}>
+            <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
+            <h1 className={styles.intro}>{t('app.common.welcome')}</h1>
+          </div>
+          {
+          faqContent.length > 0 && <FAQGuide
+                  suggestions={questions}
+                  onQuestionClick={handleQuestionClick}
+              />
+          }
+          {/* 消息列表 - 占据剩余空间 */}
+           <div className="min-h-0 flex-1">
+            <Main params={{}}></Main>
+          </div>
+      </SafeAreaLayout>
+
+            {/* <div className={styles.header}>
             <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
             <h1 className={styles.intro}>{t('app.common.welcome')}</h1>
           </div>
@@ -68,23 +84,7 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
           {/* 消息列表 - 占据剩余空间 */}
           {/* <div className="min-h-0 flex-1">
             <Main params={{}}></Main>
-          </div>
-      </SafeAreaLayout> */}
-
-            <div className={styles.header}>
-            <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
-            <h1 className={styles.intro}>{t('app.common.welcome')}</h1>
-          </div>
-          {
-          faqContent.length > 0 && <FAQGuide
-                  suggestions={questions}
-                  onQuestionClick={handleQuestionClick}
-              />
-          }
-          {/* 消息列表 - 占据剩余空间 */}
-          <div className="min-h-0 flex-1">
-            <Main params={{}}></Main>
-          </div>
+          </div> */}
 
     </div>
   )

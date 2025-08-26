@@ -1,11 +1,11 @@
 import type { AppInfo } from '@/types/app'
-export const API_KEY = 'app-Bw7GY5U1f7d4XIxXxWRuHueC'
-export const APP_ID = 'a486b436-4997-4331-b6ec-a78d6f47122c'
-export const API_URL = 'http://10.21.61.78:31092/v1'
+// export const API_KEY = 'app-Bw7GY5U1f7d4XIxXxWRuHueC'
+// export const APP_ID = 'a486b436-4997-4331-b6ec-a78d6f47122c'
+// export const API_URL = 'http://10.21.61.78:31092/v1'
 
-// export const API_KEY = 'app-OzDb7ZrJKLPQ8rYpYTq5ZZg9'
-// export const APP_ID = 'c4acfcf5-ff94-49f2-9c6b-c78f04f03e2b'
-// export const API_URL = 'https://ai-agent.jtexpress.ph/v1'
+export const API_KEY = 'app-OzDb7ZrJKLPQ8rYpYTq5ZZg9'
+export const APP_ID = 'c4acfcf5-ff94-49f2-9c6b-c78f04f03e2b'
+export const API_URL = 'https://ai-agent.jtexpress.ph/v1'
 
 // app - OzDb7ZrJKLPQ8rYpYTq5ZZg9
 
