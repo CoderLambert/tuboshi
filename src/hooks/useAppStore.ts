@@ -28,7 +28,7 @@ const useAppStore = create(set => ({
   qaData: [],
   setQaData: (qaData: { data: QACategory[] }) => set({ qaData }),
   inputsForm: {},
-  setInputsForm: (inputs: { [key: string]: PrimitiveValue }) => set({ inputs }),
+  setInputsForm: (inputsForm: { [key: string]: PrimitiveValue }) => set({ inputsForm }),
   userID: {},
   setUserID: (userID: { [key: string]: PrimitiveValue }) => set({ userID }),
 }))
