@@ -18,9 +18,10 @@ export async function POST(request: NextRequest) {
       ...(res.headers as Record<string, string>),
       'Content-Type': 'text/event-stream',
     })
+    // console.log(`inputs ${JSON.stringify(inputs)}`)
     return new Response(res.data as any, {
       headers,
     })
   }
- else { return new Response(res.data as any) }
+  else { return new Response(res.data as any) }
 }

@@ -21,6 +21,7 @@ import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/confi
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import TryToAsk from './chat/try-to-ask'
+import { useNativeBridge } from '@/hooks/useNativeBridge'
 export type IMainProps = {
   params: any
   headerContent?: React.ReactNode
@@ -33,13 +34,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   // 输入框状态管理 - 使用useRef避免频繁重渲染
   const currentQueryRef = useRef('')
-
-  // 设置输入框内容（用于建议点击等场景）
-  // 注意：由于输入框现在完全独立，这个函数需要通过其他方式实现
-  // const setInputQuery = useCallback((query: string) => {
-  //   currentQueryRef.current = query
-  //   // TODO: 通过inputRef调用输入框的方法来设置内容
-  // }, [])
 
   const [chatConfig, setChatConfig] = useState<ChatConfig>()
   // 动态高度计算相关状态
@@ -195,6 +189,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     setNewConversationInfo,
     setExistConversationInfo,
   } = useConversation()
+  //  获取用户需要输入的表单
+  const { useInputsFormConfig } = useNativeBridge()
+  const inputsFormConfig = useInputsFormConfig()
 
   const [conversationIdChangeBecauseOfNew, setConversationIdChangeBecauseOfNew, getConversationIdChangeBecauseOfNew] = useGetState(false)
   const [isChatStarted, { setFalse: setChatNotStarted }] = useBoolean(false)
@@ -206,6 +203,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       return
 
     // update inputs of current conversation
+
     let notSyncToStateIntroduction = ''
     let notSyncToStateInputs: Record<string, any> | undefined | null = {
       // token: APP_TOKEN,
@@ -329,17 +327,12 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         return
       }
 
-      console.log('🔍 loadHistoryMessages - firstMessageId:', firstMessageId)
-      console.log('🔍 loadHistoryMessages - historyMessages.length:', currentHistoryMessages.length)
-      console.log('🔍 loadHistoryMessages - currentChatList.length:', currentChatList.length)
       if (currentHistoryMessages.length > 0) {
         const answerIds = currentHistoryMessages.filter(item => item.isAnswer).map(item => item.id)
-        console.log('🔍 loadHistoryMessages - current history answer IDs:', answerIds)
       }
 
       const res = await fetchChatList(currConversationId, firstMessageId, 5)
       const { data, has_more } = res
-      console.log('📥 loadHistoryMessages API response:', res)
       if (data && data.length > 0) {
         const historyItems: ChatItem[] = []
 
@@ -363,13 +356,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         })
 
         // 将新的历史消息插入到现有历史消息的开头
-        console.log('📝 Adding new history items:', historyItems.length)
-        console.log('📝 New history items:', historyItems.map(item => ({ id: item.id, key: item.key, isAnswer: item.isAnswer })))
-
         setHistoryMessages((prev) => {
           const newHistory = [...historyItems, ...prev]
-          console.log('📝 Updated history length:', newHistory.length)
-
           return newHistory
         })
 
@@ -596,7 +584,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     currentQueryRef.current = ''
     setSuggestQuestionsAfterAnswer([])
     const toServerInputs: Record<string, any> = {
-      // token: APP_TOKEN,
+      ...inputsFormConfig,
     }
     if (currInputs) {
       Object.keys(currInputs).forEach((key) => {
@@ -718,9 +706,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         resetNewConversationInputs()
         setChatNotStarted()
         setCurrConversationId(tempNewConversationId, APP_ID, true)
-        // setRespondingFalse()
         handleResponding(false)
-        console.log('chatConfig ', chatConfig)
 
         // 开启建议问题后，且没有停止对话时，请求建议问题
        if (chatConfig?.suggested_questions_after_answer?.enabled && !hasStopResponded.current) {

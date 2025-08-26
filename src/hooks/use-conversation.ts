@@ -13,7 +13,6 @@ function useConversation() {
   const setCurrConversationId = (id: string, appId: string, isSetToLocalStroge = true, newConversationName = '') => {
     doSetCurrConversationId(id)
     if (isSetToLocalStroge && id !== '-1') {
-      // conversationIdInfo: {[appId1]: conversationId1, [appId2]: conversationId2}
       const conversationIdInfo = globalThis.localStorage?.getItem(storageConversationIdKey) ? JSON.parse(globalThis.localStorage?.getItem(storageConversationIdKey) || '') : {}
       conversationIdInfo[appId] = id
       globalThis.localStorage?.setItem(storageConversationIdKey, JSON.stringify(conversationIdInfo))
@@ -39,6 +38,8 @@ function useConversation() {
     }))
   }
   const [existConversationInputs, setExistConversationInputs] = useState<Record<string, any> | null>(null)
+
+  // 这里正常是需要用户填写表单的， 但在嵌入app中这些表单数据已经由 app 初始化完成，直接从  appStore 中获取
   const currInputs = isNewConversation ? newConversationInputs : existConversationInputs
   const setCurrInputs = isNewConversation ? setNewConversationInputs : setExistConversationInputs
 

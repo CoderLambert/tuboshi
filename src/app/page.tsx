@@ -16,10 +16,8 @@ import { USERID_COOKIE_NAME } from '@/config'
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
 const { t } = useTranslation()
-const { useQaData, useInputsFormConfig, useUserID } = useNativeBridge()
+const { useQaData, useUserID } = useNativeBridge()
 const qaData: { data: QACategory[] } = useQaData()
-useInputsFormConfig() // 提前调用 Hook
-
 // init user-id
 const userInfo = useUserID()
 Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'] || 'abc-123')
