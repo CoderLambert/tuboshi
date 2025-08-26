@@ -8,7 +8,7 @@ import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import Main from '@/app/components'
 import { useTranslation } from 'react-i18next'
 
-import { NaitveInfoGetter } from '@/components/NaitveInfoGetter'
+// import { NaitveInfoGetter } from '@/components/NaitveInfoGetter'
 // import Link from 'next/link'
 import type { QACategory } from '@/hooks/useAppStore'
 import useAppStore from '@/hooks/useAppStore'
@@ -30,7 +30,7 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
 
   return (
     <div className="flex h-screen min-h-0 flex-col bg-white">
-      <NaitveInfoGetter />
+      {/* <NaitveInfoGetter /> */}
 
       <div className={styles.header}>
         <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
