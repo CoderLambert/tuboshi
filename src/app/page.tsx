@@ -8,13 +8,12 @@ import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import Main from '@/app/components'
 import { useTranslation } from 'react-i18next'
 import type { QACategory } from '@/hooks/useAppStore'
-import VConsole from 'vconsole'
-
 import { NaitveInfoGetter } from '@/components/NaitveInfoGetter'
 // import Link from 'next/link'
 import { useNativeBridge } from '@/hooks/useNativeBridge'
 import { useCallback, useEffect } from 'react'
 import Button from './components/chat/button'
+
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
 const { t } = useTranslation()
@@ -35,9 +34,15 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
   }
 
   useEffect(() => {
-    const vConsole = new VConsole()
-    return () => {
-      vConsole.destroy()
+    if (typeof window !== 'undefined') { // 确保只在浏览器中运行
+        import('vconsole').then((module) => {
+          const VConsole = module.default
+          const vConsole = new VConsole()
+          // 可添加自定义配置，如只在特定 URL 参数下启用：if (new URLSearchParams(window.location.search).has('debug'))
+          return () => vConsole.destroy()
+        }).catch((error) => {
+          console.error('加载 vConsole 失败:', error)
+        })
     }
   }, [])
  const handleClick = useCallback(() => {
