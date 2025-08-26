@@ -26,7 +26,7 @@ const useAppStore = create(set => ({
   statusBarHeight: {},
   setStatusBarHeight: (statusBarHeight: { top: string, bottom: string }) => set({ statusBarHeight }),
   qaData: [],
-  setQaData: (qaData: QACategory[]) => set({ qaData }),
+  setQaData: (qaData: { data: QACategory[] }) => set({ qaData }),
   inputsForm: {},
   setInputsForm: (inputs: { [key: string]: PrimitiveValue }) => set({ inputs }),
   userID: {},

@@ -105,6 +105,7 @@ export function useNativeBridge() {
     useEffect(() => {
       const getInputsFormInfo = async () => {
         const res = await callNativeMethod('getInputsForm', {})
+        console.log('useEffect inputsFormConfig', res)
         setInputsForm(res)
       }
       getInputsFormInfo()

@@ -7,15 +7,21 @@ import type { INaviAppSuggestionQuestionItem } from '@/types/app'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import Main from '@/app/components'
 import { useTranslation } from 'react-i18next'
-
-// import { NaitveInfoGetter } from '@/components/NaitveInfoGetter'
-// import Link from 'next/link'
 import type { QACategory } from '@/hooks/useAppStore'
-import useAppStore from '@/hooks/useAppStore'
+import VConsole from 'vconsole'
+
+import { NaitveInfoGetter } from '@/components/NaitveInfoGetter'
+// import Link from 'next/link'
+import { useNativeBridge } from '@/hooks/useNativeBridge'
+import { useCallback, useEffect } from 'react'
+import Button from './components/chat/button'
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
-const { qaData } = useAppStore() as { qaData: { data: QACategory[] } }
-  const { t } = useTranslation()
+const { t } = useTranslation()
+const { useAppRequestHeader, useGPTConfig, useUserInfo, useStatusBarHeight, useQaData, useInputsFormConfig, useUserID } = useNativeBridge()
+const qaData: { data: QACategory[] } = useQaData()
+const userInfo: { user_id: string } = useUserID()
+const inputsFormConfig = useInputsFormConfig() // 提前调用 Hook
 
 const faqContent = qaData?.data || []
 
@@ -28,25 +34,53 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
     eventBus.emit(EVENTS.SEND_MESSAGE, question)
   }
 
+  useEffect(() => {
+    const vConsole = new VConsole()
+    return () => {
+      vConsole.destroy()
+    }
+  }, [])
+ const handleClick = useCallback(() => {
+    console.log(`inputsFormConfig: ${JSON.stringify(inputsFormConfig)}`) // 使用已获取的值
+  }, [inputsFormConfig])
   return (
     <div className="flex h-screen min-h-0 flex-col bg-white">
-      {/* <NaitveInfoGetter /> */}
+      <NaitveInfoGetter />
 
-      <div className={styles.header}>
-        <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
-        <h1 className={styles.intro}>{t('app.common.welcome')}</h1>
-      </div>
-      {
-       faqContent.length > 0 && <FAQGuide
-              suggestions={questions}
-              onQuestionClick={handleQuestionClick}
-          />
-      }
+      <Button onClick={handleClick}> getInputsForm</Button>
 
-      {/* 消息列表 - 占据剩余空间 */}
-      <div className="min-h-0 flex-1">
-        <Main params={{}}></Main>
-      </div>
+      {/* <TopBar /> */}
+      {/* <SafeAreaLayout title="MaoMao AI">
+          <div className={styles.header}>
+            <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
+            <h1 className={styles.intro}>{t('app.common.welcome')}</h1>
+          </div>
+          {
+          faqContent.length > 0 && <FAQGuide
+                  suggestions={questions}
+                  onQuestionClick={handleQuestionClick}
+              />
+          }
+          {/* 消息列表 - 占据剩余空间 */}
+          {/* <div className="min-h-0 flex-1">
+            <Main params={{}}></Main>
+          </div>
+      </SafeAreaLayout> */}
+
+            <div className={styles.header}>
+            <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
+            <h1 className={styles.intro}>{t('app.common.welcome')}</h1>
+          </div>
+          {
+          faqContent.length > 0 && <FAQGuide
+                  suggestions={questions}
+                  onQuestionClick={handleQuestionClick}
+              />
+          }
+          {/* 消息列表 - 占据剩余空间 */}
+          <div className="min-h-0 flex-1">
+            <Main params={{}}></Main>
+          </div>
 
     </div>
   )
