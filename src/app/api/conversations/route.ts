@@ -8,7 +8,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const last_id = searchParams.get('last_id')
     const limit = Number(searchParams.get('limit'))
+    console.log('last_id', last_id)
+    console.log('limit', limit)
+    console.log('user', user)
     const { data }: any = await client.getConversations(user, last_id, limit)
+    console.log('data', data)
     return NextResponse.json(data, {
       headers: setSession(sessionId),
     })

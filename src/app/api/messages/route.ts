@@ -13,7 +13,12 @@ export async function GET(request: NextRequest) {
   const first_id = getValidParam(searchParams.get('first_id'))
   const limit = searchParams.get('limit')
   // console.log('GET first_id', first_id)
+  console.log('GET conversationId', conversationId)
+  console.log('GET first_id', first_id)
+  console.log('GET limit', limit)
+
   const { data }: any = await client.getConversationMessages(user, conversationId as string, limit, first_id)
+  console.log('data', data)
   return NextResponse.json(data, {
     headers: setSession(sessionId),
   })
