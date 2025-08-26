@@ -428,7 +428,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     (async () => {
       try {
         const [conversationData, appParams] = await Promise.all([fetchConversations(), fetchAppParams()])
-
+        console.log('conversationData', conversationData)
+        console.log('appParams', appParams)
         setChatConfig(appParams)
 
         // handle current conversation id
