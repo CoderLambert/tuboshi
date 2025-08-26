@@ -511,6 +511,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           return
         }
       }
+ else {
+      setCurrConversationId('-1', APP_ID, false)
+      }
       handleSend(message)
     }
 
