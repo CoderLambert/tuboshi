@@ -11,6 +11,7 @@ import toolsEn from './lang/tools.en'
 import toolsZh from './lang/tools.zh'
 
 import type { Locale } from '.'
+import { APP_INFO } from '../config'
 
 const resources = {
   'en': {
@@ -35,9 +36,9 @@ i18n.use(initReactI18next)
   // init i18next
   // for all options read: https://www.i18next.com/overview/configuration-options
   .init({
-    lng: 'zh-Hans', // 设置默认语言为中文，与 APP_INFO.default_language 保持一致
+    lng: APP_INFO.default_language, // 设置默认语言为中文，与 APP_INFO.default_language 保持一致
     fallbackLng: 'en',
-    debug: true, // 开启调试模式，方便排查问题
+    debug: process.env.NODE_ENV === 'development', // 开启调试模式，方便排查问题
     resources,
     interpolation: {
       escapeValue: false, // React 已经默认转义

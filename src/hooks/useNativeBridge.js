@@ -116,11 +116,11 @@ export function useNativeBridge() {
     const setUserID = useAppStore(state => state.setUserID)
     const userID = useAppStore(state => state.userID)
     useEffect(() => {
-      const getInputsFormInfo = async () => {
+      const getUserID = async () => {
         const res = await callNativeMethod('getUserID', {})
         setUserID(res)
       }
-      getInputsFormInfo()
+      getUserID()
     }, [])
     return userID
   }
