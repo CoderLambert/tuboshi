@@ -39,14 +39,14 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
   useEffect(() => {
     // if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') { // 确保只在浏览器中运行
     if (typeof window !== 'undefined') { // 确保只在浏览器中运行
-      // import('vconsole').then((module) => {
-      //     const VConsole = module.default
-      //     const vConsole = new VConsole()
-      //     // 可添加自定义配置，如只在特定 URL 参数下启用：if (new URLSearchParams(window.location.search).has('debug'))
-      //     return () => vConsole.destroy()
-      //   }).catch((error) => {
-      //     console.error('加载 vConsole 失败:', error)
-      //   })
+      import('vconsole').then((module) => {
+          const VConsole = module.default
+          const vConsole = new VConsole()
+          // 可添加自定义配置，如只在特定 URL 参数下启用：if (new URLSearchParams(window.location.search).has('debug'))
+          return () => vConsole.destroy()
+        }).catch((error) => {
+          console.error('加载 vConsole 失败:', error)
+        })
     }
   }, [])
   return (
