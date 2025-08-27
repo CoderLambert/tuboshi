@@ -103,12 +103,13 @@ export class DifyClient {
     )
   }
 
-  fileUpload(data: unknown): Promise<AxiosResponse<IFileResponse>> {
+  fileUpload(data: unknown, userID: string): Promise<AxiosResponse<IFileResponse>> {
+    const params = { user: userID }
     return this.sendRequest<IFileResponse>(
       routes.fileUpload.method,
       routes.fileUpload.url(),
       data,
-      undefined,
+      params,
       false,
       { 'Content-Type': 'multipart/form-data' },
     )

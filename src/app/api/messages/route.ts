@@ -1,11 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { client, getInfo, setSession } from '@/app/api/utils/common'
-
-function getValidParam(param: string | null): string | undefined {
-  return param && param !== 'undefined' ? param : undefined
-}
-
+import { getValidParam } from '@/app/api/utils/common'
 export async function GET(request: NextRequest) {
   const { sessionId, user } = getInfo(request)
   const { searchParams } = new URL(request.url)

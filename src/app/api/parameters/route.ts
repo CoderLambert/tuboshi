@@ -1,13 +1,10 @@
 import { client } from '@/app/api/utils/common'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { getInfo } from '@/app/api/utils/common'
+import { getValidParam } from '@/app/api/utils/common'
+
 // 模拟获取请求信息的函数
-function getInfo(_request: NextRequest) {
-  return {
-    sessionId: `session-${Date.now()}`,
-    user: { id: `user-${Math.random().toString(36).substring(2, 11)}` },
-  }
-}
 
 // 模拟设置会话的函数
 function setSession(sessionId: string) {
@@ -17,10 +14,15 @@ function setSession(sessionId: string) {
 }
 
 export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
   const { sessionId, user } = getInfo(request)
+  const userID = getValidParam(searchParams.get('userID'))
+  console.log('==========parameters  start=======')
+  console.log('GET userID', userID)
+  console.log('==========parameters  end=======')
 
   try {
-    const { data } = await client.getApplicationParameters(user)
+    const { data } = await client.getApplicationParameters(userID || user)
     return NextResponse.json(data as object, {
       headers: setSession(sessionId),
     })

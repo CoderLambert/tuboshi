@@ -407,7 +407,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
     (async () => {
       try {
-        const [conversationData, appParams] = await Promise.all([fetchConversations(), fetchAppParams()])
+        const [conversationData, appParams] = await Promise.all([fetchConversations(userID['user-id']), fetchAppParams(userID['user-id'])])
         console.log('conversationData', conversationData)
         console.log('appParams', appParams)
         setChatConfig(appParams)
@@ -704,6 +704,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
               // 添加获取建议问题 api 调用
               const { data } = await fetchSuggestedQuestions(
                 responseItem.id,
+                userID['user-id'],
               )
               setSuggestQuestionsAfterAnswer(data)
             }
@@ -894,7 +895,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     if (taskIdRef.current) {
       console.log('taskIdRef.current', taskIdRef.current)
       try {
-        await stopChatMessage(taskIdRef.current)
+        await stopChatMessage(taskIdRef.current, userID['user-id'])
          handleResponding(false)
         notify({ type: 'success', message: t('app.generation.stopped') })
       }

@@ -40,8 +40,8 @@ export const sendChatMessage = async (
   }, { onData, onCompleted, onThought, onFile, onError, getAbortController, onMessageEnd, onMessageReplace, onNodeStarted, onWorkflowStarted, onWorkflowFinished, onNodeFinished })
 }
 
-export const fetchConversations = async () => {
-  return get('conversations', { params: { limit: 20, last_id: '' } })
+export const fetchConversations = async (userID: string) => {
+  return get('conversations', { params: { limit: 20, last_id: '', userID } })
 }
 
 export const fetchChatList = async (conversationId: string, first_id?: string, limit: number = 5, userID?: string): Promise<{
@@ -62,8 +62,8 @@ export const fetchChatList = async (conversationId: string, first_id?: string, l
 }
 
 // init value. wait for server update
-export const fetchAppParams = async (): Promise<ChatConfig> => {
-  return get('parameters') as Promise<ChatConfig>
+export const fetchAppParams = async (userID: string): Promise<ChatConfig> => {
+  return get('parameters', { params: { userID } }) as Promise<ChatConfig>
 }
 
 export const updateFeedback = async ({ url, body }: { url: string; body: Feedbacktype }) => {
@@ -74,14 +74,14 @@ export const generationConversationName = async (id: string) => {
   return post(`conversations/${id}/name`, { body: { auto_generate: true } })
 }
 
-export const stopChatMessage = async (taskId: string) => {
-  return post(`chat-messages/${taskId}/stop`)
+export const stopChatMessage = async (taskId: string, userID: string) => {
+  return post(`chat-messages/${taskId}/stop`, { params: { userID } })
 }
 
-export const fetchSuggestedQuestions = async (messageId: string): Promise<{
+export const fetchSuggestedQuestions = async (messageId: string, userID: string): Promise<{
   data: string[]
 }> => {
-  return get(`/suggested-questions/${messageId}`) as Promise<{
+  return get(`/suggested-questions/${messageId}`, { params: { userID } }) as Promise<{
     data: string[]
   }>
 }

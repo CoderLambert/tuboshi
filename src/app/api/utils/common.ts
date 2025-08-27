@@ -27,3 +27,7 @@ export const setSession = (sessionId: string) => {
 }
 
 export const client = new ChatClient(API_KEY, API_URL || undefined)
+
+export function getValidParam(param: string | null): string | undefined {
+  return param && param !== 'undefined' ? param : undefined
+}
