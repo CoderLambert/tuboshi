@@ -405,7 +405,12 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       return
     }
 
-    (async () => {
+    if(!userID['user-id'])
+      return
+
+    let isMounted = true // 防止组件卸载后的状态更新
+
+    const initializeApp = async () => {
       try {
         const [conversationData, appParams] = await Promise.all([fetchConversations(userID['user-id']), fetchAppParams(userID['user-id'])])
         console.log('conversationData', conversationData)
@@ -472,8 +477,14 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           setAppUnavailable(true)
         }
       }
-    })()
-  }, [])
+    }
+
+      initializeApp()
+
+      return () => {
+          isMounted = false
+        }
+  }, [userID, hasSetAppConfig])
 
   // 监听FAQ问题点击事件
   useEffect(() => {
