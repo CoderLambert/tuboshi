@@ -4,6 +4,8 @@ import { Geist } from 'next/font/google'
 import '@/styles/tailwind.css'
 import '@/styles/markdown.css'
 import I18nProvider from '@/app/components/I18nProvider'
+import { USERID_COOKIE_NAME } from '@/config'
+import Cookies from 'js-cookie'
 export const metadata = {
   title: 'AI Agent ChatFlow',
   description: 'A chat application powered by AI agents',
@@ -32,6 +34,7 @@ const LocaleLayout = async ({
 }: {
   children: React.ReactNode
 }) => {
+  Cookies.remove(USERID_COOKIE_NAME)
   return (
     <html className={`${geist.className} h-full`} style={{
       'fontSize': '100px', // 注意：驼峰式写法 fontSize，而不是 font-size

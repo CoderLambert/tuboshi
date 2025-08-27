@@ -16,11 +16,13 @@ import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import Loading from '@/app/components/base/loading'
 import { userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from './chat/app-unavailable'
-import { API_KEY, APP_ID, APP_INFO, promptTemplate } from '@/config'
+import { API_KEY, APP_ID, APP_INFO, USERID_COOKIE_NAME, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import TryToAsk from './chat/try-to-ask'
 import { useNativeBridge } from '@/hooks/useNativeBridge'
+import Cookies from 'js-cookie'
+
 export type IMainProps = {
   params: any
   headerContent?: React.ReactNode
@@ -396,6 +398,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       setAppUnavailable(true)
       return
     }
+
     (async () => {
       try {
         const [conversationData, appParams] = await Promise.all([fetchConversations(), fetchAppParams()])
@@ -494,6 +497,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       eventBus.off(EVENTS.SEND_MESSAGE, handleSendMessage)
     }
   }, [isNewConversation, conversationList])
+
+  const { useUserID } = useNativeBridge()
+  const userInfo = useUserID()
+  console.log('Main userInfo ==> ', userInfo)
+  Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
 
   const logError = (message: string) => {
     notify({ type: 'error', message })
