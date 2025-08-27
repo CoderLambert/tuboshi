@@ -9,7 +9,8 @@ export const getInfo = (request: NextRequest) => {
 
   // const user = request.cookies.get(USERID_COOKIE_NAME)?.value || ''
   console.log('request.cookies.get(USERID_COOKIE_NAME)?.value', request.cookies.get(USERID_COOKIE_NAME)?.value || '')
-  const user = '4707011993'
+  // const user = '4707011993'
+  const user = request.cookies.get(USERID_COOKIE_NAME)?.value || ''
   console.log('All cookies:', request.cookies)
   console.log('USERID_COOKIE_NAME:', USERID_COOKIE_NAME)
   console.log('getInfo user', user)
