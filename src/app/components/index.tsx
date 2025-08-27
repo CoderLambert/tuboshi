@@ -684,7 +684,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           return
 
         if (getConversationIdChangeBecauseOfNew()) {
-          const { data: allConversations }: any = await fetchConversations()
+          const { data: allConversations }: any = await fetchConversations(userID['user-id'])
           const newItem: any = await generationConversationName(allConversations[0].id)
 
           const newAllConversations = produce(allConversations, (draft: any) => {
