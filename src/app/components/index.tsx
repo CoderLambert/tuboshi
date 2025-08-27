@@ -14,9 +14,9 @@ import MobilePullToRefresh from '@/app/components/base/mobile-pull-to-refresh'
 import OptimizedInput from '@/app/components/chat/optimized-input'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import Loading from '@/app/components/base/loading'
-import { replaceVarWithValues, userInputsFormToPromptVariables } from '@/utils/prompt'
+import { userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from './chat/app-unavailable'
-import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
+import { API_KEY, APP_ID, APP_INFO, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import TryToAsk from './chat/try-to-ask'
@@ -308,19 +308,21 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         for (const item of currentHistoryMessages) {
           if (item.isAnswer && item.id && !item.id.startsWith('question-') && !item.id.includes('placeholder')) {
             firstMessageId = item.id
+            console.log('如果已有历史消息 firstMessageId  = item.id', firstMessageId)
             break
           }
         }
       }
- else {
-        // 如果没有历史消息，使用当前chatList的第一个回答消息ID
-        for (const item of currentChatList) {
-          if (item.isAnswer && item.id && !item.id.startsWith('question-') && !item.id.includes('placeholder')) {
-            firstMessageId = item.id
-            break
-          }
-        }
-      }
+      else {
+              // 如果没有历史消息，使用当前chatList的第一个回答消息ID
+              for (const item of currentChatList) {
+                if (item.isAnswer && item.id && !item.id.startsWith('question-') && !item.id.includes('placeholder')) {
+                  firstMessageId = item.id
+                  console.log('如果没有历史消息，使用当前chatList的第一个回答消息ID firstMessageId  = item.id', firstMessageId)
+                  break
+                }
+              }
+            }
 
       if (!firstMessageId) {
         setIsLoadingHistory(false)
@@ -330,7 +332,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       if (currentHistoryMessages.length > 0) {
         const answerIds = currentHistoryMessages.filter(item => item.isAnswer).map(item => item.id)
       }
-
+      console.log(`firstMessageId   ${firstMessageId}`)
       const res = await fetchChatList(getCurrConversationId(), firstMessageId, 5)
       const { data, has_more } = res
       if (data && data.length > 0) {
@@ -385,23 +387,23 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   // sometime introduction is not applied to state
   const generateNewChatListWithOpenStatement = (introduction?: string, inputs?: Record<string, any> | null) => {
-    let calculatedIntroduction = introduction || conversationIntroduction || ''
-    const calculatedPromptVariables = inputs || currInputs || null
-    if (calculatedIntroduction && calculatedPromptVariables)
-      calculatedIntroduction = replaceVarWithValues(calculatedIntroduction, promptConfig?.prompt_variables || [], calculatedPromptVariables)
+    // let calculatedIntroduction = introduction || conversationIntroduction || ''
+    // const calculatedPromptVariables = inputs || currInputs || null
+    // if (calculatedIntroduction && calculatedPromptVariables)
+    //   calculatedIntroduction = replaceVarWithValues(calculatedIntroduction, promptConfig?.prompt_variables || [], calculatedPromptVariables)
 
-    const openStatement = {
-      id: `${Date.now()}`,
-      content: calculatedIntroduction,
-      isAnswer: true,
-      feedbackDisabled: true,
-      isOpeningStatement: isShowPrompt,
-      suggestedQuestions,
-    }
-    if (calculatedIntroduction)
-      return [openStatement]
+    // const openStatement = {
+    //   id: `${Date.now()}`,
+    //   content: calculatedIntroduction,
+    //   isAnswer: true,
+    //   feedbackDisabled: true,
+    //   isOpeningStatement: isShowPrompt,
+    //   suggestedQuestions,
+    // }
+    // if (calculatedIntroduction)
+      return []
 
-    return []
+    // return []
   }
 
   // init
