@@ -387,23 +387,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   // sometime introduction is not applied to state
   const generateNewChatListWithOpenStatement = (introduction?: string, inputs?: Record<string, any> | null) => {
-    // let calculatedIntroduction = introduction || conversationIntroduction || ''
-    // const calculatedPromptVariables = inputs || currInputs || null
-    // if (calculatedIntroduction && calculatedPromptVariables)
-    //   calculatedIntroduction = replaceVarWithValues(calculatedIntroduction, promptConfig?.prompt_variables || [], calculatedPromptVariables)
-
-    // const openStatement = {
-    //   id: `${Date.now()}`,
-    //   content: calculatedIntroduction,
-    //   isAnswer: true,
-    //   feedbackDisabled: true,
-    //   isOpeningStatement: isShowPrompt,
-    //   suggestedQuestions,
-    // }
-    // if (calculatedIntroduction)
       return []
-
-    // return []
   }
 
   // init
@@ -421,6 +405,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
         // handle current conversation id
         const { data: conversations, error } = conversationData as { data: ConversationItem[]; error: string }
+
         if (error) {
           Toast.notify({ type: 'error', message: error })
           throw new Error(error)

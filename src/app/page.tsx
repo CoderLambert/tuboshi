@@ -21,9 +21,10 @@ const { useQaData, useUserID, useGPTConfig } = useNativeBridge()
 const qaData: { data: QACategory[] } = useQaData()
 // init user-id
 const userInfo = useUserID()
+console.log('userInfo ==>', userInfo)
 const gptConfig = useGPTConfig()
 console.log(gptConfig)
-Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'] || 'abc-123')
+Cookies.set(USERID_COOKIE_NAME, '4707011993')
 
 const faqContent = qaData?.data || []
 
