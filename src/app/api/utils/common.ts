@@ -6,7 +6,11 @@ import { USERID_COOKIE_NAME } from '@/config'
 
 export const getInfo = (request: NextRequest) => {
   const sessionId = request.cookies.get('session_id')?.value || v4()
+
   const user = request.cookies.get(USERID_COOKIE_NAME)?.value || ''
+  console.log('All cookies:', request.cookies)
+  console.log('USERID_COOKIE_NAME:', USERID_COOKIE_NAME)
+  console.log('getInfo user', user)
   return {
     sessionId,
     user,
