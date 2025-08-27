@@ -927,7 +927,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set APP_ID and API_KEY in config/index.tsx' : ''} />
 
   if (!APP_ID || !APP_INFO || !promptConfig)
-    return <Loading type='app' />
+    return <Loading className='mt-16' type='app' />
 
   return (
     <div className='flex min-h-screen max-w-full flex-col bg-white' style={{ paddingBottom: `${inputBoxHeight}px` }}>
