@@ -341,7 +341,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         const answerIds = currentHistoryMessages.filter(item => item.isAnswer).map(item => item.id)
       }
       console.log(`firstMessageId   ${firstMessageId}`)
-      const res = await fetchChatList(getCurrConversationId(), firstMessageId, 5, userID)
+      const res = await fetchChatList(getCurrConversationId(), firstMessageId, 5, userID['user-id'])
       const { data, has_more } = res
       if (data && data.length > 0) {
         const historyItems: ChatItem[] = []
