@@ -71,7 +71,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const updateInputBoxHeight = () => {
     if (inputBoxRef.current) {
       const height = inputBoxRef.current.offsetHeight
-      console.log('输入框高度更新:', height) // 调试日志
       setInputBoxHeight(height)
     }
   }
@@ -198,6 +197,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const suggestedQuestions = currConversationInfo?.suggested_questions || []
 
   const handleConversationSwitch = () => {
+    console.log('handleConversationSwitch')
     if (!inited)
       return
 
@@ -208,7 +208,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       // token: APP_TOKEN,
     }
     if (!isNewConversation) {
-      const item = conversationList.find(item => item.id === currConversationId)
+      const item = conversationList.find(item => item.id === getCurrConversationId())
       notSyncToStateInputs = item?.inputs || {}
       setCurrInputs(notSyncToStateInputs as any)
       notSyncToStateIntroduction = item?.introduction || ''
@@ -226,7 +226,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     // update chat list of current conversation
     if (!isNewConversation && !conversationIdChangeBecauseOfNew && !isResponding) {
       // 初始加载最近5条消息
-      fetchChatList(currConversationId, undefined, 5).then((res: any) => {
+      fetchChatList(getCurrConversationId(), undefined, 5).then((res: any) => {
         const { data, has_more } = res
         const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs)
 
@@ -330,7 +330,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         const answerIds = currentHistoryMessages.filter(item => item.isAnswer).map(item => item.id)
       }
 
-      const res = await fetchChatList(currConversationId, firstMessageId, 5)
+      const res = await fetchChatList(getCurrConversationId(), firstMessageId, 5)
       const { data, has_more } = res
       if (data && data.length > 0) {
         const historyItems: ChatItem[] = []
@@ -382,22 +382,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     }
   }, [hasMoreHistory, isNewConversation, getChatList, currConversationId, setHistoryMessages, t])
 
-  const createNewChat = () => {
-    // if new chat is already exist, do not create new chat
-    if (conversationList.some(item => item.id === '-1'))
-      return
-
-    setConversationList(produce(conversationList, (draft) => {
-      draft.unshift({
-        id: '-1',
-        name: t('app.chat.newChatDefaultName'),
-        inputs: newConversationInputs,
-        introduction: conversationIntroduction,
-        suggested_questions: suggestedQuestions,
-      })
-    }))
-  }
-
   // sometime introduction is not applied to state
   const generateNewChatListWithOpenStatement = (introduction?: string, inputs?: Record<string, any> | null) => {
     let calculatedIntroduction = introduction || conversationIntroduction || ''
@@ -438,11 +422,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           Toast.notify({ type: 'error', message: error })
           throw new Error(error)
         }
+        // 如果u个会话列表为空，则代表新的会话。否则继续之前最近的会话
         const currentConversation = conversations[0]
-        const _conversationId = currentConversation?.id || '-1'
-
-        const isNotNewConversation = !!currentConversation
-        // console.log('currentConversation', currentConversation)
+        const isNewConversation = !currentConversation
 
         // fetch new conversation info
         const { user_input_form, opening_statement: introduction, file_upload, system_parameters, suggested_questions = [] }: any = appParams
@@ -452,13 +434,14 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           introduction,
           suggested_questions,
         })
-        if (isNotNewConversation) {
+        if (!isNewConversation) {
           setExistConversationInfo({
             name: currentConversation.name || t('app.chat.newChatDefaultName'),
             introduction,
             suggested_questions,
           })
         }
+
         const prompt_variables = userInputsFormToPromptVariables(user_input_form)
         setPromptConfig({
           prompt_template: promptTemplate,
@@ -473,12 +456,12 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         })
         setConversationList(conversations as ConversationItem[])
 
-        if (isNotNewConversation) {
-          setCurrConversationId(_conversationId, APP_ID, false)
+        if (isNewConversation) {
+          setCurrConversationId('-1', APP_ID, false)
         }
- else if (conversations.length > 0) {
+        else {
           // 如果没有当前会话但有历史会话，使用第一个历史会话避免默认新会话状态
-          setCurrConversationId(conversations[0].id, APP_ID, false)
+          setCurrConversationId(currentConversation.id, APP_ID, false)
         }
 
         setInited(true)
@@ -529,7 +512,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   }
 
   const checkCanSend = () => {
-    if (currConversationId !== '-1')
+    if (getCurrConversationId() !== '-1')
       return true
 
     if (!currInputs || !promptConfig?.prompt_variables)

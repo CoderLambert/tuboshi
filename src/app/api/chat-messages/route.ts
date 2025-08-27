@@ -12,16 +12,21 @@ export async function POST(request: NextRequest) {
   } = body
   const { user } = getInfo(request)
   const isStreaming = responseMode === 'streaming'
-  const res = await client.createChatMessage(inputs, query, user, responseMode, conversationId, files)
-  if (isStreaming) {
-    const headers = new Headers({
-      ...(res.headers as Record<string, string>),
-      'Content-Type': 'text/event-stream',
-    })
-    // console.log(`inputs ${JSON.stringify(inputs)}`)
-    return new Response(res.data as any, {
-      headers,
-    })
+  try {
+    const res = await client.createChatMessage(inputs, query, user, responseMode, conversationId, files)
+    if (isStreaming) {
+      const headers = new Headers({
+        ...(res.headers as Record<string, string>),
+        'Content-Type': 'text/event-stream',
+      })
+      return new Response(res.data as any, {
+        headers,
+      })
+    }
+    else { return new Response(res.data as any) }
   }
-  else { return new Response(res.data as any) }
+  catch (e: any) {
+    console.log(e)
+    return new Response(e.message)
+  }
 }
