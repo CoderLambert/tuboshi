@@ -22,6 +22,7 @@ import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import TryToAsk from './chat/try-to-ask'
 import { useNativeBridge } from '@/hooks/useNativeBridge'
 import Cookies from 'js-cookie'
+import useAppStore from '@/hooks/useAppStore'
 
 export type IMainProps = {
   params: any
@@ -41,6 +42,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const [inputBoxHeight, setInputBoxHeight] = useState<number>(120) // 默认高度
   const inputBoxRef = useRef<HTMLDivElement>(null)
 
+  const userID = useAppStore((state: any) => state.userID)
+  // const userID = {
+  //   'user-id': 'abc-123',
+  // }
+  console.log('useAppStore userID', userID)
   /*
   * app info
   */
@@ -229,7 +235,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     // update chat list of current conversation
     if (!isNewConversation && !conversationIdChangeBecauseOfNew && !isResponding) {
       // 初始加载最近5条消息
-      fetchChatList(getCurrConversationId(), undefined, 5).then((res: any) => {
+      fetchChatList(getCurrConversationId(), undefined, 5, userID['user-id']).then((res: any) => {
         const { data, has_more } = res
         const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs)
 
@@ -335,7 +341,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         const answerIds = currentHistoryMessages.filter(item => item.isAnswer).map(item => item.id)
       }
       console.log(`firstMessageId   ${firstMessageId}`)
-      const res = await fetchChatList(getCurrConversationId(), firstMessageId, 5)
+      const res = await fetchChatList(getCurrConversationId(), firstMessageId, 5, userID)
       const { data, has_more } = res
       if (data && data.length > 0) {
         const historyItems: ChatItem[] = []

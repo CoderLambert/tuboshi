@@ -44,7 +44,7 @@ export const fetchConversations = async () => {
   return get('conversations', { params: { limit: 20, last_id: '' } })
 }
 
-export const fetchChatList = async (conversationId: string, first_id?: string, limit: number = 5): Promise<{
+export const fetchChatList = async (conversationId: string, first_id?: string, limit: number = 5, userID?: string): Promise<{
   limit: number,
   has_more: boolean,
   data: any[],
@@ -54,7 +54,7 @@ export const fetchChatList = async (conversationId: string, first_id?: string, l
   // Response
   // has_more (bool) 是否存在下一页
   // limit (int) 每页聊天记录数量
-  return get('messages', { params: { conversation_id: conversationId, first_id, limit } }) as Promise<{
+  return get('messages', { params: { conversation_id: conversationId, first_id, limit, userID } }) as Promise<{
     limit: number,
     has_more: boolean,
     data: any[],
