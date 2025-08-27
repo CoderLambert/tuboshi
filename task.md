@@ -123,3 +123,35 @@ export type INaviAppSuggestionQuestionItem = Record<INavieAppSuggesQuestionCateg
    2. suggestion 建议
    3. question 问题
    4. answer 回答
+
+### 语音转文字
+
+1. 请求接口定义
+POST
+/audio-to-text
+语音转文字
+Request Body
+该接口需使用 multipart/form-data 进行请求。
+
+参数信息
+Name  file  Type file
+Description
+语音文件。 支持格式：['mp3', 'mp4', 'mpeg', 'mpga', 'm4a', 'wav', 'webm'] 文件大小限制：15MB
+
+Name user Type string
+Description
+用户标识，由开发者定义规则，需保证用户标识在应用内唯一。
+
+Response
+text (string) 输出文字
+
+```bash
+curl -X POST 'http://yl-alg-alg-dify-api:5001/v1/audio-to-text' \
+--header 'Authorization: Bearer {api_key}' \
+--form 'file=@localfile;type=audio/[mp3|mp4|mpeg|mpga|m4a|wav|webm]
+```
+
+1. app 配置
+2. gpt 配置
+3. 用户配置
+4. 语言
