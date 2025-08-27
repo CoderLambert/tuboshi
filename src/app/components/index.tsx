@@ -206,6 +206,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     let notSyncToStateIntroduction = ''
     let notSyncToStateInputs: Record<string, any> | undefined | null = {
       // token: APP_TOKEN,
+      ...inputsFormConfig,
     }
     if (!isNewConversation) {
       const item = conversationList.find(item => item.id === getCurrConversationId())
