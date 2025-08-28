@@ -127,7 +127,7 @@ export function useNativeBridge() {
   }
 
   const closeWebview = () => {
-    callNativeMethod('useFinish', {})
+    callNativeMethod('finish', {})
   }
 
   const useStatusBarHeight = () => {
