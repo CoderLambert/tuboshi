@@ -82,7 +82,11 @@ export function getUserInfo() {
 }
 
 export function getGPTConfig() {
-    return callNativeMethod('getGPTConfig', {})
+    return callNativeMethod('getGPTConfig', {}) as Promise<{
+        app_key: string
+        app_id: string
+        api_url: string
+    }>
 }
 
 export function getInputsForm() {

@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { client, getInfo, setSession } from '@/app/api/utils/common'
+import { getClient, getInfo, setSession } from '@/app/api/utils/common'
 import { getValidParam } from '@/app/api/utils/common'
 
 export async function GET(request: NextRequest) {
@@ -15,6 +15,8 @@ export async function GET(request: NextRequest) {
     console.log('last_id', last_id)
     console.log('limit', limit)
     console.log('user', user)
+    const client = await getClient()
+
     const { data }: any = await client.getConversations(userID || user, last_id, limit)
     console.log('data', data)
     console.log('==========conversations  end=======')

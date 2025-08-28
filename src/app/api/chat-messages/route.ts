@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { client, getInfo } from '@/app/api/utils/common'
+import { getClient, getInfo } from '@/app/api/utils/common'
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
   console.log(`user: ${JSON.stringify(user)}`)
   console.log('===========chat message end===========')
   try {
+    const client = await getClient()
     const res = await client.createChatMessage(inputs, query, user, responseMode, conversationId, files)
     if (isStreaming) {
       const headers = new Headers({

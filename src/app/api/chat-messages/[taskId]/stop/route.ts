@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { client, getInfo, getValidParam } from '@/app/api/utils/common'
+import { getClient, getInfo, getValidParam } from '@/app/api/utils/common'
 
 export async function POST(request: NextRequest, { params }: {
   params: Promise<{ taskId: string }>
@@ -10,6 +10,7 @@ export async function POST(request: NextRequest, { params }: {
   const { user } = getInfo(request)
   const { searchParams } = new URL(request.url)
   const userID = getValidParam(searchParams.get('userID'))
+  const client = await getClient()
   const res = await client.stopChatMessage(taskId, userID || user)
   console.log(`userID ${userID} taskId ${taskId}`)
   console.log('user', user)

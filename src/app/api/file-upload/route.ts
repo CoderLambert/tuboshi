@@ -1,8 +1,10 @@
 import type { NextRequest } from 'next/server'
-import { client, getInfo, getValidParam } from '@/app/api/utils/common'
+import { getClient, getInfo, getValidParam } from '@/app/api/utils/common'
 
 export async function POST(request: NextRequest) {
   try {
+    const client = await getClient()
+
     console.log('=============file-upload  start============')
     const { searchParams } = new URL(request.url)
     const userID = getValidParam(searchParams.get('userID'))

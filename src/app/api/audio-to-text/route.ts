@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { client, getInfo } from '@/app/api/utils/common'
+import { getClient, getInfo } from '@/app/api/utils/common'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
@@ -7,6 +7,8 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const { user } = getInfo(request)
     formData.append('user', user)
+    const client = await getClient()
+
     const { data } = await client.audioToText(formData)
     return NextResponse.json(data)
   }

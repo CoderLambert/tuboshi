@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { client, getInfo, getValidParam, setSession } from '@/app/api/utils/common'
+import { getClient, getInfo, getValidParam, setSession } from '@/app/api/utils/common'
 
 export async function GET(request: NextRequest, { params }: {
   params: Promise<{ messageId: string }>
@@ -9,6 +9,7 @@ export async function GET(request: NextRequest, { params }: {
   const { sessionId, user } = getInfo(request)
   const { messageId } = await params
   const userID = getValidParam(searchParams.get('userID'))
+  const client = await getClient()
   const { data }: any = await client.fetchSuggestedQuestions(messageId, userID || user)
 
   return NextResponse.json(data, {
