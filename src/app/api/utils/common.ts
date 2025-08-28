@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { ChatClient } from '@/lib/client'
 import { v4 } from 'uuid'
-import { API_KEY, API_URL } from '@/config'
+import { API_KEY } from '@/config'
 import { API_KEY_COOKIE_NAME, API_URL_COOKIE_NAME, USERID_COOKIE_NAME } from '@/config'
 import { cookies } from 'next/headers'
 export const getInfo = (request: NextRequest) => {
@@ -26,38 +26,29 @@ export const setSession = (sessionId: string) => {
 }
 
 // 创建一个异步函数来获取客户端实例
-// let cachedClient: ChatClient | null = null
+let cachedClient: ChatClient | null = null
 // let clientPromise: Promise<ChatClient> | null = null
 
 export const getClient = async (request: NextRequest): Promise<ChatClient> => {
-  const TEST_API_KEY = request.cookies.get(API_KEY_COOKIE_NAME)?.value
-  console.log('clientPromise TEST_API_KEY', TEST_API_KEY)
-  const TEST_API_URL = request.cookies.get(API_URL_COOKIE_NAME)?.value
+  if (cachedClient) { return cachedClient }
+  else {
+    const TEST_API_KEY = request.cookies.get(API_KEY_COOKIE_NAME)?.value
+    console.log('clientPromise TEST_API_KEY', TEST_API_KEY)
+    let TEST_API_URL = request.cookies.get(API_URL_COOKIE_NAME)?.value
 
-  console.log('clientPromise TEST_API_URL', TEST_API_URL)
-  const cookieStore = await cookies()
-  console.log('cookieStore', cookieStore.getAll())
-  if (!TEST_API_KEY || !TEST_API_URL)
-    console.warn('Missing API_KEY or API_URL from cookies, generating fallback (may fail)')
-
-  // 如果已经有缓存的客户端实例，直接返回
-  // if (cachedClient)
-  //   return cachedClient
-
-  // // 如果正在初始化客户端，返回现有的Promise
-  // if (clientPromise)
-  //   return clientPromise
-
-  // // 创建一个新的Promise来初始化客户端
-  // clientPromise = (async () => {
-  //   // const TEST_API_KEY = await getAppKey()
-  //   // const TEST_API_URL = await getApiUrl()
-
-  //   cachedClient = new ChatClient(API_KEY, API_URL)
-  //   return cachedClient
-  // })()
-
-  return new ChatClient(API_KEY, API_URL)
+    console.log('clientPromise TEST_API_URL', TEST_API_URL)
+    const cookieStore = await cookies()
+    console.log('cookieStore', cookieStore.getAll())
+    if (!TEST_API_KEY || !TEST_API_URL)
+      console.warn('Missing API_KEY or API_URL from cookies, generating fallback (may fail)')
+    if (TEST_API_URL === 'http://yl-alg-alg-dify-api:5001/v1') {
+      TEST_API_URL = 'https://ai-agent.jtexpress.ph/v1'
+      console.log('revert TEST_API_URL to', TEST_API_URL)
+    }
+    console.log('clientPromise real key', TEST_API_KEY || API_KEY)
+    cachedClient = new ChatClient(TEST_API_KEY || API_KEY, TEST_API_URL)
+    return cachedClient
+  }
 }
 
 export function getValidParam(param: string | null): string | undefined {
