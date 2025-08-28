@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     console.log('last_id', last_id)
     console.log('limit', limit)
     console.log('user', user)
-    const client = await getClient()
+    const client = await getClient(request)
 
     const { data }: any = await client.getConversations(userID || user, last_id, limit)
     console.log('data', data)

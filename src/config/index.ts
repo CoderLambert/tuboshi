@@ -1,5 +1,6 @@
 import type { AppInfo } from '@/types/app'
 import { getGPTConfig } from '@/lib/jsBridge'
+import Cookies from 'js-cookie'
 // export const API_KEY = 'app-Bw7GY5U1f7d4XIxXxWRuHueC'
 // export const APP_ID = 'a486b436-4997-4331-b6ec-a78d6f47122c'
 // export const API_URL = 'http://10.21.61.78:31092/v1'
@@ -7,10 +8,23 @@ import { getGPTConfig } from '@/lib/jsBridge'
 export const API_KEY = 'app-OzDb7ZrJKLPQ8rYpYTq5ZZg9'
 export const APP_ID = 'c4acfcf5-ff94-49f2-9c6b-c78f04f03e2b'
 export const API_URL = 'https://ai-agent.jtexpress.ph/v1'
+export const APP_ID_COOKIE_NAME = 'app_id'
+export const API_URL_COOKIE_NAME = 'api_url'
+export const API_KEY_COOKIE_NAME = 'api_key'
+export const isShowPrompt = false
+export const API_PREFIX = '/api'
+export const LOCALE_COOKIE_NAME = 'locale'
+export const USERID_COOKIE_NAME = 'user_id'
+export const DEFAULT_VALUE_MAX_LEN = 48
+export const promptTemplate = 'I want you to act as a assistant.'
 
 export const getGptConfig = async () => {
   const res = await getGPTConfig()
   console.log('getGptConfig', res)
+  Cookies.set(APP_ID_COOKIE_NAME, res.app_id)
+  Cookies.set(API_URL_COOKIE_NAME, res.api_url)
+  Cookies.set(API_KEY_COOKIE_NAME, res.app_key)
+  console.log('****** Coockie set finished *******')
   return res
 }
 
@@ -42,12 +56,3 @@ export const APP_INFO: AppInfo = {
   privacy_policy: '',
   default_language: 'en',
 }
-
-export const isShowPrompt = false
-export const promptTemplate = 'I want you to act as a javascript console.'
-
-export const API_PREFIX = '/api'
-
-export const LOCALE_COOKIE_NAME = 'locale'
-export const USERID_COOKIE_NAME = 'user_id'
-export const DEFAULT_VALUE_MAX_LEN = 48

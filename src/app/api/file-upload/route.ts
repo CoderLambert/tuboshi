@@ -3,7 +3,7 @@ import { getClient, getInfo, getValidParam } from '@/app/api/utils/common'
 
 export async function POST(request: NextRequest) {
   try {
-    const client = await getClient()
+    const client = await getClient(request)
 
     console.log('=============file-upload  start============')
     const { searchParams } = new URL(request.url)

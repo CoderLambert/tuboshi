@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   console.log(`user: ${JSON.stringify(user)}`)
   console.log('===========chat message end===========')
   try {
-    const client = await getClient()
+    const client = await getClient(request)
     const res = await client.createChatMessage(inputs, query, user, responseMode, conversationId, files)
     if (isStreaming) {
       const headers = new Headers({

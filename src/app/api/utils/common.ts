@@ -2,8 +2,7 @@ import type { NextRequest } from 'next/server'
 import { ChatClient } from '@/lib/client'
 import { v4 } from 'uuid'
 import { API_KEY, API_URL } from '@/config'
-import { USERID_COOKIE_NAME } from '@/config'
-import { getApiUrl, getAppKey } from '@/config'
+import { API_KEY_COOKIE_NAME, API_URL_COOKIE_NAME, USERID_COOKIE_NAME } from '@/config'
 export const getInfo = (request: NextRequest) => {
   const sessionId = request.cookies.get('session_id')?.value || v4()
   console.log('========= getInfo start ============')
@@ -29,7 +28,7 @@ export const setSession = (sessionId: string) => {
 let cachedClient: ChatClient | null = null
 let clientPromise: Promise<ChatClient> | null = null
 
-export const getClient = async (): Promise<ChatClient> => {
+export const getClient = async (request: NextRequest): Promise<ChatClient> => {
   // 如果已经有缓存的客户端实例，直接返回
   if (cachedClient)
     return cachedClient
@@ -40,12 +39,14 @@ export const getClient = async (): Promise<ChatClient> => {
 
   // 创建一个新的Promise来初始化客户端
   clientPromise = (async () => {
-    const TEST_API_KEY = await getAppKey()
-    const TEST_API_URL = await getApiUrl()
+    // const TEST_API_KEY = await getAppKey()
+    // const TEST_API_URL = await getApiUrl()
+    const TEST_API_KEY = request.cookies.get(API_KEY_COOKIE_NAME)?.value || v4()
     console.log('clientPromise TEST_API_KEY', TEST_API_KEY)
+    const TEST_API_URL = request.cookies.get(API_URL_COOKIE_NAME)?.value || v4()
     console.log('clientPromise TEST_API_URL', TEST_API_URL)
 
-    cachedClient = new ChatClient(API_KEY, API_URL || undefined)
+    cachedClient = new ChatClient(API_KEY, API_URL)
     return cachedClient
   })()
 

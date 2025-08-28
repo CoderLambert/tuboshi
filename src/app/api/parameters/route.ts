@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   console.log('==========parameters  end=======')
 
   try {
-    const client = await getClient()
+    const client = await getClient(request)
     const { data } = await client.getApplicationParameters(userID || user)
     return NextResponse.json(data as object, {
       headers: setSession(sessionId),

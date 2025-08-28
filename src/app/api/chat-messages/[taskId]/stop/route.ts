@@ -10,7 +10,7 @@ export async function POST(request: NextRequest, { params }: {
   const { user } = getInfo(request)
   const { searchParams } = new URL(request.url)
   const userID = getValidParam(searchParams.get('userID'))
-  const client = await getClient()
+  const client = await getClient(request)
   const res = await client.stopChatMessage(taskId, userID || user)
   console.log(`userID ${userID} taskId ${taskId}`)
   console.log('user', user)

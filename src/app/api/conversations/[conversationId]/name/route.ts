@@ -12,7 +12,7 @@ export async function POST(request: NextRequest, { params }: {
   } = body
   const { conversationId } = await params
   const { user } = getInfo(request)
-  const client = await getClient()
+  const client = await getClient(request)
 
   // auto generate name
   const { data } = await client.renameConversation(conversationId, name, user, auto_generate)

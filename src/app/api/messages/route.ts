@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { getClient, getInfo, setSession } from '@/app/api/utils/common'
 import { getValidParam } from '@/app/api/utils/common'
 export async function GET(request: NextRequest) {
-  const client = await getClient()
+  const client = await getClient(request)
 
   const { sessionId, user } = getInfo(request)
   const { searchParams } = new URL(request.url)

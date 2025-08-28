@@ -9,7 +9,7 @@ export async function GET(request: NextRequest, { params }: {
   const { sessionId, user } = getInfo(request)
   const { messageId } = await params
   const userID = getValidParam(searchParams.get('userID'))
-  const client = await getClient()
+  const client = await getClient(request)
   const { data }: any = await client.fetchSuggestedQuestions(messageId, userID || user)
 
   return NextResponse.json(data, {

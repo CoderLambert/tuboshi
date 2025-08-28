@@ -11,7 +11,7 @@ export async function POST(request: NextRequest, { params }: {
   } = body
   const { messageId } = await params
   const { user } = getInfo(request)
-  const client = await getClient()
+  const client = await getClient(request)
 
   const { data } = await client.messageFeedback(messageId, rating, user)
   return NextResponse.json(data)
