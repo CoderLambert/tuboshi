@@ -16,7 +16,7 @@ import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import Loading from '@/app/components/base/loading'
 import { userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from './chat/app-unavailable'
-import { API_KEY, APP_ID, APP_INFO, USERID_COOKIE_NAME, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
+import { API_KEY, API_URL, APP_ID, APP_INFO, USERID_COOKIE_NAME, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import TryToAsk from './chat/try-to-ask'
@@ -51,12 +51,17 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   console.log('API_KEY', API_KEY)
   console.log('APP_INFO', APP_INFO)
 
-  const apiKey = getAppKey()
-  console.log('apiKey', apiKey)
-  const appId = getAppId()
-  console.log('appId', appId)
-  const apiUrl = getApiUrl()
-  console.log('apiKey', apiUrl)
+  // const apiKey = getAppKey()
+  // console.log('apiKey', apiKey)
+  // const appId = getAppId()
+  // console.log('appId', appId)
+  // const apiUrl = getApiUrl()
+  // console.log('apiKey', apiUrl)
+
+  const [apiKey, setApiKey] = useState<string | undefined>(undefined)
+  const [appId, setAppId] = useState<string | undefined>(undefined)
+  const [apiUrl, setApiUrl] = useState<string | undefined>(undefined)
+
   /*
   * app info
   */
@@ -112,6 +117,49 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       setAutoFreeze(true)
     }
   }, [])
+
+// 在现有的 useEffect 之后添加新的 useEffect
+useEffect(() => {
+  const loadConfig = async () => {
+    try {
+      const key = await getAppKey()
+      const id = await getAppId()
+      const url = await getApiUrl()
+
+      setApiKey(key)
+      setAppId(id)
+      setApiUrl(url)
+      console.log('=========== loadConfig ========')
+      console.log('apiKey', key)
+      console.log('appId', id)
+      console.log('apiUrl', url)
+    }
+ catch (error) {
+      console.error('Failed to load config:', error)
+      // 使用默认值
+      setApiKey(API_KEY)
+      setAppId(APP_ID)
+      setApiUrl(API_URL)
+
+      console.log('apiKey', API_KEY)
+      console.log('appId', APP_ID)
+      console.log('apiUrl', API_URL)
+    }
+  }
+
+  loadConfig()
+}, [])
+
+useEffect(() => {
+  if (apiKey && appId && apiUrl) {
+          console.log('=========== loadConfig  finish ========')
+
+    console.log('apiKey', apiKey)
+    console.log('appId', appId)
+    console.log('apiUrl', apiUrl)
+    // 在这里执行依赖这些配置的逻辑
+  }
+}, [apiKey, appId, apiUrl])
 
   // 动态计算输入框高度
   useEffect(() => {
