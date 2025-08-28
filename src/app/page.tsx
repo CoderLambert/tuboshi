@@ -21,14 +21,8 @@ const { useQaData, useUserID, useGPTConfig } = useNativeBridge()
 const qaData: { data: QACategory[] } = useQaData()
 
 const userInfo = useUserID()
-console.log('userInfo ==> ', userInfo)
-Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
-
-console.log('USERID_COOKIE_NAME ==>', userInfo['user-id'])
-console.log('userInfo ==>', userInfo)
 
 const gptConfig = useGPTConfig()
-console.log(gptConfig)
 
 const faqContent = qaData?.data || []
 
@@ -49,6 +43,21 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
     // }
   }, [])
 
+    // 设置用户ID cookie
+  useEffect(() => {
+    if (userInfo && userInfo['user-id']) {
+      console.log('userInfo ==> ', userInfo)
+      Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
+      console.log('USERID_COOKIE_NAME ==>', userInfo['user-id'])
+      console.log('userInfo ==>', userInfo)
+    }
+  }, [userInfo])
+
+  useEffect(() => {
+    if (gptConfig)
+      console.log('gptConfig loaded:', gptConfig)
+  }, [gptConfig])
+
   return (
     <div className="flex h-screen min-h-0 flex-col bg-white">
 
@@ -64,8 +73,13 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
               />
           }
           {/* 消息列表 - 占据剩余空间 */}
+
            <div className="min-h-0 flex-1">
-            <Main params={{}}></Main>
+            {
+              userInfo && userInfo['user-id'] && gptConfig && gptConfig.app_key
+              && <Main params={{}}></Main>
+
+            }
           </div>
       </SafeAreaLayout>
 

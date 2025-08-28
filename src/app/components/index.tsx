@@ -16,7 +16,7 @@ import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import Loading from '@/app/components/base/loading'
 import { userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from './chat/app-unavailable'
-import { API_KEY, APP_ID, APP_INFO, TEST_API_KEY, TEST_API_URL, TEST_APP_ID, USERID_COOKIE_NAME, promptTemplate } from '@/config'
+import { API_KEY, APP_ID, APP_INFO, USERID_COOKIE_NAME, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import TryToAsk from './chat/try-to-ask'
@@ -50,9 +50,13 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   console.log('APP_ID', APP_ID)
   console.log('API_KEY', API_KEY)
   console.log('APP_INFO', APP_INFO)
-  console.log('TEST_API_KEY', TEST_API_KEY)
-  console.log('TEST_APP_ID', TEST_APP_ID)
-  console.log('TEST_API_URL', TEST_API_URL)
+
+  const apiKey = getAppKey()
+  console.log('apiKey', apiKey)
+  const appId = getAppId()
+  console.log('appId', appId)
+  const apiUrl = getApiUrl()
+  console.log('apiKey', apiUrl)
   /*
   * app info
   */
