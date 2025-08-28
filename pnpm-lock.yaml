@@ -71,6 +71,9 @@ importers:
       echarts-for-react:
         specifier: ^3.0.2
         version: 3.0.2(echarts@5.6.0)(react@19.1.0)
+      eruda:
+        specifier: ^3.4.3
+        version: 3.4.3
       i18next:
         specifier: ^25.3.2
         version: 25.3.2(typescript@5.9.2)
@@ -2689,6 +2692,9 @@ packages:
   entities@6.0.1:
     resolution: {integrity: sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g==}
     engines: {node: '>=0.12'}
+
+  eruda@3.4.3:
+    resolution: {integrity: sha512-J2TsF4dXSspOXev5bJ6mljv0dRrxj21wklrDzbvPmYaEmVoC+2psylyRi70nUPFh1mTQfIBsSusUtAMZtUN+/w==}
 
   es-abstract@1.24.0:
     resolution: {integrity: sha512-WSzPgsdLtTcQwm4CROfS5ju2Wa1QQcVeT37jFjYzdFz1r9ahadC8B8/a4qxJxM+09F18iumCdRmlr96ZYkQvEg==}
@@ -7829,6 +7835,8 @@ snapshots:
   entities@4.5.0: {}
 
   entities@6.0.1: {}
+
+  eruda@3.4.3: {}
 
   es-abstract@1.24.0:
     dependencies:

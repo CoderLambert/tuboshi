@@ -4,9 +4,9 @@ import useAppStore from '@/hooks/useAppStore'
 // export const APP_ID = 'a486b436-4997-4331-b6ec-a78d6f47122c'
 // export const API_URL = 'http://10.21.61.78:31092/v1'
 
-// export const API_KEY = 'app-OzDb7ZrJKLPQ8rYpYTq5ZZg9'
-// export const APP_ID = 'c4acfcf5-ff94-49f2-9c6b-c78f04f03e2b'
-// export const API_URL = 'https://ai-agent.jtexpress.ph/v1'
+export const API_KEY = 'app-OzDb7ZrJKLPQ8rYpYTq5ZZg9'
+export const APP_ID = 'c4acfcf5-ff94-49f2-9c6b-c78f04f03e2b'
+export const API_URL = 'https://ai-agent.jtexpress.ph/v1'
 
 const store = useAppStore.getState() as {
   app_key: string
@@ -15,10 +15,20 @@ const store = useAppStore.getState() as {
 }
 
 console.log('store', store)
-export const API_KEY = store.app_key
-export const APP_ID = store.app_id
-export const API_URL = store.api_url
+// export const API_KEY = store.app_key
+// export const APP_ID = store.app_id
+// export const API_URL = store.api_url
 
+console.log('store.app_key', store.app_key)
+console.log('store.app_id', store.app_id)
+console.log('store.api_url', store.api_url)
+console.log('API_URL', API_URL)
+export const TEST_API_KEY = store.app_key
+export const TEST_APP_ID = store.app_id
+export const TEST_API_URL = store.api_url
+console.log('TEST_API_KEY', TEST_API_KEY)
+console.log('TEST_APP_ID', TEST_APP_ID)
+console.log('TEST_API_URL', TEST_API_URL)
 // app_key:  app-b9TjpM58FhCOuWUPhCGzAydW
 
 // app_id: 9f47d0e7-93f5-45c9-9e50-8b411ab421bf

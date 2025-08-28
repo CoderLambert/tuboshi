@@ -13,6 +13,7 @@ import type { QACategory } from '@/hooks/useAppStore'
 import { useNativeBridge } from '@/hooks/useNativeBridge'
 import { USERID_COOKIE_NAME } from '@/config'
 import SafeAreaLayout from './components/SafeAreaLayout'
+import { useEffect } from 'react'
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
 const { t } = useTranslation()
@@ -39,6 +40,14 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
   const handleQuestionClick = (question: string) => {
     eventBus.emit(EVENTS.SEND_MESSAGE, question)
   }
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      import('eruda').then((eruda) => {
+        eruda.default.init() // 初始化 Eruda
+      })
+    }
+  }, [])
 
   return (
     <div className="flex h-screen min-h-0 flex-col bg-white">
