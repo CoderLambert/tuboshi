@@ -903,7 +903,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const handleStop = useCallback(async () => {
     hasStopResponded.current = true
     handleResponding(false)
-    
+
     if (taskIdRef.current) {
       console.log('taskIdRef.current', taskIdRef.current)
       try {
@@ -915,7 +915,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
               console.error('Failed to stop message:', error)
               notify({ type: 'error', message: t('app.generation.stopFailed') })
             }
-     } else {
+     }
+ else {
           notify({ type: 'error', message: t('app.generation.stopFailed') })
         }
 

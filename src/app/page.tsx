@@ -40,7 +40,6 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
     eventBus.emit(EVENTS.SEND_MESSAGE, question)
   }
 
-
   return (
     <div className="flex h-screen min-h-0 flex-col bg-white">
 

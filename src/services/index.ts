@@ -75,7 +75,7 @@ export const generationConversationName = async (id: string) => {
 }
 
 export const stopChatMessage = async (taskId: string, userID: string) => {
-  return post(`chat-messages/${taskId}/stop?userID=${userID}`,)
+  return post(`chat-messages/${taskId}/stop?userID=${userID}`)
 }
 
 export const fetchSuggestedQuestions = async (messageId: string, userID: string): Promise<{
