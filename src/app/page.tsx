@@ -42,11 +42,11 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
   }
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
+    // if (process.env.NODE_ENV === 'development') {
       import('eruda').then((eruda) => {
         eruda.default.init() // 初始化 Eruda
       })
-    }
+    // }
   }, [])
 
   return (
