@@ -12,6 +12,15 @@ export async function POST(request: NextRequest) {
   } = body
   const { user } = getInfo(request)
   const isStreaming = responseMode === 'streaming'
+
+  console.log('===========chat message start===========')
+  console.log(`inputs: ${JSON.stringify(inputs)}`)
+  console.log(`query: ${query}`)
+  console.log(`files: ${JSON.stringify(files)}`)
+  console.log(`conversationId: ${conversationId}`)
+  console.log(`responseMode: ${responseMode}`)
+  console.log(`user: ${JSON.stringify(user)}`)
+  console.log('===========chat message end===========')
   try {
     const res = await client.createChatMessage(inputs, query, user, responseMode, conversationId, files)
     if (isStreaming) {

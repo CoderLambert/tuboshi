@@ -585,7 +585,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     console.log(`inputsFormConfig ---> ${JSON.stringify(inputsFormConfig)}`)
     const toServerInputs: Record<string, any> = {
       // test: '222',
-      // ...inputsFormConfig,
+      ...inputsFormConfig,
     }
     if (currInputs) {
       Object.keys(currInputs).forEach((key) => {
@@ -600,7 +600,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           toServerInputs[key] = value
       })
     }
-
+    console.log(`toServerInputs ---> ${JSON.stringify(toServerInputs)}`)
     const data: Record<string, any> = {
       inputs: toServerInputs,
       query: message,
