@@ -1,3 +1,4 @@
+// @ts-nocheck
 import lamejs from 'lamejs'
 import MPEGMode from 'lamejs/src/js/MPEGMode'
 import Lame from 'lamejs/src/js/Lame'

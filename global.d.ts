@@ -1,7 +1,23 @@
-declare module 'lamejs';
-declare module 'lamejs/src/js/MPEGMode';
-declare module 'lamejs/src/js/Lame';
-declare module 'lamejs/src/js/BitStream';
+declare module 'lamejs' {
+    const lamejs: any
+    export default lamejs
+}
+
+declare module 'lamejs/src/js/MPEGMode' {
+    const MPEGMode: any
+    export default MPEGMode
+}
+
+declare module 'lamejs/src/js/Lame' {
+    const Lame: any
+    export default Lame
+}
+
+declare module 'lamejs/src/js/BitStream' {
+    const BitStream: any
+    export default BitStream
+}
+
 declare module 'react-18-input-autosize';
 
 declare global {

@@ -1,4 +1,4 @@
-import { client } from '@/app/api/utils/common'
+import { getClient } from '@/app/api/utils/common'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getInfo } from '@/app/api/utils/common'
@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
   console.log('==========parameters  end=======')
 
   try {
+    const client = await getClient()
     const { data } = await client.getApplicationParameters(userID || user)
     return NextResponse.json(data as object, {
       headers: setSession(sessionId),
