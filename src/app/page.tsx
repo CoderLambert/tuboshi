@@ -11,7 +11,6 @@ import { useTranslation } from 'react-i18next'
 import type { QACategory } from '@/hooks/useAppStore'
 
 import { useNativeBridge } from '@/hooks/useNativeBridge'
-import { useEffect } from 'react'
 import { USERID_COOKIE_NAME } from '@/config'
 import SafeAreaLayout from './components/SafeAreaLayout'
 export default function Home() {
@@ -41,19 +40,7 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
     eventBus.emit(EVENTS.SEND_MESSAGE, question)
   }
 
-  useEffect(() => {
-    // if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') { // 确保只在浏览器中运行
-    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') { // 确保只在浏览器中运行
-      import('vconsole').then((module) => {
-          const VConsole = module.default
-          const vConsole = new VConsole()
-          // 可添加自定义配置，如只在特定 URL 参数下启用：if (new URLSearchParams(window.location.search).has('debug'))
-          return () => vConsole.destroy()
-        }).catch((error) => {
-          console.error('加载 vConsole 失败:', error)
-        })
-    }
-  }, [])
+
   return (
     <div className="flex h-screen min-h-0 flex-col bg-white">
 
