@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import useAppStore from './useAppStore'
 /* global Android, window */
 export function useNativeBridge() {
-  const callNativeMethod = (methodName, params, callbackName) =>
-    new Promise((resolve, reject) => {
+  const callNativeMethod = (methodName, params, callbackName) => {
+    return new Promise((resolve, reject) => {
       if (!methodName || typeof methodName !== 'string')
         reject(new Error('Invalid method name'))
 
@@ -59,6 +59,7 @@ export function useNativeBridge() {
         reject(err)
       }
     })
+  }
 
   const useAppRequestHeader = () => {
     const setAppRequestHeader = useAppStore(state => state.setAppRequestHeader)
