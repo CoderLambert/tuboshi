@@ -9,6 +9,7 @@ export type JsBridgeMethodName
     | 'finish' // closeWebview 对应的方法名
     | 'getStatusBarHeight'
     | 'qaData'
+    | 'jsToNative'
 
 // 原生方法调用核心函数
 export function callNativeMethod(methodName: JsBridgeMethodName, params = {}, callbackName: string = '') {
