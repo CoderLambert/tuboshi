@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import cn from 'clsx'
 import { debounce } from 'lodash-es' // 引入 lodash 或自行实现防抖
+import { useNativeBridge } from '@/hooks/useNativeBridge'
 
 export type IMobilePullToRefreshProps = {
   children: React.ReactNode;
@@ -29,6 +30,8 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
   const [showNoMoreData, setShowNoMoreData] = useState(false)
   const [startY, setStartY] = useState(0)
   const [isTracking, setIsTracking] = useState(false)
+  const { useStatusBarHeight } = useNativeBridge()
+  const { top } = useStatusBarHeight()
 
   let supportsPassive = false
   try {
@@ -272,6 +275,7 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
             transform: `translateY(${isPulling ? Math.max(-80, pullDistance - 80) : 0}px)`,
             transition: isPulling ? 'none' : 'transform 0.3s ease-out',
             background: 'linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0.8))',
+            top: top ? `calc(${0 + top} * var(--tpx))` : `calc(${0} * var(--tpx))`,
           }}
         >
           {renderPullIndicator()}
