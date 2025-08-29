@@ -32,6 +32,7 @@ const translation = {
     loadingMoreHistory: '加载中...',
     tryToAsk: '试着问问',
     textInputPlaceholder: '请输入问题...',
+    generatingSuggestions: '正在生成建议...',
   },
   voiceInput: {
     speaking: '正在说话',

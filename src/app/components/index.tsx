@@ -13,10 +13,9 @@ import SimpleChat from '@/app/components/chat/simple-chat'
 import MobilePullToRefresh from '@/app/components/base/mobile-pull-to-refresh'
 import OptimizedInput from '@/app/components/chat/optimized-input'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
-import Loading from '@/app/components/base/loading'
 import { userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from './chat/app-unavailable'
-import { APP_INFO, USERID_COOKIE_NAME, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
+import { USERID_COOKIE_NAME, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import TryToAsk from './chat/try-to-ask'
@@ -103,6 +102,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const [hasMoreHistory, setHasMoreHistory] = useState(true)
   const [showLoadHistoryButton, setShowLoadHistoryButton] = useState(false)
   const [isResponding, setIsResponding] = useState(false)
+  const [isSuggestQuestionsLoading, setIsSuggestQuestionsLoading] = useState(false)
 
   // onData change thought (the produce obj). https://github.com/immerjs/immer/issues/576
   useEffect(() => {
@@ -631,6 +631,7 @@ useEffect(() => {
     }
     // 发送成功后清空输入框状态、建议问题
     currentQueryRef.current = ''
+    setIsSuggestQuestionsLoading(false)
     setSuggestQuestionsAfterAnswer([])
     console.log(`inputsFormConfig ---> ${JSON.stringify(inputsFormConfig)}`)
     const toServerInputs: Record<string, any> = {
@@ -762,6 +763,7 @@ useEffect(() => {
        if (chatConfig?.suggested_questions_after_answer?.enabled && !hasStopResponded.current) {
             try {
               // 添加获取建议问题 api 调用
+              setIsSuggestQuestionsLoading(true)
               const { data } = await fetchSuggestedQuestions(
                 responseItem.id,
                 userID['user-id'],
@@ -771,6 +773,9 @@ useEffect(() => {
             // eslint-disable-next-line unused-imports/no-unused-vars
             catch (e) {
               setSuggestQuestionsAfterAnswer([])
+            }
+            finally {
+              setIsSuggestQuestionsLoading(false)
             }
           }
       },
@@ -1039,6 +1044,7 @@ useEffect(() => {
               suggestedQuestions={suggestQuestionsAfterAnswer}
               onSend={handleSend}
               isMobile={true}
+              isLoading={isSuggestQuestionsLoading}
             />
           )
       }
