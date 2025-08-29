@@ -10,6 +10,7 @@ import {
   XCircleIcon,
 } from '@heroicons/react/20/solid'
 import { createContext, useContext } from 'use-context-selector'
+import { useNativeBridge } from '@/hooks/useNativeBridge'
 
 export type IToastProps = {
   type?: 'success' | 'error' | 'warning' | 'info'
@@ -32,19 +33,25 @@ const Toast = ({
   message,
   children,
 }: IToastProps) => {
+  const { useStatusBarHeight } = useNativeBridge()
+  const { top } = useStatusBarHeight()
+  const operationTopStyle = {
+      top: top ? `calc(${0 + top} * var(--tpx))` : `calc(${0} * var(--tpx))`,
+  }
+
   // sometimes message is react node array. Not handle it.
   if (typeof message !== 'string')
     return null
 
   return <div className={classNames(
-    'fixed rounded-md p-4 my-4 mx-8 z-50',
+    'fixed rounded-md p-4 my-4 mx-8 z-[9999]',
     'top-0',
     'right-0',
     type === 'success' ? 'bg-green-50' : '',
     type === 'error' ? 'bg-red-50' : '',
     type === 'warning' ? 'bg-yellow-50' : '',
     type === 'info' ? 'bg-blue-50' : '',
-  )}>
+  )} style={operationTopStyle}>
     <div className="flex">
       <div className="shrink-0">
         {type === 'success' && <CheckCircleIcon className="h-5 w-5 text-green-400" aria-hidden="true" />}

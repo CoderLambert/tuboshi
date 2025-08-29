@@ -7,6 +7,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import Tooltip from '@/app/components/base/tooltip'
 import Toast from '@/app/components/base/toast'
 import { noop } from 'lodash-es'
+import { useNativeBridge } from '@/hooks/useNativeBridge'
 
 type ImagePreviewProps = {
   url: string
@@ -38,7 +39,11 @@ const ImagePreview: FC<ImagePreviewProps> = ({
   const imgRef = useRef<HTMLImageElement>(null)
   const dragStartRef = useRef({ x: 0, y: 0 })
   const [isCopied, setIsCopied] = useState(false)
-
+  const { useStatusBarHeight } = useNativeBridge()
+  const { top } = useStatusBarHeight()
+  const operationTopStyle = {
+      top: top ? `calc(${24 + top} * var(--tpx))` : `calc(${24} * var(--tpx))`,
+  }
   const openInNewTab = () => {
     // Open in a new window, considering the case when the page is inside an iframe
     if (url.startsWith('http') || url.startsWith('https')) {
@@ -75,6 +80,11 @@ const ImagePreview: FC<ImagePreviewProps> = ({
   }
 
   const zoomIn = () => {
+     Toast.notify({
+        type: 'error',
+        message: `Unable to open image: ${url}`,
+        duration: 300000,
+      })
     setScale(prevScale => Math.min(prevScale * 1.2, 15))
   }
 
@@ -203,7 +213,6 @@ const ImagePreview: FC<ImagePreviewProps> = ({
       onMouseUp={handleMouseUp}
       style={{ cursor: scale > 1 ? 'move' : 'default' }}
       tabIndex={-1}>
-      { }
       <img
         ref={imgRef}
         alt={title}
@@ -224,31 +233,22 @@ const ImagePreview: FC<ImagePreviewProps> = ({
       </Tooltip>
       <Tooltip popupContent={t('common.operation.zoomOut')}>
         <div className='absolute right-24 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg'
+             style={operationTopStyle}
           onClick={zoomOut}>
           <RiZoomOutLine className='h-4 w-4 text-gray-500' />
         </div>
       </Tooltip>
       <Tooltip popupContent={t('common.operation.zoomIn')}>
         <div className='absolute right-16 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg'
+             style={operationTopStyle}
           onClick={zoomIn}>
           <RiZoomInLine className='h-4 w-4 text-gray-500' />
         </div>
       </Tooltip>
-      {/* <Tooltip popupContent={t('common.operation.download')}>
-        <div className='absolute right-24 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg'
-          onClick={downloadImage}>
-          <RiDownloadCloud2Line className='h-4 w-4 text-gray-500' />
-        </div>
-      </Tooltip> */}
-      {/* <Tooltip popupContent={t('common.operation.openInNewTab')}>
-        <div className='absolute right-16 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg'
-          onClick={openInNewTab}>
-          <RiAddBoxLine className='h-4 w-4 text-gray-500' />
-        </div>
-      </Tooltip> */}
       <Tooltip popupContent={t('common.operation.cancel')}>
         <div
           className='absolute right-6 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-white/8 backdrop-blur-[2px]'
+          style={operationTopStyle}
           onClick={onCancel}>
           <RiCloseLine className='h-4 w-4 text-gray-500' />
         </div>
