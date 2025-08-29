@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server'
 import { ChatClient } from '@/lib/client'
 import { v4 } from 'uuid'
 import { API_KEY } from '@/config'
-import { API_KEY_COOKIE_NAME, API_URL_COOKIE_NAME, USERID_COOKIE_NAME } from '@/config'
+import { API_KEY_COOKIE_NAME, API_URL_COOKIE_NAME, USERID_COOKIE_NAME, API_URL } from '@/config'
 import { cookies } from 'next/headers'
 export const getInfo = (request: NextRequest) => {
   const sessionId = request.cookies.get('session_id')?.value || v4()
@@ -32,21 +32,18 @@ let cachedClient: ChatClient | null = null
 export const getClient = async (request: NextRequest): Promise<ChatClient> => {
   if (cachedClient) { return cachedClient }
   else {
-    const TEST_API_KEY = request.cookies.get(API_KEY_COOKIE_NAME)?.value
-    console.log('clientPromise TEST_API_KEY', TEST_API_KEY)
-    let TEST_API_URL = request.cookies.get(API_URL_COOKIE_NAME)?.value
+    const REAL_API_KEY = request.cookies.get(API_KEY_COOKIE_NAME)?.value
+    console.log('clientPromise TEST_API_KEY', REAL_API_KEY)
+    let REAL_API_URL = request.cookies.get(API_URL_COOKIE_NAME)?.value
 
-    console.log('clientPromise TEST_API_URL', TEST_API_URL)
+    console.log('clientPromise TEST_API_URL', REAL_API_URL)
     const cookieStore = await cookies()
     console.log('cookieStore', cookieStore.getAll())
-    if (!TEST_API_KEY || !TEST_API_URL)
+    if (!REAL_API_KEY || !REAL_API_URL)
       console.warn('Missing API_KEY or API_URL from cookies, generating fallback (may fail)')
-    if (TEST_API_URL === 'http://yl-alg-alg-dify-api:5001/v1') {
-      TEST_API_URL = 'https://ai-agent.jtexpress.ph/v1'
-      console.log('revert TEST_API_URL to', TEST_API_URL)
-    }
-    console.log('clientPromise real key', TEST_API_KEY || API_KEY)
-    cachedClient = new ChatClient(TEST_API_KEY || API_KEY, TEST_API_URL)
+ 
+    console.log('clientPromise real key', REAL_API_KEY || API_KEY)
+    cachedClient = new ChatClient(REAL_API_KEY || API_KEY, REAL_API_URL  || API_URL)
     return cachedClient
   }
 }
