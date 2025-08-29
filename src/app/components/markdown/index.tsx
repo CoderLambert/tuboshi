@@ -273,8 +273,32 @@ export function Markdown(props: { content: string; className?: string; customDis
     preprocessLaTeX,
   ])(props.content)
 
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(props.content).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000) // 2秒后重置状态
+    })
+  }
+
   return (
-    <div className={cn('markdown-body', '!text-text-primary', props.className)}>
+    <div className={cn('markdown-body relative', '!text-text-primary', props.className)}>
+      {/* 添加复制按钮 */}
+      <div className="absolute right-2 top-2 z-10">
+        <button
+          onClick={handleCopy}
+          className="rounded p-1 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700"
+          title="Copy Markdown"
+        >
+          {copied ? (
+            <span className="text-xs text-green-500">Copied!</span>
+          ) : (
+            <CopyIcon content={props.content} />
+          )}
+        </button>
+      </div>
+
       <ReactMarkdown
         remarkPlugins={[
           RemarkGfm,
