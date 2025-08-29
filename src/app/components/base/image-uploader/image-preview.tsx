@@ -80,11 +80,6 @@ const ImagePreview: FC<ImagePreviewProps> = ({
   }
 
   const zoomIn = () => {
-     Toast.notify({
-        type: 'error',
-        message: `Unable to open image: ${url}`,
-        duration: 300000,
-      })
     setScale(prevScale => Math.min(prevScale * 1.2, 15))
   }
 
