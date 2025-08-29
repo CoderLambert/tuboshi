@@ -288,11 +288,11 @@ export function Markdown(props: { content: string; className?: string; customDis
       <div className="absolute right-0 top-0 z-10">
         <button
           onClick={handleCopy}
-          className="rounded p-1 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700"
+          className="rounded p-1 transition-colors"
           title="Copy Markdown"
         >
           {copied ? (
-            <span className="text-xs text-green-500">Copied!</span>
+            <span className="bg-transparent text-xs text-green-500">Copied!</span>
           ) : (
             <CopyIcon content={props.content} />
           )}
