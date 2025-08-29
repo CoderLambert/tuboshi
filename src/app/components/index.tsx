@@ -16,7 +16,7 @@ import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import Loading from '@/app/components/base/loading'
 import { userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from './chat/app-unavailable'
-import { API_KEY, API_URL, APP_ID, APP_INFO, USERID_COOKIE_NAME, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
+import { APP_INFO, USERID_COOKIE_NAME, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import TryToAsk from './chat/try-to-ask'
@@ -32,7 +32,7 @@ export type IMainProps = {
 
 const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const { t } = useTranslation()
-  const hasSetAppConfig = APP_ID && API_KEY
+  const hasSetAppConfig = useRef(false)
 
   // 输入框状态管理 - 使用useRef避免频繁重渲染
   const currentQueryRef = useRef('')
@@ -43,14 +43,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const inputBoxRef = useRef<HTMLDivElement>(null)
 
   const userID = useAppStore((state: any) => state.userID)
-  // const userID = {
-  //   'user-id': 'abc-123',
-  // }
-  console.log('useAppStore userID', userID)
-  console.log('APP_ID', APP_ID)
-  console.log('API_KEY', API_KEY)
-  console.log('APP_INFO', APP_INFO)
 
+  console.log('useAppStore userID', userID)
   // const apiKey = getAppKey()
   // console.log('apiKey', apiKey)
   // const appId = getAppId()
@@ -129,21 +123,16 @@ useEffect(() => {
       setApiKey(key)
       setAppId(id)
       setApiUrl(url)
-      console.log('=========== loadConfig ========')
+      console.log('=========== loadConfig start========')
       console.log('apiKey', key)
       console.log('appId', id)
       console.log('apiUrl', url)
+      console.log('=========== loadConfig end ========')
+
     }
  catch (error) {
-      console.error('Failed to load config:', error)
+      console.error('Failed to load app config:', error)
       // 使用默认值
-      setApiKey(API_KEY)
-      setAppId(APP_ID)
-      setApiUrl(API_URL)
-
-      console.log('apiKey', API_KEY)
-      console.log('appId', APP_ID)
-      console.log('apiUrl', API_URL)
     }
   }
 
@@ -152,12 +141,13 @@ useEffect(() => {
 
 useEffect(() => {
   if (apiKey && appId && apiUrl) {
-          console.log('=========== loadConfig  finish ========')
+    console.log('=========== loadConfig  finish ========')
 
     console.log('apiKey', apiKey)
     console.log('appId', appId)
     console.log('apiUrl', apiUrl)
     // 在这里执行依赖这些配置的逻辑
+    hasSetAppConfig.current = true
   }
 }, [apiKey, appId, apiUrl])
 
@@ -334,7 +324,7 @@ useEffect(() => {
   useEffect(handleConversationSwitch, [currConversationId, inited])
 
   useEffect(() => {
-    setCurrConversationId(chatList[0]?.id || '-1', APP_ID, false)
+    setCurrConversationId(chatList[0]?.id || '-1', appId!, false)
   }, [])
 
   // 使用ref来避免闭包问题
@@ -517,11 +507,11 @@ useEffect(() => {
         setConversationList(conversations as ConversationItem[])
 
         if (isNewConversation) {
-          setCurrConversationId('-1', APP_ID, false)
+          setCurrConversationId('-1', appId!, false)
         }
         else {
           // 如果没有当前会话但有历史会话，使用第一个历史会话避免默认新会话状态
-          setCurrConversationId(currentConversation.id, APP_ID, false)
+          setCurrConversationId(currentConversation.id, appId!, false)
         }
 
         setInited(true)
@@ -546,13 +536,16 @@ useEffect(() => {
 
   // 监听FAQ问题点击事件
   useEffect(() => {
+    if(!hasSetAppConfig)
+      return
+
     const handleSendMessage = (message: string) => {
       // 如果当前是新会话状态，先确保有一个有效的会话
       if (isNewConversation && conversationList.length > 0) {
         // 使用第一个现有会话，避免创建新会话
         const firstConversation = conversationList[0]
         if (firstConversation && firstConversation.id !== '-1') {
-          setCurrConversationId(firstConversation.id, APP_ID, false)
+          setCurrConversationId(firstConversation.id, appId!, false)
           // 等待会话切换完成后再发送消息
           setTimeout(() => {
             handleSend(message)
@@ -561,7 +554,7 @@ useEffect(() => {
         }
       }
  else {
-      setCurrConversationId('-1', APP_ID, false)
+      setCurrConversationId('-1', appId!, false)
       }
       handleSend(message)
     }
@@ -571,7 +564,7 @@ useEffect(() => {
     return () => {
       eventBus.off(EVENTS.SEND_MESSAGE, handleSendMessage)
     }
-  }, [isNewConversation, conversationList])
+  }, [isNewConversation, conversationList, hasSetAppConfig])
 
   const { useUserID } = useNativeBridge()
   const userInfo = useUserID()
@@ -642,7 +635,6 @@ useEffect(() => {
     setSuggestQuestionsAfterAnswer([])
     console.log(`inputsFormConfig ---> ${JSON.stringify(inputsFormConfig)}`)
     const toServerInputs: Record<string, any> = {
-      // test: '222',
       ...inputsFormConfig,
     }
     if (currInputs) {
@@ -764,7 +756,7 @@ useEffect(() => {
         setConversationIdChangeBecauseOfNew(false)
         resetNewConversationInputs()
         setChatNotStarted()
-        setCurrConversationId(tempNewConversationId, APP_ID, true)
+        setCurrConversationId(tempNewConversationId, appId!, true)
         handleResponding(false)
 
         // 开启建议问题后，且没有停止对话时，请求建议问题
@@ -986,9 +978,9 @@ useEffect(() => {
       [handleResponding])
 
   if (appUnavailable)
-    return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set APP_ID and API_KEY in config/index.tsx' : ''} />
+    return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set appId and apiKey in config/index.tsx' : ''} />
 
-  if (!APP_ID || !APP_INFO || !promptConfig)
+  if (!appId || !APP_INFO || !promptConfig)
     return <Loading className='mt-16' type='app' />
 
   return (
