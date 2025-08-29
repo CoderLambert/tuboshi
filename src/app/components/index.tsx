@@ -15,13 +15,14 @@ import OptimizedInput from '@/app/components/chat/optimized-input'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import { userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from './chat/app-unavailable'
-import { USERID_COOKIE_NAME, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
+import { APP_INFO, USERID_COOKIE_NAME, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import TryToAsk from './chat/try-to-ask'
 import { useNativeBridge } from '@/hooks/useNativeBridge'
 import Cookies from 'js-cookie'
 import useAppStore from '@/hooks/useAppStore'
+import Loading from '@/app/components/base/loading'
 
 export type IMainProps = {
   params: any
