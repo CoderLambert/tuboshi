@@ -128,7 +128,6 @@ useEffect(() => {
       console.log('appId', id)
       console.log('apiUrl', url)
       console.log('=========== loadConfig end ========')
-
     }
  catch (error) {
       console.error('Failed to load app config:', error)
