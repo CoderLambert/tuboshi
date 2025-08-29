@@ -285,7 +285,7 @@ export function Markdown(props: { content: string; className?: string; customDis
   return (
     <div className={cn('markdown-body relative', '!text-text-primary', props.className)}>
       {/* 添加复制按钮 */}
-      <div className="absolute right-2 top-2 z-10">
+      <div className="absolute right-0 top-0 z-10">
         <button
           onClick={handleCopy}
           className="rounded p-1 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700"
