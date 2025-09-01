@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     else { return new Response(res.data as any) }
   }
   catch (e: any) {
-    console.log(e)
+    console.dir(e)
     return new Response(e.message)
   }
 }

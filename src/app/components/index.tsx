@@ -467,7 +467,7 @@ useEffect(() => {
 
         // handle current conversation id
         const { data: conversations, error } = conversationData as { data: ConversationItem[]; error: string }
-
+        // const conversations = []
         if (error) {
           Toast.notify({ type: 'error', message: error })
           throw new Error(error)
@@ -476,6 +476,8 @@ useEffect(() => {
         const currentConversation = conversations[0]
         const isNewConversation = !currentConversation
 
+        // const isNewConversation = true
+        console.log('isNewConversation', isNewConversation)
         // fetch new conversation info
         const { user_input_form, opening_statement: introduction, file_upload, system_parameters, suggested_questions = [] }: any = appParams
         // setLocaleOnClient(APP_INFO.default_language, true)
@@ -544,6 +546,7 @@ useEffect(() => {
       if (isNewConversation && conversationList.length > 0) {
         // 使用第一个现有会话，避免创建新会话
         const firstConversation = conversationList[0]
+        console.log(`firstConversation   ==> ${JSON.stringify(firstConversation)}}`)
         if (firstConversation && firstConversation.id !== '-1') {
           setCurrConversationId(firstConversation.id, appId!, false)
           // 等待会话切换完成后再发送消息
@@ -554,6 +557,8 @@ useEffect(() => {
         }
       }
  else {
+          console.log('is Not firstConversation')
+
       setCurrConversationId('-1', appId!, false)
       }
       handleSend(message)
@@ -705,6 +710,7 @@ useEffect(() => {
     let tempNewConversationId = ''
 
     handleResponding(true)
+    console.log(`data ---> ${JSON.stringify(data)}`)
 
     sendChatMessage(data, {
       getAbortController: (abortController) => {
@@ -720,12 +726,15 @@ useEffect(() => {
             lastThought.thought = lastThought.thought + message // need immer setAutoFreeze
         }
         if (messageId && !hasSetResponseId) {
+          // 如果chat-message 响应异常，将会导致id 使用的是 前端生成的 假id
           responseItem.id = messageId
           hasSetResponseId = true
         }
 
-        if (isFirstMessage && newConversationId)
+        if (isFirstMessage && newConversationId) {
           tempNewConversationId = newConversationId
+          console.log(`tempNewConversationId ---> ${tempNewConversationId}`)
+        }
 
         taskIdRef.current = taskId
         // setMessageTaskId(taskId)

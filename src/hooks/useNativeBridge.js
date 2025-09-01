@@ -79,8 +79,11 @@ export function useNativeBridge() {
     const userInfo = useAppStore(state => state.userInfo)
     useEffect(() => {
       const getInfo = async () => {
-        const res = await callNativeMethod('getUserInfo', {})
-        setUserInfo(res)
+        // const res = await callNativeMethod('getUserInfo', {})
+        // setUserInfo(res)
+        setUserInfo({
+          'user-id': '4707011993',
+        })
       }
       getInfo()
     }, [])
@@ -92,7 +95,8 @@ export function useNativeBridge() {
     const GPTConfig = useAppStore(state => state.GPTConfig)
     useEffect(() => {
       const getInfo = async () => {
-        const res = await callNativeMethod('getGPTConfig', {})
+        // const res = await callNativeMethod('getGPTConfig', {})
+        const res = { app_key: 'app-b9TjpM58FhCOuWUPhCGzAydW', app_id: '9f47d0e7-93f5-45c9-9e50-8b411ab421bf', api_url: 'https://ai-agent.jtexpress.ph/v1' }
         setGPTConfig(res)
       }
       getInfo()
@@ -105,8 +109,9 @@ export function useNativeBridge() {
     const inputsFormConfig = useAppStore(state => state.inputsForm)
     useEffect(() => {
       const getInputsFormInfo = async () => {
-        const res = await callNativeMethod('getInputsForm', {})
-        console.log('useEffect inputsFormConfig', res)
+        // const res = await callNativeMethod('getInputsForm', {})
+        // console.log('useEffect inputsFormConfig', res)
+        const res = { token: 'f6c2e97900f34dfa95b862f966eeb091', app_version: '3.1.9.3', langType: 'EN', app_platform: '.outfield.' }
         setInputsForm(res)
       }
       getInputsFormInfo()
@@ -118,8 +123,11 @@ export function useNativeBridge() {
     const setUserID = useAppStore(state => state.setUserID)
     const userID = useAppStore(state => state.userID)
     const getUserID = async () => {
-      const res = await callNativeMethod('getUserID', {})
-      setUserID(res)
+      // const res = await callNativeMethod('getUserID', {})
+      setUserID({
+        'user-id': '4707011993',
+      })
+      // setUserID(res)
     }
     useEffect(() => {
       getUserID()
@@ -136,8 +144,9 @@ export function useNativeBridge() {
     const statusBarHeight = useAppStore(state => state.statusBarHeight)
     useEffect(() => {
       const getInfo = async () => {
-        const res = await callNativeMethod('getStatusBarHeight', {})
-        setStatusBarHeight(res)
+        // const res = await callNativeMethod('getStatusBarHeight', {})
+        // setStatusBarHeight(res)
+        setStatusBarHeight({ top: 40 })
       }
       getInfo()
     }, [])
@@ -149,8 +158,9 @@ export function useNativeBridge() {
     const qaData = useAppStore(state => state.qaData)
     useEffect(() => {
       const getInfo = async () => {
-        const res = await callNativeMethod('qaData', {})
-        setQaData(res)
+        // const res = await callNativeMethod('qaData', {})
+        // setQaData(res)
+        setQaData([])
       }
       getInfo()
     }, [])
