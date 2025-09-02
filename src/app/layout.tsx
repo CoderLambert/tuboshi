@@ -26,7 +26,7 @@ export const viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover', // For iOS safe areas
-  interactiveWidget: 'resizes-content', // 让视口随键盘调整（Chrome/Android支持）
+  // interactiveWidget: 'resizes-content', // 让视口随键盘调整（Chrome/Android支持）
 }
 
 const LocaleLayout = async ({

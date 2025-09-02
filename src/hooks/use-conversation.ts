@@ -25,7 +25,8 @@ function useConversation() {
     return id
   }
 
-  const isNewConversation = true
+  const isNewConversation = currConversationId === '-1'
+
   // input can be updated by user
   const [newConversationInputs, setNewConversationInputs] = useState<Record<string, any> | null>(null)
   const resetNewConversationInputs = () => {

@@ -111,7 +111,13 @@ export function useNativeBridge() {
       const getInputsFormInfo = async () => {
         // const res = await callNativeMethod('getInputsForm', {})
         // console.log('useEffect inputsFormConfig', res)
-        const res = { token: 'f6c2e97900f34dfa95b862f966eeb091', app_version: '3.1.9.3', langType: 'EN', app_platform: '.outfield.' }
+        // ts-ignore
+        const res = {
+          token: 'f6c2e97900f34dfa95b862f966eeb091',
+          app_version: '3.1.9.3', // eslint-disable-line sonarjs/no-hardcoded-ip
+          langType: 'EN',
+          app_platform: '.outfield.',
+        }
         setInputsForm(res)
       }
       getInputsFormInfo()
