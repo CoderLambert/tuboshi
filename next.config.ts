@@ -6,16 +6,65 @@ export default (phase: string): NextConfig => {
   const commonConfig: NextConfig = {
     // 转换这些包以确保老浏览器兼容性
     transpilePackages: [
-      // 需要转换现代语法的包
+      // 基础包
       'js-cookie',
       'i18next',
       'zustand',
       'react-i18next',
       'html-parse-stringify',
       'void-elements',
-      // 包含相关的子依赖
       '@formatjs/intl-localematcher',
-      'use-context-selector'
+      'use-context-selector',
+
+      // 工具库
+      'lodash-es',
+      'clsx',
+      'tailwind-merge',
+      'class-variance-authority',
+      'immer',
+      '@babel/runtime',
+
+      // SVG 和图形库
+      '@svgdotjs/svg.js',
+
+      // 音频处理
+      'lamejs',
+      'js-audio-recorder',
+
+      // UI 组件库
+      'rc-input',
+      'rc-textarea',
+      'rc-resize-observer',
+      'rc-util',
+      '@floating-ui/utils',
+      '@floating-ui/core',
+      '@floating-ui/dom',
+      '@floating-ui/react',
+
+      // Markdown 相关
+      'react-markdown',
+      'remark-gfm',
+      'remark-math',
+      'remark-breaks',
+      'rehype-katex',
+      'rehype-raw',
+      'mdast-util-math',
+      'mdast-util-gfm',
+      'mdast-util-from-markdown',
+      'mdast-util-to-hast',
+      'mdast-util-to-markdown',
+      'micromark-extension-math',
+      'micromark-extension-gfm',
+      'micromark',
+      'unified',
+      'vfile',
+
+      // 其他工具
+      'web-namespaces',
+      'copy-to-clipboard',
+      'react-hotkeys-hook',
+      'ahooks',
+      'tabbable'
     ],
 
     // 将有问题的包标记为外部包，避免服务端处理问题
@@ -77,57 +126,68 @@ export default (phase: string): NextConfig => {
       type: 'javascript/auto',
     });
 
-    // 确保需要转换的包被正确处理，排除有问题的包
+    // 强制 SWC 转换所有现代语法
     config.module.rules.forEach((rule: any) => {
-      // 找到 SWC 或 Babel 规则
       if (rule.use && Array.isArray(rule.use)) {
         rule.use.forEach((useItem: any) => {
           // 处理 SWC loader
           if (useItem.loader && useItem.loader.includes('swc-loader')) {
-            // 确保 SWC 处理我们需要转换的包
-            const originalInclude = useItem.options?.include;
             useItem.options = useItem.options || {};
 
-            // 明确包含需要转换的包
-            if (!originalInclude) {
-              useItem.options.include = [
-                /node_modules[\/\\]js-cookie/,
-                /node_modules[\/\\]i18next/,
-                /node_modules[\/\\]zustand/,
-                /node_modules[\/\\]react-i18next/,
-                /node_modules[\/\\]html-parse-stringify/,
-              ];
-            }
-          }
+            // 强制设置 SWC 配置
+            useItem.options.jsc = {
+              target: 'es5',
+              loose: true,
+              parser: {
+                syntax: 'typescript',
+                tsx: true,
+                decorators: true,
+                dynamicImport: true,
+                nullishCoalescing: true,
+                optionalChaining: true,
+                privateMethod: true,
+                functionBind: true,
+                exportDefaultFrom: true,
+                exportNamespaceFrom: true,
+                importMeta: true
+              },
+              transform: {
+                react: {
+                  runtime: 'automatic'
+                }
+              },
+              externalHelpers: false,
+              keepClassNames: true
+            };
 
-          // 处理 Babel loader
-          if (useItem.loader && useItem.loader.includes('babel-loader')) {
-            // 扩展排除规则，但不排除我们需要转换的包
-            useItem.options = useItem.options || {};
-            useItem.options.exclude = [
-              // 排除大部分 node_modules，但不排除我们需要的包
-              /node_modules[\/\\](?!(js-cookie|i18next|zustand|react-i18next|html-parse-stringify))/,
-              // 明确排除有问题的包
-              /node_modules[\/\\]marked/,
-              /node_modules[\/\\]mermaid/,
-              /node_modules[\/\\]langium/,
-              /node_modules[\/\\]estree-util-is-identifier-name/,
-              /node_modules[\/\\]@remixicon/,
-              /node_modules[\/\\]cytoscape/,
-              /node_modules[\/\\]katex/,
-            ];
+            // 强制设置环境配置
+            useItem.options.env = {
+              targets: {
+                chrome: '60',
+                firefox: '55',
+                safari: '11',
+                edge: '16'
+              },
+              mode: 'usage',
+              coreJs: '3',
+              include: [
+                'transform-nullish-coalescing-operator',
+                'transform-optional-chaining',
+                'transform-logical-assignment-operators',
+                'transform-numeric-separator',
+                'transform-class-properties',
+                'transform-private-methods',
+                'transform-private-property-in-object',
+                'transform-class-static-block',
+                'transform-export-namespace-from',
+                'transform-dynamic-import'
+              ]
+            };
+
+            useItem.options.module = { type: 'es6' };
+            useItem.options.minify = false;
           }
         });
-      }
-
-      // 处理单个 loader 的情况
-      if (rule.use && typeof rule.use === 'string') {
-        if (rule.use.includes('babel-loader')) {
-          rule.exclude = [
-            // 排除大部分 node_modules，但不排除我们需要的包
-            /node_modules[\/\\](?!(js-cookie|i18next|zustand|react-i18next|html-parse-stringify))/,
-          ];
-        }
       }
     });
 
