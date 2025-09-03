@@ -14,7 +14,8 @@
     "lint": "pnpm eslint --cache --cache-location node_modules/.cache/eslint/.eslint-cache",
     "lint-only-show-error": "pnpm eslint --cache --cache-location node_modules/.cache/eslint/.eslint-cache --quiet",
     "eslint-fix": "eslint --cache --cache-location node_modules/.cache/eslint/.eslint-cache --fix",
-    "fix": "next lint --fix"
+    "fix": "next lint --fix",
+    "es:check": "es-check es2017 './.next/**/*.js'"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.15",
@@ -77,6 +78,8 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^5.2.1",
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.16",
@@ -87,6 +90,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "code-inspector-plugin": "^1.0.4",
+    "core-js": "^3.45.1",
+    "es-check": "^9.3.1",
     "eslint": "^9",
     "eslint-config-next": "15.4.5",
     "eslint-plugin-react-hooks": "^5.2.0",
@@ -98,5 +103,13 @@
     "tailwindcss": "^3.4.17",
     "tw-animate-css": "^1.3.6",
     "typescript": "^5"
-  }
+  },
+  "browserslist": [
+    "chrome 64",
+    "chromeandroid 64",
+    "edge 79",
+    "firefox 67",
+    "opera 51",
+    "safari 12"
+  ]
 }

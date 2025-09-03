@@ -1,15 +1,10 @@
 import type { NextConfig } from 'next';
 import { codeInspectorPlugin } from 'code-inspector-plugin';
-import { PHASE_DEVELOPMENT_SERVER } from 'next/constants';
+import { PHASE_DEVELOPMENT_SERVER } from 'next/constants'; // 导入 phase 常量
 
 export default (phase: string): NextConfig => {
-  // 通用的 Webpack 配置
-  const webpackConfig = (config: any, { isServer }: { isServer: boolean }) => {
-    // 为 react-markdown 添加特殊处理
-    config.resolve.alias = {
-      ...config.resolve.alias,
-    };
-
+  // 定义通用的 webpack 配置
+  const webpackConfig = (config: any) => {
     // 添加 markdown 文件处理规则
     config.module.rules.push({
       test: /\.md$/,
@@ -18,24 +13,20 @@ export default (phase: string): NextConfig => {
     return config;
   };
 
-  // 开发模式配置
+  // 只在开发模式下应用配置
   if (phase === PHASE_DEVELOPMENT_SERVER) {
     return {
-      output: 'standalone',
-      webpack: (config: any, { isServer }: { isServer: boolean }) => {
-        config = webpackConfig(config, { isServer });
+      webpack: (config: any) => {
+        webpackConfig(config);
         config.plugins.push(codeInspectorPlugin({ bundler: 'webpack', editor: 'code' }));
         return config;
       },
     };
   }
 
-  // 生产模式配置
+  // 在构建模式下，不应用 Turbopack（使用默认 Webpack）
   return {
-    output: 'standalone',
-    compiler: {
-      removeConsole: true,
-    },
+    output: 'standalone', // 只保留必要的生产配置
     webpack: webpackConfig,
   };
 };

@@ -56,7 +56,7 @@ const LocaleLayout = async ({
               const baseFontSize = 200;
 
               function setRootFontSize() {
-                const width = document.documentElement?.clientWidth;
+                const width = document.documentElement.clientWidth;
                 const fontSize = ((parseFloat(width) / UI_WIDTH) * baseFontSize).toFixed(4);
                 document.documentElement.style['fontSize'] = fontSize + 'px';
                 document.documentElement.style.setProperty('--tpx', '0.01rem');
