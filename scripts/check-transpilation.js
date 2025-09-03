@@ -87,8 +87,8 @@ function main() {
 
   console.log('🔍 Checking for modern syntax in build files...\n');
 
-  // 递归查找客户端 JS 文件（排除服务端文件）
-  function findClientJSFiles(dir) {
+  // 递归查找所有 JS 文件
+  function findJSFiles(dir) {
     const files = [];
     const items = fs.readdirSync(dir);
 
@@ -97,24 +97,26 @@ function main() {
       const stat = fs.statSync(fullPath);
 
       if (stat.isDirectory() && item !== 'node_modules') {
-        // 只检查客户端相关目录
-        if (item === 'static' || item === 'app' && !fullPath.includes('server')) {
-          files.push(...findClientJSFiles(fullPath));
-        }
+        files.push(...findJSFiles(fullPath));
       } else if (stat.isFile() && item.endsWith('.js') && !item.endsWith('.map')) {
-        // 排除服务端文件和 manifest 文件
-        if (!fullPath.includes('server') &&
-          !item.includes('manifest') &&
-          !item.includes('middleware')) {
-          files.push(fullPath);
-        }
+        files.push(fullPath);
       }
     }
 
     return files;
   }
 
-  const jsFiles = findClientJSFiles(buildDir);
+  const allFiles = findJSFiles(buildDir);
+
+  // 过滤出客户端文件（主要是 static/chunks 中的文件）
+  const jsFiles = allFiles.filter(file => {
+    const relativePath = path.relative(buildDir, file);
+    // 包含 static/chunks 中的文件，排除明显的服务端文件
+    return relativePath.includes('static') ||
+      (!relativePath.includes('server') &&
+        !relativePath.includes('middleware') &&
+        !path.basename(file).includes('manifest'));
+  });
 
   let totalIssues = 0;
   const fileIssues = [];

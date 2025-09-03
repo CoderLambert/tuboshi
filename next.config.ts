@@ -23,6 +23,8 @@ export default (phase: string): NextConfig => {
       'class-variance-authority',
       'immer',
       '@babel/runtime',
+      'classnames',
+      'tslib',
 
       // SVG 和图形库
       '@svgdotjs/svg.js',
@@ -40,31 +42,120 @@ export default (phase: string): NextConfig => {
       '@floating-ui/core',
       '@floating-ui/dom',
       '@floating-ui/react',
+      'resize-observer-polyfill',
 
-      // Markdown 相关
+      // Markdown 和文本处理相关
       'react-markdown',
       'remark-gfm',
       'remark-math',
       'remark-breaks',
+      'remark-parse',
+      'remark-rehype',
       'rehype-katex',
       'rehype-raw',
+      'react-syntax-highlighter',
+
+      // MDast 工具
       'mdast-util-math',
       'mdast-util-gfm',
       'mdast-util-from-markdown',
       'mdast-util-to-hast',
       'mdast-util-to-markdown',
+      'mdast-util-find-and-replace',
+      'mdast-util-gfm-autolink-literal',
+      'mdast-util-gfm-footnote',
+      'mdast-util-gfm-strikethrough',
+      'mdast-util-gfm-table',
+      'mdast-util-gfm-task-list-item',
+      'mdast-util-newline-to-break',
+      'mdast-util-phrasing',
+      'mdast-util-to-string',
+
+      // Micromark 相关
+      'micromark',
+      'micromark-core-commonmark',
       'micromark-extension-math',
       'micromark-extension-gfm',
-      'micromark',
+      'micromark-extension-gfm-autolink-literal',
+      'micromark-extension-gfm-footnote',
+      'micromark-extension-gfm-strikethrough',
+      'micromark-extension-gfm-table',
+      'micromark-extension-gfm-task-list-item',
+      'micromark-factory-destination',
+      'micromark-factory-label',
+      'micromark-factory-space',
+      'micromark-factory-title',
+      'micromark-factory-whitespace',
+      'micromark-util-character',
+      'micromark-util-chunked',
+      'micromark-util-classify-character',
+      'micromark-util-combine-extensions',
+      'micromark-util-decode-numeric-character-reference',
+      'micromark-util-decode-string',
+      'micromark-util-html-tag-name',
+      'micromark-util-normalize-identifier',
+      'micromark-util-resolve-all',
+      'micromark-util-sanitize-uri',
+      'micromark-util-subtokenize',
+
+      // Hast 工具
+      'hast-util-from-dom',
+      'hast-util-from-html-isomorphic',
+      'hast-util-from-parse5',
+      'hast-util-is-element',
+      'hast-util-parse-selector',
+      'hast-util-raw',
+      'hast-util-to-jsx-runtime',
+      'hast-util-to-parse5',
+      'hast-util-to-text',
+      'hast-util-whitespace',
+      'hastscript',
+
+      // Unist 工具
       'unified',
+      'unist-util-find-after',
+      'unist-util-is',
+      'unist-util-position',
+      'unist-util-stringify-position',
+      'unist-util-visit',
+      'unist-util-visit-parents',
+
+      // VFile 相关
       'vfile',
+      'vfile-location',
+      'vfile-message',
 
       // 其他工具
       'web-namespaces',
       'copy-to-clipboard',
       'react-hotkeys-hook',
       'ahooks',
-      'tabbable'
+      'tabbable',
+      'bail',
+      'ccount',
+      'comma-separated-tokens',
+      'decode-named-character-reference',
+      'devlop',
+      'dompurify',
+      'entities',
+      'escape-string-regexp',
+      'extend',
+      'html-url-attributes',
+      'html-void-elements',
+      'inline-style-parser',
+      'is-plain-obj',
+      'longest-streak',
+      'markdown-table',
+      'parse5',
+      'property-information',
+      'react-is',
+      'scheduler',
+      'space-separated-tokens',
+      'style-to-js',
+      'style-to-object',
+      'toggle-selection',
+      'trim-lines',
+      'trough'
     ],
 
     // 将有问题的包标记为外部包，避免服务端处理问题
@@ -126,7 +217,7 @@ export default (phase: string): NextConfig => {
       type: 'javascript/auto',
     });
 
-    // 强制 SWC 转换所有现代语法
+    // 强制 SWC 转换所有现代语法 - 更激进的方法
     config.module.rules.forEach((rule: any) => {
       if (rule.use && Array.isArray(rule.use)) {
         rule.use.forEach((useItem: any) => {
@@ -190,6 +281,8 @@ export default (phase: string): NextConfig => {
         });
       }
     });
+
+
 
     return config;
   };

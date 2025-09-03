@@ -36,13 +36,14 @@
   "minify": false,
   "env": {
     "targets": {
-      "chrome": "60",
-      "firefox": "55",
-      "safari": "11",
-      "edge": "16"
+      "chrome": "58",
+      "firefox": "54",
+      "safari": "10",
+      "edge": "15"
     },
-    "mode": "usage",
+    "mode": "entry",
     "coreJs": "3",
+    "forceAllTransforms": true,
     "include": [
       "transform-nullish-coalescing-operator",
       "transform-optional-chaining",
