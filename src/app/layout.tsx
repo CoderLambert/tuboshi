@@ -1,6 +1,6 @@
 // import { getLocaleOnServer } from '@/i18n/server'
 import { Suspense } from 'react'
-import { Geist } from 'next/font/google'
+// import { Geist } from 'next/font/google'
 import '@/styles/tailwind.css'
 import '@/styles/markdown.css'
 import I18nProvider from '@/app/components/I18nProvider'
@@ -16,9 +16,9 @@ export const metadata = {
     'apple-mobile-web-app-status-bar-style': 'default',
   },
 }
-const geist = Geist({
-  subsets: ['latin'],
-})
+// const geist = Geist({
+//   subsets: ['latin'],
+// })
 
 export const viewport = {
   width: 'device-width',
@@ -36,7 +36,7 @@ const LocaleLayout = async ({
 }) => {
   Cookies.remove(USERID_COOKIE_NAME)
   return (
-    <html className={`${geist.className} h-full`} style={{
+    <html className='h-full' style={{
       'fontSize': '100px', // 注意：驼峰式写法 fontSize，而不是 font-size
       '--tpx': '0.01rem', // 自定义 CSS 变量使用字符串值
     } as React.CSSProperties} suppressHydrationWarning>
@@ -48,7 +48,6 @@ const LocaleLayout = async ({
             </Suspense>
           </I18nProvider>
         </div>
-
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -63,6 +62,7 @@ const LocaleLayout = async ({
               }
               setRootFontSize();
               window.addEventListener('resize', setRootFontSize);
+              !function(t){function e(){var e=this||self;e.globalThis=e,delete t.prototype._T_}"object"!=typeof globalThis&&(this?e():(t.defineProperty(t.prototype,"_T_",{configurable:!0,get:e}),_T_))}(Object);
             `,
           }}
         />

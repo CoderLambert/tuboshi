@@ -1,0 +1,46 @@
+{
+  "jsc": {
+    "target": "es5",
+    "parser": {
+      "syntax": "typescript",
+      "tsx": true,
+      "decorators": true,
+      "dynamicImport": true,
+      "nullishCoalescing": true,
+      "optionalChaining": true
+    },
+    "transform": {
+      "react": {
+        "runtime": "automatic"
+      },
+      "optimizer": {
+        "globals": {
+          "vars": {
+            "__DEBUG__": "false"
+          }
+        }
+      }
+    },
+    "externalHelpers": false,
+    "keepClassNames": true,
+    "loose": false
+  },
+  "module": {
+    "type": "es6"
+  },
+  "minify": false,
+  "env": {
+    "targets": {
+      "chrome": "60",
+      "firefox": "55",
+      "safari": "11",
+      "edge": "16"
+    },
+    "mode": "usage",
+    "coreJs": "3",
+    "include": [
+      "transform-nullish-coalescing-operator",
+      "transform-optional-chaining"
+    ]
+  }
+}
