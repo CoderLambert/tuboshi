@@ -290,21 +290,6 @@ export function Markdown(props: { content: string; className?: string; customDis
 
   return (
     <div className={cn('markdown-body relative', '!text-text-primary', props.className)}>
-      {/* 添加复制按钮 */}
-      <div className="absolute right-0 top-0 z-10">
-        <button
-          onClick={handleCopy}
-          className="rounded p-1 transition-colors"
-          title="Copy Markdown"
-        >
-          {copied ? (
-            <span className="bg-transparent text-xs text-green-500">Copied!</span>
-          ) : (
-            <CopyIcon content={props.content} />
-          )}
-        </button>
-      </div>
-
       <ReactMarkdown
         remarkPlugins={[
           RemarkGfm,
