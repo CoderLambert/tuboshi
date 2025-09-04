@@ -170,10 +170,13 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
         overscroll-behavior-y: none;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y pinch-zoom;
+        -webkit-tap-highlight-color: transparent;
+      }
+      /* 仅在实际下拉交互时禁用选中，以避免影响复制 */
+      .mobile-pull-to-refresh.selection-disabled {
         -webkit-user-select: none;
         user-select: none;
         -webkit-touch-callout: none;
-        -webkit-tap-highlight-color: transparent;
       }
       .mobile-pull-to-refresh * {
         pointer-events: auto;
@@ -283,7 +286,7 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
       )}
       <div
         ref={containerRef}
-        className={cn('mobile-pull-to-refresh min-h-screen', className)}
+        className={cn('mobile-pull-to-refresh min-h-screen', { 'selection-disabled': isPulling }, className)}
         style={{
           transform: `translateY(${isPulling ? Math.min(pullDistance, 80) : 0}px)`,
           transition: isPulling ? 'none' : 'transform 0.3s ease-out',
