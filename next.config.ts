@@ -38,6 +38,8 @@ export default (phase: string): NextConfig => {
 
   // 在构建模式下，不应用 Turbopack（使用默认 Webpack）
   return {
+    basePath: '/ai-chat/aa',
+    assetPrefix: '/myapp/',
     output: 'standalone', // 只保留必要的生产配置
     webpack: webpackConfig,
   }
