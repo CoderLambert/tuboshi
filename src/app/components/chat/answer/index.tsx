@@ -13,6 +13,7 @@ import type { ChatItem, MessageRating, VisionFile } from '@/types/app'
 import { Markdown } from '@/app/components/markdown'
 import Button from '../button'
 import type { Emoji } from '@/types/tools'
+import CopyIcon from '../../base/copy-icon'
 
 const OperationBtn = ({ innerContent, onClick, className }: { innerContent: React.ReactNode; onClick?: () => void; className?: string }) => (
   <div
@@ -127,6 +128,9 @@ const Answer: FC<IAnswerProps> = ({
     return (
       <div className={`${s.itemOperation} flex gap-2`}>
         {userOperation()}
+         {content && (
+          <OperationBtn innerContent={<IconWrapper><CopyIcon content={content} /></IconWrapper>} />
+         )}
       </div>
     )
   }
