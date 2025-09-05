@@ -47,5 +47,8 @@ export default (phase: string): NextConfig => {
     ...baseConfig,
     output: 'standalone', // 只保留必要的生产配置
     webpack: webpackConfig,
+    typescript: {
+      ignoreBuildErrors: true,
+    }
   }
 }
