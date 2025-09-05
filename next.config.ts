@@ -49,6 +49,6 @@ export default (phase: string): NextConfig => {
     webpack: webpackConfig,
     typescript: {
       ignoreBuildErrors: true,
-    }
+    },
   }
 }
