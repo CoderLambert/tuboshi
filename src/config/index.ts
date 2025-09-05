@@ -19,6 +19,7 @@ export const promptTemplate = 'I want you to act as a assistant.'
 
 export const getGptConfig = async () => {
   const res = await getGPTConfig()
+  console.log(`API_PREFIX  ${API_PREFIX}`)
   console.log('getGptConfig', res)
   Cookies.set(APP_ID_COOKIE_NAME, res.app_id)
   Cookies.set(API_URL_COOKIE_NAME, res.api_url)

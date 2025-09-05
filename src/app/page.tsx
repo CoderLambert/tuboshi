@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next'
 import type { QACategory } from '@/hooks/useAppStore'
 
 import { useNativeBridge } from '@/hooks/useNativeBridge'
-import { USERID_COOKIE_NAME } from '@/config'
+import { USERID_COOKIE_NAME, API_PREFIX } from '@/config'
 import SafeAreaLayout from './components/SafeAreaLayout'
 import { useEffect } from 'react'
 export default function Home() {
@@ -19,7 +19,7 @@ export default function Home() {
 const { t } = useTranslation()
 const { useQaData, useUserID, useGPTConfig } = useNativeBridge()
 const qaData: { data: QACategory[] } = useQaData()
-
+console.log(`API_PREFIX: ${API_PREFIX}`)
 const userInfo = useUserID()
 
 const gptConfig = useGPTConfig()
