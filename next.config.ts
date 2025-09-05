@@ -19,6 +19,11 @@ export default (phase: string): NextConfig => {
     return config
   }
 
+  const baseConfig = {
+    basePath: '/ai-chat/aa',
+    assetPath: '/ai-chat/aa',
+  }
+
   // 只在开发模式下应用 Turbopack 配置
   if (phase === PHASE_DEVELOPMENT_SERVER) {
     return {
@@ -27,6 +32,7 @@ export default (phase: string): NextConfig => {
       //     bundler: 'turbopack',  // 开发模式下使用 Turbopack
       //   }),
       // },
+      ...baseConfig,
       output: 'standalone', // 可选：开发模式下也保持 standalone（但实际 dev 不影响）
       webpack: (config: any) => {
         webpackConfig(config)
@@ -38,6 +44,7 @@ export default (phase: string): NextConfig => {
 
   // 在构建模式下，不应用 Turbopack（使用默认 Webpack）
   return {
+    ...baseConfig,
     output: 'standalone', // 只保留必要的生产配置
     webpack: webpackConfig,
   }
