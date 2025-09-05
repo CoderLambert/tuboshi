@@ -257,7 +257,7 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent, del
   const urlPrefix = API_PREFIX
 
   let urlWithPrefix = `${urlPrefix}${url.startsWith('/') ? url : `/${url}`}`
-
+  console.log(`urlWithPrefix ==> ${urlWithPrefix}`)
   const { method, params, body } = options
   // handle query
   if (method === 'GET' && params) {
