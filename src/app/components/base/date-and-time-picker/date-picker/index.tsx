@@ -138,7 +138,6 @@ const DatePicker = ({
       setView(ViewType.time)
       return
     }
-    if (view === ViewType.time) setView(ViewType.date)
   }
 
   const handleTimeSelect = (hour: string, minute: string, period: Period) => {
