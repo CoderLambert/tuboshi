@@ -24,11 +24,9 @@ const MarkdownButton = ({ node }: any) => {
     size={size}
     className={cn('!h-auto min-h-8 select-none whitespace-normal !px-3')}
     onClick={() => {
-      if (is_valid_url(link))
-        window.open(link, '_blank')
+      if (is_valid_url(link)) window.open(link, '_blank')
 
-       else
-        console.log(message)
+      else console.log(message)
 
       // onSend?.(message)
     }}

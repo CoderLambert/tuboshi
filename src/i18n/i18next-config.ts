@@ -10,6 +10,9 @@ import appZh from './lang/app.zh'
 import toolsEn from './lang/tools.en'
 import toolsZh from './lang/tools.zh'
 
+import timeEn from './lang/time.en'
+import timeZh from './lang/time.zh'
+
 import type { Locale } from '.'
 import { APP_INFO } from '../config'
 
@@ -20,6 +23,7 @@ const resources = {
       app: appEn,
       // tools
       tools: toolsEn,
+      time: timeEn,
     },
   },
   'zh-Hans': {
@@ -28,6 +32,7 @@ const resources = {
       app: appZh,
       // tools
       tools: toolsZh,
+      time: timeZh,
     },
   },
 }

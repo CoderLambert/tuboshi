@@ -95,6 +95,10 @@ const translation = {
     pasteImageLinkInvalid: 'Invalid image link',
     imageUpload: 'Image Upload',
   },
+  placeholder: {
+    input: 'Please enter',
+    select: 'Please select',
+  },
   fileUploader: {
     uploadFromComputer: 'Local upload',
     pasteFileLink: 'Paste file link',
