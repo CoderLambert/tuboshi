@@ -92,7 +92,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     }
   }
 
-    /*
+  /*
   * chat info. chat is under conversation.
   */
   const [chatList, setChatList, getChatList] = useGetState<ChatItem[]>([])
@@ -113,43 +113,43 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     }
   }, [])
 
-// 在现有的 useEffect 之后添加新的 useEffect
-useEffect(() => {
-  const loadConfig = async () => {
-    try {
-      const key = await getAppKey()
-      const id = await getAppId()
-      const url = await getApiUrl()
+  // 在现有的 useEffect 之后添加新的 useEffect
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const key = await getAppKey()
+        const id = await getAppId()
+        const url = await getApiUrl()
 
-      setApiKey(key)
-      setAppId(id)
-      setApiUrl(url)
-      console.log('=========== loadConfig start========')
-      console.log('apiKey', key)
-      console.log('appId', id)
-      console.log('apiUrl', url)
-      console.log('=========== loadConfig end ========')
-    }
- catch (error) {
-      console.error('Failed to load app config:', error)
+        setApiKey(key)
+        setAppId(id)
+        setApiUrl(url)
+        console.log('=========== loadConfig start========')
+        console.log('apiKey', key)
+        console.log('appId', id)
+        console.log('apiUrl', url)
+        console.log('=========== loadConfig end ========')
+      }
+      catch (error) {
+        console.error('Failed to load app config:', error)
       // 使用默认值
+      }
     }
-  }
 
-  loadConfig()
-}, [])
+    loadConfig()
+  }, [])
 
-useEffect(() => {
-  if (apiKey && appId && apiUrl) {
-    console.log('=========== loadConfig  finish ========')
+  useEffect(() => {
+    if (apiKey && appId && apiUrl) {
+      console.log('=========== loadConfig  finish ========')
 
-    console.log('apiKey', apiKey)
-    console.log('appId', appId)
-    console.log('apiUrl', apiUrl)
-    // 在这里执行依赖这些配置的逻辑
-    hasSetAppConfig.current = true
-  }
-}, [apiKey, appId, apiUrl])
+      console.log('apiKey', apiKey)
+      console.log('appId', appId)
+      console.log('apiUrl', apiUrl)
+      // 在这里执行依赖这些配置的逻辑
+      hasSetAppConfig.current = true
+    }
+  }, [apiKey, appId, apiUrl])
 
   // 动态计算输入框高度
   useEffect(() => {
@@ -213,11 +213,9 @@ useEffect(() => {
 
       // 返回清理函数
       return () => {
-        if (resizeObserver)
-          resizeObserver.disconnect()
+        if (resizeObserver) { resizeObserver.disconnect() }
 
-        if (mutationObserver)
-          mutationObserver.disconnect()
+        if (mutationObserver) { mutationObserver.disconnect() }
       }
     }
 
@@ -254,8 +252,7 @@ useEffect(() => {
 
   const handleConversationSwitch = () => {
     console.log('handleConversationSwitch')
-    if (!inited)
-      return
+    if (!inited) { return }
 
     // update inputs of current conversation
 
@@ -318,8 +315,7 @@ useEffect(() => {
       })
     }
 
-    if (isNewConversation && isChatStarted)
-      setChatList(generateNewChatListWithOpenStatement())
+    if (isNewConversation && isChatStarted) { setChatList(generateNewChatListWithOpenStatement()) }
   }
   useEffect(handleConversationSwitch, [currConversationId, inited])
 
@@ -370,15 +366,15 @@ useEffect(() => {
         }
       }
       else {
-              // 如果没有历史消息，使用当前chatList的第一个回答消息ID
-              for (const item of currentChatList) {
-                if (item.isAnswer && item.id && !item.id.startsWith('question-') && !item.id.includes('placeholder')) {
-                  firstMessageId = item.id
-                  console.log('如果没有历史消息，使用当前chatList的第一个回答消息ID firstMessageId  = item.id', firstMessageId)
-                  break
-                }
-              }
-            }
+        // 如果没有历史消息，使用当前chatList的第一个回答消息ID
+        for (const item of currentChatList) {
+          if (item.isAnswer && item.id && !item.id.startsWith('question-') && !item.id.includes('placeholder')) {
+            firstMessageId = item.id
+            console.log('如果没有历史消息，使用当前chatList的第一个回答消息ID firstMessageId  = item.id', firstMessageId)
+            break
+          }
+        }
+      }
 
       if (!firstMessageId) {
         setIsLoadingHistory(false)
@@ -421,20 +417,19 @@ useEffect(() => {
 
         // 更新状态
         setHasMoreHistory(has_more)
-        if (!has_more)
-          setShowLoadHistoryButton(false)
+        if (!has_more) { setShowLoadHistoryButton(false) }
       }
- else {
+      else {
         setHasMoreHistory(false)
         setShowLoadHistoryButton(false)
       }
     }
- catch (error) {
+    catch (error) {
       console.error('加载历史消息失败:', error)
       // 使用Toast.notify而不是依赖中的notify
       Toast.notify({ type: 'error', message: t('app.errorMessage.historyLoadFailed') || '加载历史消息失败' })
     }
- finally {
+    finally {
       isLoadingHistoryRef.current = false
       setIsLoadingHistory(false)
       console.log('🏁 loadHistoryMessages finished - reset loading state')
@@ -443,7 +438,7 @@ useEffect(() => {
 
   // sometime introduction is not applied to state
   const generateNewChatListWithOpenStatement = (introduction?: string, inputs?: Record<string, any> | null) => {
-      return []
+    return []
   }
 
   // init
@@ -453,8 +448,7 @@ useEffect(() => {
       return
     }
 
-    if(!userID['user-id'])
-      return
+    if(!userID['user-id']) { return }
 
     let isMounted = true // 防止组件卸载后的状态更新
 
@@ -500,11 +494,11 @@ useEffect(() => {
           prompt_variables,
         } as PromptConfig)
         setVisionConfig({
-            enabled: file_upload?.enabled || false,
-            number_limits: file_upload?.number_limits || 2,
-            detail: Resolution.low,
-            transfer_methods: file_upload?.allowed_file_upload_methods || [TransferMethod.local_file],
-            image_file_size_limit: system_parameters?.image_file_size_limit || 0,
+          enabled: file_upload?.enabled || false,
+          number_limits: file_upload?.number_limits || 2,
+          detail: Resolution.low,
+          transfer_methods: file_upload?.allowed_file_upload_methods || [TransferMethod.local_file],
+          image_file_size_limit: system_parameters?.image_file_size_limit || 0,
         })
         setConversationList(conversations as ConversationItem[])
 
@@ -529,17 +523,16 @@ useEffect(() => {
       }
     }
 
-      initializeApp()
+    initializeApp()
 
-      return () => {
-          isMounted = false
-        }
+    return () => {
+      isMounted = false
+    }
   }, [userID, hasSetAppConfig])
 
   // 监听FAQ问题点击事件
   useEffect(() => {
-    if(!hasSetAppConfig)
-      return
+    if(!hasSetAppConfig) { return }
 
     const handleSendMessage = (message: string) => {
       // 如果当前是新会话状态，先确保有一个有效的会话
@@ -556,10 +549,10 @@ useEffect(() => {
           return
         }
       }
- else {
-          console.log('is Not firstConversation')
+      else {
+        console.log('is Not firstConversation')
 
-      setCurrConversationId('-1', appId!, false)
+        setCurrConversationId('-1', appId!, false)
       }
       handleSend(message)
     }
@@ -581,11 +574,9 @@ useEffect(() => {
   }
 
   const checkCanSend = () => {
-    if (getCurrConversationId() !== '-1')
-      return true
+    if (getCurrConversationId() !== '-1') { return true }
 
-    if (!currInputs || !promptConfig?.prompt_variables)
-      return true
+    if (!currInputs || !promptConfig?.prompt_variables) { return true }
 
     const inputLens = Object.values(currInputs).length
     const promptVariablesLens = promptConfig.prompt_variables.length
@@ -613,8 +604,7 @@ useEffect(() => {
     const newListWithAnswer = produce(
       getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
       (draft) => {
-        if (!draft.find(item => item.id === questionId))
-          draft.push({ ...questionItem })
+        if (!draft.find(item => item.id === questionId)) { draft.push({ ...questionItem }) }
 
         draft.push({ ...responseItem })
       })
@@ -646,14 +636,11 @@ useEffect(() => {
     if (currInputs) {
       Object.keys(currInputs).forEach((key) => {
         const value = currInputs[key]
-        if (value.supportFileType)
-          toServerInputs[key] = transformToServerFile(value)
+        if (value.supportFileType) { toServerInputs[key] = transformToServerFile(value) }
 
-        else if (value[0]?.supportFileType)
-          toServerInputs[key] = value.map((item: any) => transformToServerFile(item))
+        else if (value[0]?.supportFileType) { toServerInputs[key] = value.map((item: any) => transformToServerFile(item)) }
 
-        else
-          toServerInputs[key] = value
+        else { toServerInputs[key] = value }
       })
     }
     console.log(`toServerInputs ---> ${JSON.stringify(toServerInputs)}`)
@@ -722,8 +709,7 @@ useEffect(() => {
         }
         else {
           const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
-          if (lastThought)
-            lastThought.thought = lastThought.thought + message // need immer setAutoFreeze
+          if (lastThought) { lastThought.thought = lastThought.thought + message } // need immer setAutoFreeze
         }
         if (messageId && !hasSetResponseId) {
           // 如果chat-message 响应异常，将会导致id 使用的是 前端生成的 假id
@@ -751,8 +737,7 @@ useEffect(() => {
         })
       },
       async onCompleted(hasError?: boolean) {
-        if (hasError)
-          return
+        if (hasError) { return }
 
         if (getConversationIdChangeBecauseOfNew()) {
           const { data: allConversations }: any = await fetchConversations(userID['user-id'])
@@ -770,29 +755,28 @@ useEffect(() => {
         handleResponding(false)
 
         // 开启建议问题后，且没有停止对话时，请求建议问题
-       if (chatConfig?.suggested_questions_after_answer?.enabled && !hasStopResponded.current) {
-            try {
-              // 添加获取建议问题 api 调用
-              setIsSuggestQuestionsLoading(true)
-              const { data } = await fetchSuggestedQuestions(
-                responseItem.id,
-                userID['user-id'],
-              )
-              setSuggestQuestionsAfterAnswer(data)
-            }
-            // eslint-disable-next-line unused-imports/no-unused-vars
-            catch (e) {
-              setSuggestQuestionsAfterAnswer([])
-            }
-            finally {
-              setIsSuggestQuestionsLoading(false)
-            }
+        if (chatConfig?.suggested_questions_after_answer?.enabled && !hasStopResponded.current) {
+          try {
+            // 添加获取建议问题 api 调用
+            setIsSuggestQuestionsLoading(true)
+            const { data } = await fetchSuggestedQuestions(
+              responseItem.id,
+              userID['user-id'],
+            )
+            setSuggestQuestionsAfterAnswer(data)
           }
+          // eslint-disable-next-line unused-imports/no-unused-vars
+          catch (e) {
+            setSuggestQuestionsAfterAnswer([])
+          }
+          finally {
+            setIsSuggestQuestionsLoading(false)
+          }
+        }
       },
       onFile(file) {
         const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
-        if (lastThought)
-          lastThought.message_files = [...(lastThought as any).message_files, { ...file }]
+        if (lastThought) { lastThought.message_files = [...(lastThought as any).message_files, { ...file }] }
 
         updateCurrentQA({
           responseItem,
@@ -847,8 +831,7 @@ useEffect(() => {
           const newListWithAnswer = produce(
             getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
             (draft) => {
-              if (!draft.find(item => item.id === questionId))
-                draft.push({ ...questionItem })
+              if (!draft.find(item => item.id === questionId)) { draft.push({ ...questionItem }) }
 
               draft.push({
                 ...responseItem,
@@ -862,8 +845,7 @@ useEffect(() => {
         const newListWithAnswer = produce(
           getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
           (draft) => {
-            if (!draft.find(item => item.id === questionId))
-              draft.push({ ...questionItem })
+            if (!draft.find(item => item.id === questionId)) { draft.push({ ...questionItem }) }
 
             draft.push({ ...responseItem })
           })
@@ -875,8 +857,7 @@ useEffect(() => {
           (draft) => {
             const current = draft.find(item => item.id === messageReplace.id)
 
-            if (current)
-              current.content = messageReplace.answer
+            if (current) { current.content = messageReplace.answer }
           },
         ))
       },
@@ -950,15 +931,13 @@ useEffect(() => {
     setChatList(newChatList)
     // 根据反馈结果进行提示
     if (feedback.rating) {
-      if(feedback.rating === 'like')
-        notify({ type: 'success', message: t('common.operation.likeSuccess') })
+      if(feedback.rating === 'like') { notify({ type: 'success', message: t('common.operation.likeSuccess') }) }
 
-      if(feedback.rating === 'dislike')
-                notify({ type: 'success', message: t('common.operation.dislikeSuccess') })
+      if(feedback.rating === 'dislike') { notify({ type: 'success', message: t('common.operation.dislikeSuccess') }) }
     }
     else{
-          notify({ type: 'success', message: t('common.operation.likeCancel') })
-        }
+      notify({ type: 'success', message: t('common.operation.likeCancel') })
+    }
   }
   const handleResponding = useCallback((isResponding: boolean) => {
     setIsResponding(isResponding)
@@ -972,30 +951,26 @@ useEffect(() => {
       console.log('taskIdRef.current', taskIdRef.current)
       try {
         await stopChatMessage(taskIdRef.current, userID['user-id'])
-         handleResponding(false)
+        handleResponding(false)
         notify({ type: 'success', message: t('app.generation.stopped') })
       }
       catch (error) {
-              console.error('Failed to stop message:', error)
-              notify({ type: 'error', message: t('app.generation.stopFailed') })
-            }
-     }
- else {
-          notify({ type: 'error', message: t('app.generation.stopFailed') })
-        }
+        console.error('Failed to stop message:', error)
+        notify({ type: 'error', message: t('app.generation.stopFailed') })
+      }
+    }
+    else {
+      notify({ type: 'error', message: t('app.generation.stopFailed') })
+    }
 
-          if (conversationMessagesAbortControllerRef.current)
-            conversationMessagesAbortControllerRef.current.abort()
-          if (suggestedQuestionsAbortControllerRef.current)
-            suggestedQuestionsAbortControllerRef.current.abort()
-        },
-      [handleResponding])
+    if (conversationMessagesAbortControllerRef.current) { conversationMessagesAbortControllerRef.current.abort() }
+    if (suggestedQuestionsAbortControllerRef.current) { suggestedQuestionsAbortControllerRef.current.abort() }
+  },
+  [handleResponding])
 
-  if (appUnavailable)
-    return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set appId and apiKey in config/index.tsx' : ''} />
+  if (appUnavailable) { return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set appId and apiKey in config/index.tsx' : ''} /> }
 
-  if (!appId || !APP_INFO || !promptConfig)
-    return <Loading className='mt-16' type='app' />
+  if (!appId || !APP_INFO || !promptConfig) { return <Loading className='mt-16' type='app' /> }
 
   return (
     <div className='flex min-h-screen max-w-full flex-col bg-white' style={{ paddingBottom: `${inputBoxHeight}px` }}>
@@ -1048,7 +1023,7 @@ useEffect(() => {
         className='fixed bottom-0 left-0 right-0 z-50 p-4'
 
       >
-      {
+        {
           chatConfig?.suggested_questions_after_answer?.enabled && !!suggestQuestionsAfterAnswer?.length && (
             <TryToAsk
               suggestedQuestions={suggestQuestionsAfterAnswer}
@@ -1057,9 +1032,9 @@ useEffect(() => {
               isLoading={isSuggestQuestionsLoading}
             />
           )
-      }
+        }
 
-      <OptimizedInput
+        <OptimizedInput
           onSend={handleSend}
           onStop={handleStop}
           checkCanSend={checkCanSend}
