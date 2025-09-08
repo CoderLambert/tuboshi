@@ -85,6 +85,10 @@ const translation = {
     likeCancel: '感谢反馈',
     dislikeCancel: '取消踩一下',
   },
+  placeholder: {
+    input: '请输入',
+    select: '请选择',
+  },
   imageUploader: {
     uploadFromComputer: '从本地上传',
     uploadFromComputerReadError: '图片读取失败，请重新选择。',

@@ -26,7 +26,7 @@ import ImageGallery from '@/app/components/base/image-gallery'
 import VideoGallery from '@/app/components/base/video-gallery'
 import AudioGallery from '@/app/components/base/audio-gallery'
 import MarkdownButton from '@/app/components/base/markdown-blocks/button'
-// import MarkdownForm from '@/app/components/base/markdown-blocks/form'
+import MarkdownForm from '@/app/components/base/markdown-blocks/form'
 import ThinkBlock from '@/app/components/base/markdown-blocks/think-block'
 import cn from '@/utils/classnames'
 import SVGRenderer from '@/app/components/base/svg-gallery'
@@ -57,18 +57,15 @@ const capitalizationLanguageNameMap: Record<string, string> = {
   abc: 'ABC',
 }
 const getCorrectCapitalizationLanguageName = (language: string) => {
-  if (!language)
-    return 'Plain'
+  if (!language) { return 'Plain' }
 
-  if (language in capitalizationLanguageNameMap)
-    return capitalizationLanguageNameMap[language]
+  if (language in capitalizationLanguageNameMap) { return capitalizationLanguageNameMap[language] }
 
   return language.charAt(0).toUpperCase() + language.substring(1)
 }
 
 const preprocessLaTeX = (content: string) => {
-  if (typeof content !== 'string')
-    return content
+  if (typeof content !== 'string') { return content }
 
   const codeBlockRegex = /```[\s\S]*?```/g
   const codeBlocks = content.match(codeBlockRegex) || []
@@ -148,8 +145,7 @@ const CodeBlock: any = memo(({ inline, className, children = '', ...props }: any
     const content = String(children).replace(/\n$/, '')
     switch (language) {
       case 'mermaid':
-        if (isSVG)
-          return <Flowchart PrimitiveCode={content} />
+        if (isSVG) { return <Flowchart PrimitiveCode={content} /> }
         break
       // case 'echarts':
       //   return (
@@ -190,8 +186,7 @@ const CodeBlock: any = memo(({ inline, className, children = '', ...props }: any
     }
   }, [children, language, isSVG, chartData, props, match])
 
-  if (inline || !match)
-    return <code {...props} className={className}>{children}</code>
+  if (inline || !match) { return <code {...props} className={className}>{children}</code> }
 
   return (
     <div className='relative'>
@@ -212,22 +207,20 @@ CodeBlock.displayName = 'CodeBlock'
 
 const VideoBlock: any = memo(({ node }: any) => {
   const srcs = node.children.filter((child: any) => 'properties' in child).map((child: any) => {
-    const props = child as any;
-    return props.properties && props.properties.src;
-  }).filter(Boolean);
-  if (srcs.length === 0)
-    return null
+    const props = child as any
+    return props.properties && props.properties.src
+  }).filter(Boolean)
+  if (srcs.length === 0) { return null }
   return <VideoGallery key={srcs.join()} srcs={srcs} />
 })
 VideoBlock.displayName = 'VideoBlock'
 
 const AudioBlock: any = memo(({ node }: any) => {
   const srcs = node.children.filter((child: any) => 'properties' in child).map((child: any) => {
-    const props = child as any;
-    return props.properties && props.properties.src;
-  }).filter(Boolean);
-  if (srcs.length === 0)
-    return null
+    const props = child as any
+    return props.properties && props.properties.src
+  }).filter(Boolean)
+  if (srcs.length === 0) { return null }
   return <AudioGallery key={srcs.join()} srcs={srcs} />
 })
 AudioBlock.displayName = 'AudioBlock'
@@ -303,16 +296,14 @@ export function Markdown(props: { content: string; className?: string; customDis
           () => {
             return (tree) => {
               const iterate = (node: any) => {
-                if (node.type === 'element' && node.properties?.ref)
-                  delete node.properties.ref
+                if (node.type === 'element' && node.properties?.ref) { delete node.properties.ref }
 
                 if (node.type === 'element' && !/^[a-z][a-z0-9]*$/i.test(node.tagName)) {
                   node.type = 'text'
                   node.value = `<${node.tagName}`
                 }
 
-                if (node.children)
-                  node.children.forEach(iterate)
+                if (node.children) { node.children.forEach(iterate) }
               }
               tree.children.forEach(iterate)
             }
@@ -327,7 +318,7 @@ export function Markdown(props: { content: string; className?: string; customDis
           a: Link,
           p: Paragraph,
           button: MarkdownButton,
-        //   form: MarkdownForm,
+          form: MarkdownForm,
           script: ScriptBlock as any,
           details: ThinkBlock,
         }}
@@ -356,12 +347,9 @@ export default class ErrorBoundary extends Component {
 
   render() {
     // @ts-expect-error
-    if (this.state.hasError)
-      return <div>Oops! An error occurred. This could be due to an ECharts runtime error or invalid SVG content. <br />(see the browser console for more information)</div>
+    if (this.state.hasError) { return <div>Oops! An error occurred. This could be due to an ECharts runtime error or invalid SVG content. <br />(see the browser console for more information)</div> }
 
     // @ts-expect-error
     return this.props.children
   }
 }
-
-

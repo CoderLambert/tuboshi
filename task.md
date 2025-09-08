@@ -173,3 +173,26 @@ curl 'https://localhost:3000/api/chat-messages' \
   -H 'content-type: application/json' \
   --data-raw '{"inputs":{"token":"f6c2e97900f34dfa95b862f966eeb091","app_version":"3.1.9.3","langType":"EN","app_platform":".outfield."},"query":"hi","conversation_id":"-1","response_mode":"streaming"}'
 ```
+
+<form data-format="text"> // Default to text
+  <label for="username">Username:</label>
+  <input type="text" name="username" />
+  <label for="hidden_input">Hidden input:</label>
+  <input type="hidden" name="hidden_input" value="hidden_value" />
+  <label for="password">Password:</label>
+  <input type="password" name="password" />
+  <label for="content">Content:</label>
+  <textarea name="content"></textarea>
+  <label for="date">Date:</label>
+  <input type="date" name="date" />
+  <label for="time">Time:</label>
+  <input type="time" name="time" />
+  <label for="datetime">Datetime:</label>
+  <input type="datetime" name="datetime" />
+  <label for="select">Select:</label>
+  <input type="select" name="select" data-options='["hello","world"]'/>
+  <input type="checkbox" name="check" data-tip="By checking this means you agreed"/>
+  <button data-variant="primary">Login</button>
+</form>
+
+<button data-message="Hello Dify" data-variant="primary">Hello Dify</button>

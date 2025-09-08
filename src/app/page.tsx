@@ -18,34 +18,34 @@ console.log('API_PREFIX ==》', API_PREFIX)
 
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
-const { t } = useTranslation()
-const { useQaData, useUserID, useGPTConfig } = useNativeBridge()
-const qaData: { data: QACategory[] } = useQaData()
+  const { t } = useTranslation()
+  const { useQaData, useUserID, useGPTConfig } = useNativeBridge()
+  const qaData: { data: QACategory[] } = useQaData()
 
-const userInfo = useUserID()
+  const userInfo = useUserID()
 
-const gptConfig = useGPTConfig()
+  const gptConfig = useGPTConfig()
 
-const faqContent = qaData?.data || []
+  const faqContent = qaData?.data || []
 
-const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem => ({
-  [categoryItem.questionCategory]: categoryItem.qaItemList.map(
-    item => item.question,
-  ),
-}))
+  const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem => ({
+    [categoryItem.questionCategory]: categoryItem.qaItemList.map(
+      item => item.question,
+    ),
+  }))
   const handleQuestionClick = (question: string) => {
     eventBus.emit(EVENTS.SEND_MESSAGE, question)
   }
 
   useEffect(() => {
     // if (process.env.NODE_ENV === 'development') {
-      import('eruda').then((eruda) => {
-        eruda.default.init() // 初始化 Eruda
-      })
+    import('eruda').then((eruda) => {
+      eruda.default.init() // 初始化 Eruda
+    })
     // }
   }, [])
 
-    // 设置用户ID cookie
+  // 设置用户ID cookie
   useEffect(() => {
     if (userInfo && userInfo['user-id']) {
       console.log('userInfo ==> ', userInfo)
@@ -56,33 +56,32 @@ const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem 
   }, [userInfo])
 
   useEffect(() => {
-    if (gptConfig)
-      console.log('gptConfig loaded:', gptConfig)
+    if (gptConfig) { console.log('gptConfig loaded:', gptConfig) }
   }, [gptConfig])
 
   return (
     <div className="flex h-screen min-h-0 flex-col bg-white">
 
-       <SafeAreaLayout title="MaoMao AI">
-          <div className={styles.header}>
-            <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
-            <h1 className={styles.intro}>{t('app.common.welcome')}</h1>
-          </div>
-          {
+      <SafeAreaLayout title="MaoMao AI">
+        <div className={styles.header}>
+          <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
+          <h1 className={styles.intro}>{t('app.common.welcome')}</h1>
+        </div>
+        {
           faqContent.length > 0 && <FAQGuide
-                  suggestions={questions}
-                  onQuestionClick={handleQuestionClick}
-              />
-          }
-          {/* 消息列表 - 占据剩余空间 */}
+            suggestions={questions}
+            onQuestionClick={handleQuestionClick}
+          />
+        }
+        {/* 消息列表 - 占据剩余空间 */}
 
-           <div className="min-h-0 flex-1">
-            {
-              userInfo && userInfo['user-id'] && gptConfig && gptConfig.app_key
+        <div className="min-h-0 flex-1">
+          {
+            userInfo && userInfo['user-id'] && gptConfig && gptConfig.app_key
               && <Main params={{}}></Main>
 
-            }
-          </div>
+          }
+        </div>
       </SafeAreaLayout>
 
     </div>
