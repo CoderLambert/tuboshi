@@ -3,7 +3,7 @@ import Toast from '@/app/components/base/toast'
 import type { AnnotationReply, MessageEnd, MessageReplace, ThoughtItem } from '@/app/components/chat/type'
 import type { VisionFile } from '@/types/app'
 
-const TIME_OUT = 100000
+const TIME_OUT = 200000
 
 const ContentType = {
   json: 'application/json',
@@ -152,8 +152,7 @@ const handleStream = (
   onNodeStarted?: IOnNodeStarted,
   onNodeFinished?: IOnNodeFinished,
 ) => {
-  if (!response.ok)
-    throw new Error('Network response was not ok')
+  if (!response.ok) { throw new Error('Network response was not ok') }
 
   const reader = response.body?.getReader()
   const decoder = new TextDecoder('utf-8')
@@ -241,8 +240,7 @@ const handleStream = (
         onCompleted?.(true)
         return
       }
-      if (!hasError)
-        read()
+      if (!hasError) { read() }
     })
   }
   read()
@@ -251,8 +249,7 @@ const handleStream = (
 const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent, deleteContentType }: IOtherOptions) => {
   const options = Object.assign({}, baseOptions, fetchOptions)
   // 如果 deleteContentType 为 true，则删除 Content-Type header
-  if (deleteContentType)
-    options.headers.delete('Content-Type')
+  if (deleteContentType) { options.headers.delete('Content-Type') }
 
   const urlPrefix = API_PREFIX
 
@@ -265,23 +262,22 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent, del
     Object.keys(params).forEach(key =>
       paramsArray.push(`${key}=${encodeURIComponent(params[key])}`),
     )
-    if (urlWithPrefix.search(/\?/) === -1)
-      urlWithPrefix += `?${paramsArray.join('&')}`
+    if (urlWithPrefix.search(/\?/) === -1) { urlWithPrefix += `?${paramsArray.join('&')}` }
 
-    else
-      urlWithPrefix += `&${paramsArray.join('&')}`
+    else { urlWithPrefix += `&${paramsArray.join('&')}` }
 
     delete options.params
   }
   // 关键修改：只有当 body 存在且不是 FormData 时才进行 JSON.stringify
-  if (body && !(body instanceof FormData))
-    options.body = JSON.stringify(body)
+  if (body && !(body instanceof FormData)) { options.body = JSON.stringify(body) }
 
   // Handle timeout
   return Promise.race([
     new Promise((resolve, reject) => {
       setTimeout(() => {
-        reject(new Error('request timeout'))
+        const errorMessage = 'Request timed out, Please refresh'
+        Toast.notify({ type: 'error', message: errorMessage })
+        reject(new Error(errorMessage))
       }, TIME_OUT)
     }),
     new Promise((resolve, reject) => {
@@ -347,16 +343,13 @@ export const upload = (fetchOptions: any): Promise<any> => {
   return new Promise((resolve, reject) => {
     const xhr = options.xhr
     xhr.open(options.method, options.url)
-    for (const key in options.headers)
-      xhr.setRequestHeader(key, options.headers[key])
+    for (const key in options.headers) { xhr.setRequestHeader(key, options.headers[key]) }
 
     xhr.withCredentials = true
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
-        if (xhr.status === 200)
-          resolve({ id: xhr.response })
-        else
-          reject(xhr)
+        if (xhr.status === 200) { resolve({ id: xhr.response }) }
+        else { reject(xhr) }
       }
     }
     xhr.upload.onprogress = options.onprogress
@@ -389,8 +382,7 @@ export const ssePost = (
   const urlWithPrefix = `${urlPrefix}${url.startsWith('/') ? url : `/${url}`}`
 
   const { body } = options
-  if (body)
-    options.body = JSON.stringify(body)
+  if (body) { options.body = JSON.stringify(body) }
 
   globalThis.fetch(urlWithPrefix, options)
     .then((res: any) => {

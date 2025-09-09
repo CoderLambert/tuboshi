@@ -51,7 +51,7 @@ const translation = {
     historyLoadFailed: 'History load failed, please try again',
     valueOfVarRequired: 'Variables value can not be empty',
     waitForResponse: 'Please wait for the previous response to complete.',
-
+    overTimeError: 'Request timed out. Please refresh',
   },
   variableTable: {
     optional: 'Optional',
