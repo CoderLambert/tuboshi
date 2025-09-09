@@ -7,7 +7,7 @@ import TimePicker from '@/app/components/base/date-and-time-picker/time-picker'
 import Checkbox from '@/app/components/base/checkbox'
 import Select from '@/app/components/base/select'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
-
+import dayjs from '@/app/components/base/date-and-time-picker/utils/dayjs'
 enum DATA_FORMAT {
   TEXT = 'text',
   JSON = 'json',
@@ -93,7 +93,7 @@ const MarkdownForm = ({ node }: any) => {
             return (
               <DatePicker
                 key={index}
-                value={formValues[child.properties.name]}
+                value={ dayjs(formValues[child.properties.name])}
                 needTimePicker={child.properties.type === SUPPORTED_TYPES.DATETIME}
                 onChange={(date) => {
                   setFormValues(prevValues => ({
@@ -114,7 +114,7 @@ const MarkdownForm = ({ node }: any) => {
             return (
               <TimePicker
                 key={index}
-                value={formValues[child.properties.name]}
+                value={dayjs(formValues[child.properties.name])}
                 onChange={(time) => {
                   setFormValues(prevValues => ({
                     ...prevValues,
