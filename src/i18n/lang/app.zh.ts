@@ -47,6 +47,7 @@ const translation = {
     historyLoadFailed: '历史记录加载失败,请重试',
     valueOfVarRequired: '变量值必填',
     waitForResponse: '请等待上条信息响应完成',
+    overTimeError: '请求超时，请退出刷新后重新进入',
   },
   variableTable: {
     optional: '可选',
