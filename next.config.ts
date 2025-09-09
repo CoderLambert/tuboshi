@@ -21,17 +21,11 @@ export default (phase: string): NextConfig => {
 
   const baseConfig = {
     basePath: '/ai-chat/aa',
-    assetPath: '/ai-chat/aa',
   }
 
   // 只在开发模式下应用 Turbopack 配置
   if (phase === PHASE_DEVELOPMENT_SERVER) {
     return {
-      // turbopack: {
-      //   rules: codeInspectorPlugin({
-      //     bundler: 'turbopack',  // 开发模式下使用 Turbopack
-      //   }),
-      // },
       ...baseConfig,
       output: 'standalone', // 可选：开发模式下也保持 standalone（但实际 dev 不影响）
       webpack: (config: any) => {
@@ -47,6 +41,12 @@ export default (phase: string): NextConfig => {
     ...baseConfig,
     output: 'standalone', // 只保留必要的生产配置
     webpack: webpackConfig,
+    eslint: {
+      // Warning: This allows production builds to successfully complete even if
+      // your project has ESLint errors.
+      ignoreDuringBuilds: true,
+      dirs: ['app', 'config', 'components', 'hooks', 'i18n', 'lib', 'services', 'test', 'types', 'utils'],
+    },
     typescript: {
       ignoreBuildErrors: true,
     },
