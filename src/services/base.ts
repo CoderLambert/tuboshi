@@ -276,7 +276,7 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent, del
     new Promise((resolve, reject) => {
       setTimeout(() => {
         const errorMessage = 'Request timed out, Please refresh'
-        Toast.notify({ type: 'error', message: errorMessage })
+        // Toast.notify({ type: 'error', message: errorMessage })
         reject(new Error(errorMessage))
       }, TIME_OUT)
     }),
