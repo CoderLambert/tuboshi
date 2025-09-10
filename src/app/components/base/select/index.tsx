@@ -52,6 +52,7 @@ export type ISelectProps = {
     selected: boolean
   }) => React.ReactNode
 }
+
 const Select: FC<ISelectProps> = ({
   className,
   items = defaultItems,
@@ -96,73 +97,104 @@ const Select: FC<ISelectProps> = ({
           setOpen(false)
           onSelect(value)
         }
-      }}>
-      <div className={classNames('relative')}>
-        <div className='group text-text-secondary'>
-          {allowSearch
-            ? <ComboboxInput
-              className={`w-full rounded-lg border-0 ${bgClassName} py-1.5 pl-3 pr-10 shadow-sm focus-visible:bg-state-base-hover focus-visible:outline-none group-hover:bg-state-base-hover sm:text-sm sm:leading-6 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-              onChange={(event) => {
-                if (!disabled) { setQuery(event.target.value) }
-              }}
-              displayValue={(item: Item) => item?.name}
-            />
-            : <ComboboxButton onClick={
-              () => {
-                if (!disabled) { setOpen(!open) }
-              }
-            } className={classNames(`flex items-center h-9 w-full rounded-lg border-0 ${bgClassName} py-1.5 pl-3 pr-10 shadow-sm sm:text-sm sm:leading-6 focus-visible:outline-none focus-visible:bg-state-base-hover group-hover:bg-state-base-hover`, optionClassName)}>
-              <div className='w-0 grow truncate text-left' title={selectedItem?.name}>{selectedItem?.name}</div>
-            </ComboboxButton>}
-          <ComboboxButton className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none" onClick={
-            () => {
-              if (!disabled) { setOpen(!open) }
-            }
-          }>
-            {open ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
-          </ComboboxButton>
-        </div>
-
-        {(filteredItems.length > 0 && open) && (
-          <ComboboxOptions className={`absolute z-[999] mt-1 max-h-60 w-full overflow-auto rounded-md border-[0.5px] border-components-panel-border bg-components-panel-bg-blur px-1 py-1 text-base shadow-lg backdrop-blur-sm focus:outline-none sm:text-sm ${overlayClassName}`}>
-            {filteredItems.map((item: Item) => (
-              <ComboboxOption
-                key={item.value}
-                value={item}
-                className={({ active }: { active: boolean }) =>
-                  classNames(
-                    'relative cursor-default select-none py-2 pl-3 pr-9 rounded-lg hover:bg-state-base-hover text-text-secondary',
-                    active ? 'bg-state-base-hover' : '',
+      }}
+    >
+      <PortalToFollowElem
+        open={open}
+        onOpenChange={setOpen}
+        placement="bottom-start"
+        offset={4}
+      >
+        <div className={classNames('relative')}>
+          <div className="group text-text-secondary">
+            <PortalToFollowElemTrigger asChild>
+              {allowSearch ? (
+                <ComboboxInput
+                  className={`w-full rounded-lg border-0 ${bgClassName} py-1.5 pl-3 pr-10 shadow-sm focus-visible:bg-state-base-hover focus-visible:outline-none group-hover:bg-state-base-hover sm:text-sm sm:leading-6 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                  onChange={(event) => {
+                    if (!disabled) { setQuery(event.target.value) }
+                  }}
+                  displayValue={(item: Item) => item?.name}
+                  onFocus={() => {
+                    if (!disabled) { setOpen(true) }
+                  }}
+                />
+              ) : (
+                <ComboboxButton
+                  className={classNames(
+                    `flex items-center h-9 w-full rounded-lg border-0 ${bgClassName} py-1.5 pl-3 pr-10 shadow-sm sm:text-sm sm:leading-6 focus-visible:outline-none focus-visible:bg-state-base-hover group-hover:bg-state-base-hover`,
                     optionClassName,
-                  )
-                }
-              >
-                {({ /* active, */ selected }) => (
-                  <>
-                    {renderOption
-                      ? renderOption({ item, selected })
-                      : (
-                        <>
-                          <span className={classNames('block', selected && 'font-normal')}>{item.name}</span>
-                          {selected && (
-                            <span
-                              className={classNames(
-                                'absolute inset-y-0 right-0 flex items-center pr-4 text-text-secondary',
-                              )}
-                            >
-                              <RiCheckLine className="h-4 w-4" aria-hidden="true" />
-                            </span>
-                          )}
-                        </>
-                      )}
-                  </>
+                  )}
+                  onClick={() => {
+                    if (!disabled) { setOpen(!open) }
+                  }}
+                >
+                  <div className="w-0 grow truncate text-left" title={selectedItem?.name}>
+                    {selectedItem?.name}
+                  </div>
+                </ComboboxButton>
+              )}
+            </PortalToFollowElemTrigger>
+
+            <ComboboxButton
+              className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
+              onClick={() => {
+                if (!disabled) { setOpen(!open) }
+              }}
+            >
+              {open ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
+            </ComboboxButton>
+          </div>
+
+          <PortalToFollowElemContent className="z-50">
+            {(filteredItems.length > 0 && open) && (
+              <ComboboxOptions
+                className={classNames(
+                  'mt-1 max-h-60 w-full overflow-auto rounded-md border-[0.5px] border-components-panel-border bg-components-panel-bg-blur px-1 py-1 text-base shadow-lg backdrop-blur-sm focus:outline-none sm:text-sm',
+                  overlayClassName,
                 )}
-              </ComboboxOption>
-            ))}
-          </ComboboxOptions>
-        )}
-      </div>
-    </Combobox >
+                static
+              >
+                {filteredItems.map((item: Item) => (
+                  <ComboboxOption
+                    key={item.value}
+                    value={item}
+                    className={({ active }: { active: boolean }) =>
+                      classNames(
+                        'relative cursor-default select-none py-2 pl-3 pr-9 rounded-lg hover:bg-state-base-hover text-text-secondary',
+                        active ? 'bg-state-base-hover' : '',
+                        optionClassName,
+                      )
+                    }
+                  >
+                    {({ selected }) => (
+                      <>
+                        {renderOption
+                          ? renderOption({ item, selected })
+                          : (
+                            <>
+                              <span className={classNames('block', selected && 'font-normal')}>{item.name}</span>
+                              {selected && (
+                                <span
+                                  className={classNames(
+                                    'absolute inset-y-0 right-0 flex items-center pr-4 text-text-secondary',
+                                  )}
+                                >
+                                  <RiCheckLine className="h-4 w-4" aria-hidden="true" />
+                                </span>
+                              )}
+                            </>
+                          )}
+                      </>
+                    )}
+                  </ComboboxOption>
+                ))}
+              </ComboboxOptions>
+            )}
+          </PortalToFollowElemContent>
+        </div>
+      </PortalToFollowElem>
+    </Combobox>
   )
 }
 
@@ -246,7 +278,7 @@ const SimpleSelect: FC<ISelectProps> = ({
                 value={item}
                 disabled={disabled}
               >
-                {({ /* active, */ selected }) => (
+                {({ selected }) => (
                   <>
                     {renderOption
                       ? renderOption({ item, selected })
