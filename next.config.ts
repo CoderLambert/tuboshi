@@ -50,5 +50,10 @@ export default (phase: string): NextConfig => {
     typescript: {
       ignoreBuildErrors: true,
     },
+    compiler: {
+      removeConsole: {
+        exclude: ['error'],
+      },
+    }
   }
 }
