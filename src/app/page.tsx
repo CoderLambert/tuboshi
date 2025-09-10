@@ -35,14 +35,6 @@ export default function Home() {
     eventBus.emit(EVENTS.SEND_MESSAGE, question)
   }
 
-  useEffect(() => {
-    // if (process.env.NODE_ENV === 'development') {
-    import('eruda').then((eruda) => {
-      eruda.default.init() // 初始化 Eruda
-    })
-    // }
-  }, [])
-
   // 设置用户ID cookie
   useEffect(() => {
     if (userInfo && userInfo['user-id']) {
