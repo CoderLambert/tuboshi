@@ -633,6 +633,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     const toServerInputs: Record<string, any> = {
       ...inputsFormConfig,
     }
+    console.log(`currInputs ---> ${JSON.stringify(currInputs)}`)
     if (currInputs) {
       Object.keys(currInputs).forEach((key) => {
         const value = currInputs[key]
