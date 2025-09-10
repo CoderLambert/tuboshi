@@ -645,7 +645,10 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     }
     console.log(`toServerInputs ---> ${JSON.stringify(toServerInputs)}`)
     const data: Record<string, any> = {
-      inputs: toServerInputs,
+      inputs: {
+        ...toServerInputs,
+        ...inputsFormConfig,
+      },
       query: message,
       conversation_id: isNewConversation ? null : currConversationId,
     }
