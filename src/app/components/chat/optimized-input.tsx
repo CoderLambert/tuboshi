@@ -58,6 +58,9 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
   // 添加录音权限状态
   const [hasVoicePermission, setHasVoicePermission] = useState(false)
 
+  // 添加上传完成状态检查
+  const [isUploading, setIsUploading] = useState(false)
+
   const handleContentChange = useCallback((e: any) => {
     const value = e.target.value
     console.log('handleContentChange called:', value)
@@ -76,6 +79,14 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
       queryRef.current = initialQuery
     }
   }, [initialQuery, localQuery])
+
+  // 监听文件上传状态变化
+  useEffect(() => {
+    const uploading = files.some(file => file.progress < 100 && file.progress !== -1)
+    console.log('uploading:', uploading)
+    setIsUploading(uploading)
+  }, [files])
+
   useEffect(() => {
     console.log('chatConfig useEffect triggered:', chatConfig)
     console.log('speech_to_text config:', chatConfig?.speech_to_text)
@@ -112,27 +123,29 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
           setHasVoicePermission(true)
         }
         else {
-              Toast.notify({ type: 'error', message: t('app.voiceInput.notAllow') })
-            }
-          }
-        catch (err) {
-                Toast.notify({ type: 'error', message: t('app.voiceInput.notAllow') })
-                setHasVoicePermission(false)
-              }
+          Toast.notify({ type: 'error', message: t('app.voiceInput.notAllow') })
+        }
+      }
+      catch (err) {
+        Toast.notify({ type: 'error', message: t('app.voiceInput.notAllow') })
+        setHasVoicePermission(false)
+      }
     }
 
     // 只有在启用语音转文字功能时才检查权限
-    if (chatConfig?.speech_to_text?.enabled)
-      checkVoicePermission()
+    if (chatConfig?.speech_to_text?.enabled) { checkVoicePermission() }
   }, [chatConfig?.speech_to_text?.enabled, t])
 
   const handleSend = useCallback(() => {
-    if (isResponding)
+    console.log('handleSend called')
+    if(isUploading) {
+      Toast.notify({ type: 'error', message: '文件上传中，请稍后再试' })
       return
+    }
+    if (isResponding) { return }
 
     const currentQuery = queryRef.current
-    if (!currentQuery.trim() || (checkCanSend && !checkCanSend()))
-      return
+    if (!currentQuery.trim() || (checkCanSend && !checkCanSend())) { return }
 
     onSend(currentQuery, files.filter(file => file.progress !== -1).map(fileItem => ({
       type: 'image',
@@ -145,27 +158,22 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
     setLocalQuery('')
     queryRef.current = ''
 
-    if (files.length)
-      onClear()
+    if (files.length) { onClear() }
   }, [isResponding, checkCanSend, onSend, files, onClear])
 
   const handleStop = useCallback(() => {
-    if (onStop)
-      onStop()
+    if (onStop) { onStop() }
   }, [onStop])
 
   const handleButtonClick = useCallback(() => {
-    if (isResponding)
-      handleStop()
-    else
-      handleSend()
+    if (isResponding) { handleStop() }
+    else { handleSend() }
   }, [isResponding, handleStop, handleSend])
 
   const handleKeyUp = useCallback((e: any) => {
     if (e.code === 'Enter') {
       e.preventDefault()
-      if (!e.shiftKey && !isUseInputMethod.current && !isResponding)
-        handleSend()
+      if (!e.shiftKey && !isUseInputMethod.current && !isResponding) { handleSend() }
     }
   }, [handleSend, isResponding])
 
@@ -248,10 +256,10 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
         {isVoiceInputVisible && (
           <div className='fixed bottom-[150px] left-0 right-0 z-50 mx-2'>
             <div className="absolute inset-0 right-0 top-0 z-10 overflow-hidden rounded-[20px] py-8">
-                <VoiceInput
-                  onConverted={handleVoiceInputComplete}
-                  onCancel={handleVoiceInputCancel}
-                />
+              <VoiceInput
+                onConverted={handleVoiceInputComplete}
+                onCancel={handleVoiceInputCancel}
+              />
             </div>
           </div>
         )}
@@ -260,21 +268,21 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
       <div className="absolute bottom-2 right-2 flex h-8 items-center">
         {/* 添加语音输入按钮 */}
         {
-         chatConfig?.speech_to_text && hasVoicePermission && <div className="flex items-center">
-          {!isResponding && (speechToTextEnabled || showVoiceInput || hasVoicePermission) && (
-            <div
-              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md hover:bg-gray-100"
-              onClick={handleVoiceInputClick}
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 11C9.65685 11 11 9.65685 11 8V4C11 2.34315 9.65685 1 8 1C6.34315 1 5 2.34315 5 4V8C5 9.65685 6.34315 11 8 11Z" stroke="#374151" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M3 6V8C3 11.3137 5.68629 14 9 14" stroke="#374151" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M13 6V8C13 11.3137 10.3137 14 7 14" stroke="#374151" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M8 14V16" stroke="#374151" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </div>
-          )}
-        </div>
+          chatConfig?.speech_to_text && hasVoicePermission && <div className="flex items-center">
+            {!isResponding && (speechToTextEnabled || showVoiceInput || hasVoicePermission) && (
+              <div
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md hover:bg-gray-100"
+                onClick={handleVoiceInputClick}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 11C9.65685 11 11 9.65685 11 8V4C11 2.34315 9.65685 1 8 1C6.34315 1 5 2.34315 5 4V8C5 9.65685 6.34315 11 8 11Z" stroke="#374151" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3 6V8C3 11.3137 5.68629 14 9 14" stroke="#374151" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M13 6V8C13 11.3137 10.3137 14 7 14" stroke="#374151" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M8 14V16" stroke="#374151" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              </div>
+            )}
+          </div>
         }
 
         {isResponding ? (
