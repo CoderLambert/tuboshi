@@ -625,6 +625,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
     }
+    handleResponding(true)
     // 发送成功后清空输入框状态、建议问题
     currentQueryRef.current = ''
     setIsSuggestQuestionsLoading(false)
@@ -700,7 +701,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     const prevTempNewConversationId = getCurrConversationId() || '-1'
     let tempNewConversationId = ''
 
-    handleResponding(true)
     console.log(`data ---> ${JSON.stringify(data)}`)
 
     sendChatMessage(data, {
@@ -741,7 +741,10 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         })
       },
       async onCompleted(hasError?: boolean) {
-        if (hasError) { return }
+        if (hasError) {
+          handleResponding(false)
+          return
+        }
 
         if (getConversationIdChangeBecauseOfNew()) {
           const { data: allConversations }: any = await fetchConversations(userID['user-id'])

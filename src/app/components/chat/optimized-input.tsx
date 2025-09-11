@@ -138,21 +138,49 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
 
   const handleSend = useCallback(() => {
     console.log('handleSend called')
-    if(isUploading) {
-      Toast.notify({ type: 'error', message: '文件上传中，请稍后再试' })
+    const uploading = files.some(file => file.progress < 100 && file.progress !== -1)
+
+    if(uploading) {
+      Toast.notify({ type: 'error', message: t('app.chat.uploadImgTip') })
       return
     }
+
+    // 检查是否有上传失败的文件
+    const uploadFailed = files.some(file => file.progress === -1)
+    if (uploadFailed) {
+      Toast.notify({ type: 'error', message: t('app.chat.uploadImgFailed') })
+      return
+    }
+
+    // 检查是否有未完成上传的文件（额外保险）
+    const incompleteUpload = files.some(file => file.progress === 100 && !file.fileId)
+    if (incompleteUpload) {
+      Toast.notify({ type: 'error', message: t('app.chat.uploadImgWaitInfo') })
+      return
+    }
+
     if (isResponding) { return }
 
     const currentQuery = queryRef.current
     if (!currentQuery.trim() || (checkCanSend && !checkCanSend())) { return }
 
-    onSend(currentQuery, files.filter(file => file.progress !== -1).map(fileItem => ({
-      type: 'image',
-      transfer_method: fileItem.type,
-      url: fileItem.url,
-      upload_file_id: fileItem.fileId,
-    })))
+    // 只发送上传成功的文件
+    const validFiles = files
+      .filter(file => file.progress === 100 && file.fileId)
+      .map(fileItem => ({
+        type: 'image',
+        transfer_method: fileItem.type,
+        url: fileItem.url,
+        upload_file_id: fileItem.fileId,
+      }))
+    onSend(currentQuery, validFiles)
+
+    // onSend(currentQuery, files.filter(file => file.progress !== -1).map(fileItem => ({
+    //   type: 'image',
+    //   transfer_method: fileItem.type,
+    //   url: fileItem.url,
+    //   upload_file_id: fileItem.fileId,
+    // })))
 
     // 发送后清空本地状态
     setLocalQuery('')
