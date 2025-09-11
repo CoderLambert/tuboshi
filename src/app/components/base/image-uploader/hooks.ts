@@ -68,18 +68,30 @@ export const useImageFiles = () => {
       imageUpload({
         file: currentImageFile.file!,
         onProgressCallback: (progress) => {
-          const newFiles = [...files.slice(0, index), { ...currentImageFile, progress }, ...files.slice(index + 1)]
+          const currentFiles = filesRef.current
+          const index = currentFiles.findIndex(f => f._id === imageFileId)
+          if (index === -1) { return }
+          const currentImageFile = currentFiles[index]
+          const newFiles = [...currentFiles.slice(0, index), { ...currentImageFile, progress }, ...currentFiles.slice(index + 1)]
           filesRef.current = newFiles
           setFiles(newFiles)
         },
         onSuccessCallback: (res) => {
-          const newFiles = [...files.slice(0, index), { ...currentImageFile, fileId: res.id, progress: 100 }, ...files.slice(index + 1)]
+          const currentFiles = filesRef.current
+          const index = currentFiles.findIndex(f => f._id === imageFileId)
+          if (index === -1) { return }
+          const currentImageFile = currentFiles[index]
+          const newFiles = [...currentFiles.slice(0, index), { ...currentImageFile, fileId: res.id, progress: 100 }, ...currentFiles.slice(index + 1)]
           filesRef.current = newFiles
           setFiles(newFiles)
         },
         onErrorCallback: () => {
           notify({ type: 'error', message: t('common.imageUploader.uploadFromComputerUploadError') })
-          const newFiles = [...files.slice(0, index), { ...currentImageFile, progress: -1 }, ...files.slice(index + 1)]
+          const currentFiles = filesRef.current
+          const index = currentFiles.findIndex(f => f._id === imageFileId)
+          if (index === -1) { return }
+          const currentImageFile = currentFiles[index]
+          const newFiles = [...currentFiles.slice(0, index), { ...currentImageFile, progress: -1 }, ...currentFiles.slice(index + 1)]
           filesRef.current = newFiles
           setFiles(newFiles)
         },

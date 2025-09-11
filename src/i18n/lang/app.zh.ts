@@ -34,6 +34,8 @@ const translation = {
     textInputPlaceholder: '请输入问题...',
     generatingSuggestions: '正在生成建议...',
     uploadImgTip: '图片正在上传中，请稍等...',
+    uploadImgFailed: '有图片上传失败，请重新上传或删除',
+    uploadImgWaitInfo: '正在等待后端回传图片信息，请稍等...',
   },
   voiceInput: {
     speaking: '正在说话',
