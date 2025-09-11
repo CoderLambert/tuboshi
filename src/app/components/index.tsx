@@ -621,6 +621,19 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   }
 
   const handleSend = useCallback(async (message: string, files?: VisionFile[]) => {
+    if (files && files.length > 0) {
+      const uploading = files.some(file =>
+        file.transfer_method === TransferMethod.local_file && (!file.upload_file_id || file.upload_file_id === ''),
+      )
+      // 检查是否有上传失败的文件
+      const uploadFailed = files.some(file => !file.url && !file.upload_file_id)
+      console.log('files --->', files)
+
+      if(uploadFailed || uploading) {
+        return
+      }
+    }
+
     if (isResponding) {
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
