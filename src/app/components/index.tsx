@@ -600,6 +600,15 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     placeholderAnswerId: string
     questionItem: ChatItem
   }) => {
+    console.log('updateCurrentQA', responseItem)
+    // 添加内容检查，避免创建空内容的消息
+    if (!responseItem.content && !responseItem.agent_thoughts?.length && !responseItem.message_files?.length) {
+    // 如果是空消息，不更新UI
+      console.log('Empty responseItem, not updating UI')
+      console.log(responseItem)
+      return
+    }
+
     // closesure new list is outdated.
     const newListWithAnswer = produce(
       getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
@@ -622,18 +631,33 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   const handleSend = useCallback(async (message: string, files?: VisionFile[]) => {
     if (files && files.length > 0) {
-      const uploading = files.some(file =>
-        file.transfer_method === TransferMethod.local_file && (!file.upload_file_id || file.upload_file_id === ''),
+    // 过滤出有效的文件
+      const validFiles = files.filter(file =>
+        file.transfer_method === TransferMethod.local_file
+          ? file.upload_file_id && file.upload_file_id !== ''
+          : true,
       )
-      // 检查是否有上传失败的文件
-      const uploadFailed = files.some(file => !file.url && !file.upload_file_id)
-      console.log('files --->', files)
 
-      if(uploadFailed || uploading) {
+      // 如果过滤后文件数量减少，说明有无效文件
+      if (validFiles.length !== files.length) {
+        notify({ type: 'error', message: t('app.chat.uploadImgWaitInfo') })
         return
       }
-    }
 
+      // 确保所有本地文件都有 upload_file_id
+      const hasInvalidLocalFiles = validFiles.some(file =>
+        file.transfer_method === TransferMethod.local_file
+      && (!file.upload_file_id || file.upload_file_id === ''),
+      )
+
+      if (hasInvalidLocalFiles) {
+        notify({ type: 'error', message: t('app.chat.uploadImgWaitInfo') })
+        return
+      }
+
+      // 使用验证后的文件列表
+      files = validFiles
+    }
     if (isResponding) {
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
