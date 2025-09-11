@@ -2,6 +2,8 @@ import { API_PREFIX } from '@/config'
 import Toast from '@/app/components/base/toast'
 import type { AnnotationReply, MessageEnd, MessageReplace, ThoughtItem } from '@/app/components/chat/type'
 import type { VisionFile } from '@/types/app'
+import type { Timeout } from 'ahooks/lib/useRequest/src/types'
+import { t } from 'i18next'
 
 const TIME_OUT = 200000
 
@@ -172,6 +174,7 @@ const handleStream = (
         lines.forEach((message) => {
           if (message.startsWith('data: ')) { // check if it starts with data:
             try {
+              // bufferObj = JSON.parse('') as Record<string, any>
               bufferObj = JSON.parse(message.substring(6)) as Record<string, any>// remove data: and parse as json
             }
             catch (e) {
@@ -231,6 +234,7 @@ const handleStream = (
         buffer = lines[lines.length - 1]
       }
       catch (e) {
+        console.error('handleStream  error')
         onData('', false, {
           conversationId: undefined,
           messageId: '',
@@ -271,30 +275,45 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent, del
   // 关键修改：只有当 body 存在且不是 FormData 时才进行 JSON.stringify
   if (body && !(body instanceof FormData)) { options.body = JSON.stringify(body) }
 
+  let timerOut: Timeout | null = null
+  let isCompleted = false // 标记请求是否已完成
+  const clearTimer = () => {
+    if (!isCompleted) {
+      isCompleted = true
+      timerOut && clearTimeout(timerOut)
+    }
+  }
   // Handle timeout
   return Promise.race([
     new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const errorMessage = 'Request timed out, Please refresh'
-        Toast.notify({ type: 'error', message: errorMessage })
-        reject(new Error(errorMessage))
+      timerOut = setTimeout(() => {
+        Toast.notify({ type: 'error', message: t('app.errorMessage.overTimeError') })
+        reject(new Error(t('app.errorMessage.overTimeError')))
       }, TIME_OUT)
     }),
     new Promise((resolve, reject) => {
       globalThis.fetch(urlWithPrefix, options)
         .then((res: any) => {
+          clearTimer()
           const resClone = res.clone()
           // Error handler
           if (!/^(2|3)\d{2}$/.test(res.status)) {
             try {
               const bodyJson = res.json()
+              console.error('bodyJson  ==>')
+              console.log(res.status, bodyJson)
               switch (res.status) {
                 case 401: {
                   Toast.notify({ type: 'error', message: 'Invalid token' })
                   return
                 }
-                default:
 
+                case 500: {
+                  Toast.notify({ type: 'error', message: 'Server error' })
+                  return
+                }
+
+                default:
                   new Promise(() => {
                     bodyJson.then((data: any) => {
                       Toast.notify({ type: 'error', message: data.message })
@@ -321,6 +340,7 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent, del
           resolve(needAllResponseContent ? resClone : data)
         })
         .catch((err) => {
+          clearTimer()
           Toast.notify({ type: 'error', message: err })
           reject(err)
         })
