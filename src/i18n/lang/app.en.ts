@@ -37,7 +37,9 @@ const translation = {
     tryToAsk: 'Try to ask',
     textInputPlaceholder: 'Type your question...', // 添加这一行
     generatingSuggestions: 'Generating suggestions...',
-    uploadImgTip: 'The picture is currently being uploaded. Please wait...',
+    uploadImgTip: 'The image is currently being uploaded. Please wait...',
+    uploadImgFailed: 'The image failed to upload. Please re-upload or delete it.',
+    uploadImgWaitInfo: 'Waiting for the server to return the image info...',
   },
   voiceInput: {
     speaking: 'Speaking',
