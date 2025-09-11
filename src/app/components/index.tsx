@@ -778,12 +778,21 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         if (chatConfig?.suggested_questions_after_answer?.enabled && !hasStopResponded.current) {
           try {
             // 添加获取建议问题 api 调用
-            setIsSuggestQuestionsLoading(true)
-            const { data } = await fetchSuggestedQuestions(
-              responseItem.id,
-              userID['user-id'],
-            )
-            setSuggestQuestionsAfterAnswer(data)
+            if(responseItem && responseItem?.id) {
+              setIsSuggestQuestionsLoading(true)
+              console.log(`responseItem.id ---> ${responseItem.id}`)
+              const { data } = await fetchSuggestedQuestions(
+                responseItem.id,
+                userID['user-id'],
+              )
+              setSuggestQuestionsAfterAnswer(data)
+            }
+            else {
+              Toast.notify({
+                type: 'error',
+                message: t('app.errorMessage.suggestionMessageError'),
+              })
+            }
           }
           // eslint-disable-next-line unused-imports/no-unused-vars
           catch (e) {
