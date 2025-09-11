@@ -33,6 +33,7 @@ const translation = {
     tryToAsk: '试着问问',
     textInputPlaceholder: '请输入问题...',
     generatingSuggestions: '正在生成建议...',
+    uploadImgTip: '图片正在上传中，请稍等...',
   },
   voiceInput: {
     speaking: '正在说话',
