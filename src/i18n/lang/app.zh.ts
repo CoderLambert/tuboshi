@@ -51,6 +51,7 @@ const translation = {
     valueOfVarRequired: '变量值必填',
     waitForResponse: '请等待上条信息响应完成',
     overTimeError: '请求超时，请退出刷新后重新进入',
+    suggestionMessageError: '发送消息时出现异常，部分必要参数缺失，请重试',
   },
   variableTable: {
     optional: '可选',
