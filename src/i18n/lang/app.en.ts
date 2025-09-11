@@ -55,6 +55,7 @@ const translation = {
     valueOfVarRequired: 'Variables value can not be empty',
     waitForResponse: 'Please wait for the previous response to complete.',
     overTimeError: 'Request timed out. Please refresh',
+    suggestionMessageError: 'An error occurred while sending the message. Some required parameters are missing. Please try again.',
   },
   variableTable: {
     optional: 'Optional',
