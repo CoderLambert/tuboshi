@@ -17,10 +17,10 @@ function useConversation() {
       throw new Error(`Invalid conversation ID: ${id}`)
     }
 
-    if (!appId || typeof appId !== 'string') {
-      console.warn('Invalid app ID:', appId)
-      throw new Error(`Invalid app ID: ${appId}`)
-    }
+    // if (!appId || typeof appId !== 'string') {
+    //   console.warn('Invalid app ID:', appId)
+    //   throw new Error(`Invalid app ID: ${appId}`)
+    // }
 
     // ✅ 特殊值检查
     const invalidValues = ['-1', 'undefined', 'null', '', 'NaN', 'undefined']
