@@ -247,6 +247,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   const [conversationIdChangeBecauseOfNew, setConversationIdChangeBecauseOfNew, getConversationIdChangeBecauseOfNew] = useGetState(false)
   const [isChatStarted, { setFalse: setChatNotStarted }] = useBoolean(false)
+  const [hasExtremeError, setHasExtremeError] = useState(false) // ✅ 极端异常状态
   const conversationIntroduction = currConversationInfo?.introduction || ''
   const suggestedQuestions = currConversationInfo?.suggested_questions || []
 
@@ -630,6 +631,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   }
 
   const handleSend = useCallback(async (message: string, files?: VisionFile[]) => {
+    // ✅ 发送新消息时重置异常状态
+    setHasExtremeError(false)
     if (files && files.length > 0) {
     // 过滤出有效的文件
       const validFiles = files.filter(file =>
@@ -795,7 +798,26 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         setConversationIdChangeBecauseOfNew(false)
         resetNewConversationInputs()
         setChatNotStarted()
-        setCurrConversationId(tempNewConversationId, appId!, true)
+        // ✅ 防止空会话ID：只有在有有效会话ID时才更新
+        if (tempNewConversationId && tempNewConversationId.trim() !== '') {
+          setCurrConversationId(tempNewConversationId, appId!, true)
+          setHasExtremeError(false) // ✅ 重置异常状态
+        } else {
+          console.warn('Skipping conversation ID update due to empty tempNewConversationId')
+          setHasExtremeError(true) // ✅ 标记极端异常（没有有效会话ID）
+
+          // ✅ 方案1：将占位符替换为错误消息
+          setChatList(produce(getChatList(), (draft) => {
+            const placeholderIndex = draft.findIndex(item => item.id === placeholderAnswerId)
+            if (placeholderIndex !== -1) {
+              draft[placeholderIndex] = {
+                ...draft[placeholderIndex],
+                content: '抱歉，消息发送遇到问题，无法获取会话ID。您可以继续发送其他消息。',
+                isError: true,
+              }
+            }
+          }))
+        }
         handleResponding(false)
 
         // 开启建议问题后，且没有停止对话时，请求建议问题
@@ -916,9 +938,18 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       },
       onError() {
         handleResponding(false)
-        // role back placeholder answer
+        setHasExtremeError(true) // ✅ 标记极端异常
+
+        // ✅ 方案1：将占位符替换为错误消息，让用户可以继续会话
         setChatList(produce(getChatList(), (draft) => {
-          draft.splice(draft.findIndex(item => item.id === placeholderAnswerId), 1)
+          const placeholderIndex = draft.findIndex(item => item.id === placeholderAnswerId)
+          if (placeholderIndex !== -1) {
+            draft[placeholderIndex] = {
+              ...draft[placeholderIndex],
+              content: '抱歉，消息发送遇到问题。您可以继续发送其他消息。',
+              isError: true, // ✅ 添加错误标识
+            }
+          }
         }))
       },
       onWorkflowStarted: ({ workflow_run_id, task_id }) => {
@@ -1086,6 +1117,27 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
             />
           )
         }
+
+        {/* ✅ 方案2：极端异常时显示刷新提示 */}
+        {hasExtremeError && (
+          <div className='mb-3 rounded-lg bg-red-50 p-3 text-center'>
+            <div className='text-sm text-red-600 mb-2'>
+              检测到会话异常，建议刷新页面重新开始
+            </div>
+            <button
+              onClick={() => {
+                // 清除相关状态
+                setChatList([])
+                setHasExtremeError(false)
+                // 刷新页面
+                window.location.reload()
+              }}
+              className='rounded bg-red-500 px-3 py-1 text-xs text-white hover:bg-red-600'
+            >
+              刷新页面
+            </button>
+          </div>
+        )}
 
         <OptimizedInput
           onSend={handleSend}

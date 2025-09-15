@@ -161,6 +161,10 @@ const handleStream = (
   let buffer = ''
   let bufferObj: Record<string, any>
   let isFirstMessage = true
+
+  // ✅ 新增：缓存最后有效的会话ID和消息ID
+  let lastValidConversationId: string | undefined
+  let lastValidMessageId: string | undefined
   function read() {
     let hasError = false
     reader?.read().then((result: any) => {
@@ -174,22 +178,41 @@ const handleStream = (
         lines.forEach((message) => {
           if (message.startsWith('data: ')) { // check if it starts with data:
             try {
-              // bufferObj = JSON.parse('') as Record<string, any>
-              bufferObj = JSON.parse(message.substring(6)) as Record<string, any>// remove data: and parse as json
+              bufferObj = JSON.parse(message.substring(6)) as Record<string, any>
+
+              // ✅ 缓存有效的会话ID和消息ID
+              if (bufferObj.conversation_id && typeof bufferObj.conversation_id === 'string') {
+                lastValidConversationId = bufferObj.conversation_id
+              }
+              if (bufferObj.message_id && typeof bufferObj.message_id === 'string') {
+                lastValidMessageId = bufferObj.message_id
+              }
+              if (bufferObj.id && typeof bufferObj.id === 'string') {
+                lastValidMessageId = bufferObj.id
+              }
             }
             catch (e) {
-              // mute handle message cut off
+              console.warn('JSON.parse failed for message:', message.substring(0, 100), 'error:', e)
+
+              // ✅ 使用最后有效的ID，如果没有则使用undefined
               onData('', isFirstMessage, {
-                conversationId: bufferObj?.conversation_id,
-                messageId: bufferObj?.message_id,
+                conversationId: lastValidConversationId,
+                messageId: lastValidMessageId || '',
+                errorMessage: '消息解析异常，使用最后有效的会话ID',
+                errorCode: 'PARSE_ERROR',
               })
+
+              // 如果没有有效的会话ID，标记为错误
+              if (!lastValidConversationId) {
+                hasError = true
+              }
               return
             }
             if (bufferObj.status === 400 || !bufferObj.event) {
               onData('', false, {
-                conversationId: undefined,
+                conversationId: lastValidConversationId,
                 messageId: '',
-                errorMessage: bufferObj?.message,
+                errorMessage: bufferObj?.message || '服务端返回错误',
                 errorCode: bufferObj?.code,
               })
               hasError = true
@@ -199,9 +222,9 @@ const handleStream = (
             if (bufferObj.event === 'message' || bufferObj.event === 'agent_message') {
               // can not use format here. Because message is splited.
               onData(unicodeToChar(bufferObj.answer), isFirstMessage, {
-                conversationId: bufferObj.conversation_id,
+                conversationId: bufferObj.conversation_id || lastValidConversationId,
                 taskId: bufferObj.task_id,
-                messageId: bufferObj.id,
+                messageId: bufferObj.id || lastValidMessageId,
               })
               isFirstMessage = false
             }
@@ -234,11 +257,11 @@ const handleStream = (
         buffer = lines[lines.length - 1]
       }
       catch (e) {
-        console.error('handleStream  error')
+        console.error('handleStream error:', e)
         onData('', false, {
-          conversationId: undefined,
-          messageId: '',
-          errorMessage: `${e}`,
+          conversationId: lastValidConversationId,
+          messageId: lastValidMessageId || '',
+          errorMessage: `流处理异常: ${e}`,
         })
         hasError = true
         onCompleted?.(true)
