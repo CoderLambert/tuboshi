@@ -52,7 +52,7 @@ export default function Home() {
   return (
     <div className="flex h-screen min-h-0 flex-col bg-white">
 
-      <SafeAreaLayout title="MaoMao AI">
+      <SafeAreaLayout title="J&T AI Assistant">
         <div className={styles.header}>
           <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
           <h1 className={styles.intro}>{t('app.common.welcome')}</h1>
