@@ -1,6 +1,6 @@
 const translation = {
   common: {
-    welcome: 'Welcome to use J&T AI Assistant, your AI assistant.',
+    welcome: 'Hello! I\'m your AI assistant, happy to help you.',
     faqTip: 'Try asking questions like',
     appUnavailable: 'App is unavailable',
     appUnkonwError: 'App is unavailable',
