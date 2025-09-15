@@ -6,7 +6,7 @@ type ImageUploadParams = {
   file: File
   onProgressCallback: (progress: number) => void
   onSuccessCallback: (res: { id: string }) => void
-  onErrorCallback: () => void
+  onErrorCallback: (e: any) => void
 }
 type ImageUpload = (v: ImageUploadParams) => void
 export const imageUpload: ImageUpload = ({
@@ -34,6 +34,6 @@ export const imageUpload: ImageUpload = ({
     })
     .catch((e) => {
       console.error(e)
-      onErrorCallback()
+      onErrorCallback(e)
     })
 }

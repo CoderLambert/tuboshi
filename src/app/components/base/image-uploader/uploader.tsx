@@ -28,8 +28,10 @@ const Uploader: FC<UploaderProps> = ({
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
 
-    if (!file)
+    if (!file) {
+      console.log('No file selected')
       return
+    }
 
     if (limit && file.size > limit * 1024 * 1024) {
       notify({ type: 'error', message: t('common.imageUploader.uploadFromComputerLimit', { size: limit }) })
@@ -40,6 +42,8 @@ const Uploader: FC<UploaderProps> = ({
     reader.addEventListener(
       'load',
       () => {
+        console.log('[Uploader] FileReader 读取完成')
+
         const imageFile = {
           type: TransferMethod.local_file,
           _id: `${Date.now()}`,
@@ -49,16 +53,23 @@ const Uploader: FC<UploaderProps> = ({
           base64Url: reader.result as string,
           progress: 0,
         }
+
+        console.log('[Uploader] 构造 imageFile:', imageFile)
+
         onUpload(imageFile)
         imageUpload({
           file: imageFile.file,
           onProgressCallback: (progress) => {
+            console.log(`[Uploader] 上传进度: ${progress}%`)
             onUpload({ ...imageFile, progress })
           },
           onSuccessCallback: (res) => {
+            console.log('[Uploader] 上传成功:', res)
             onUpload({ ...imageFile, fileId: res.id, progress: 100 })
           },
-          onErrorCallback: () => {
+          onErrorCallback: (err) => {
+            console.error('[Uploader] 上传失败:', err)
+
             notify({ type: 'error', message: t('common.imageUploader.uploadFromComputerUploadError') })
             onUpload({ ...imageFile, progress: -1 })
           },
@@ -68,11 +79,15 @@ const Uploader: FC<UploaderProps> = ({
     )
     reader.addEventListener(
       'error',
-      () => {
+      (err) => {
+        console.error('[Uploader] FileReader 读取失败:', err)
+
         notify({ type: 'error', message: t('common.imageUploader.uploadFromComputerReadError') })
       },
       false,
     )
+    console.log('[Uploader] 开始读取文件')
+
     reader.readAsDataURL(file)
   }
 
