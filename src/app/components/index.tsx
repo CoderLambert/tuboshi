@@ -6,6 +6,7 @@ import { produce, setAutoFreeze } from 'immer'
 import { useBoolean, useGetState } from 'ahooks'
 import useConversation from '@/hooks/use-conversation'
 import Toast from '@/app/components/base/toast'
+import Button from '@/app/components/base/button'
 import { fetchAppParams, fetchChatList, fetchConversations, fetchSuggestedQuestions, generationConversationName, sendChatMessage, stopChatMessage, updateFeedback } from '@/services'
 import type { ChatConfig, ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
@@ -802,7 +803,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         if (tempNewConversationId && tempNewConversationId.trim() !== '') {
           setCurrConversationId(tempNewConversationId, appId!, true)
           setHasExtremeError(false) // ✅ 重置异常状态
-        } else {
+        }
+        else {
           console.warn('Skipping conversation ID update due to empty tempNewConversationId')
           setHasExtremeError(true) // ✅ 标记极端异常（没有有效会话ID）
 
@@ -812,7 +814,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
             if (placeholderIndex !== -1) {
               draft[placeholderIndex] = {
                 ...draft[placeholderIndex],
-                content: '抱歉，消息发送遇到问题，无法获取会话ID。您可以继续发送其他消息。',
+                content: t('app.errorMessage.conversationError'),
                 isError: true,
               }
             }
@@ -1120,11 +1122,14 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
         {/* ✅ 方案2：极端异常时显示刷新提示 */}
         {hasExtremeError && (
-          <div className='mb-3 rounded-lg bg-red-50 p-3 text-center'>
-            <div className='text-sm text-red-600 mb-2'>
-              检测到会话异常，建议刷新页面重新开始
+          <div className='mb-3 rounded-lg border border-red-200 bg-white p-4 text-center shadow-sm'>
+            <div className='text-tertiary mb-3 text-sm'>
+              {t('app.errorMessage.extremeErrorDetected')}
             </div>
-            <button
+            <Button
+              variant='primary'
+              size='small'
+              destructive
               onClick={() => {
                 // 清除相关状态
                 setChatList([])
@@ -1132,10 +1137,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
                 // 刷新页面
                 window.location.reload()
               }}
-              className='rounded bg-red-500 px-3 py-1 text-xs text-white hover:bg-red-600'
             >
-              刷新页面
-            </button>
+              {t('app.errorMessage.refreshPage')}
+            </Button>
           </div>
         )}
 

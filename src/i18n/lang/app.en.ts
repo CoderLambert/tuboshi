@@ -56,6 +56,10 @@ const translation = {
     waitForResponse: 'Please wait for the previous response to complete.',
     overTimeError: 'Request timed out. Please refresh',
     suggestionMessageError: 'An error occurred while sending the message. Some required parameters are missing. Please try again.',
+    extremeErrorDetected: 'Session exception detected, it is recommended to refresh the page and start again',
+    refreshPage: 'Refresh Page',
+    messageParserError: 'An error occurred while parsing the message. Please try again.',
+    conversationError: '抱歉，消息发送遇到问题，无法获取会话ID。您可以继续发送其他消息。',
   },
   variableTable: {
     optional: 'Optional',

@@ -52,6 +52,10 @@ const translation = {
     waitForResponse: '请等待上条信息响应完成',
     overTimeError: '请求超时，请退出刷新后重新进入',
     suggestionMessageError: '发送消息时出现异常，部分必要参数缺失，请重试',
+    extremeErrorDetected: '检测到会话异常，建议刷新页面重新开始',
+    refreshPage: '刷新页面',
+    messageParserError: '消息解析异常，请重新尝试发送消息',
+    conversationError: '抱歉，消息发送遇到问题，无法获取会话ID。您可以继续发送其他消息。',
   },
   variableTable: {
     optional: '可选',

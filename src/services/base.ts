@@ -178,6 +178,7 @@ const handleStream = (
         lines.forEach((message) => {
           if (message.startsWith('data: ')) { // check if it starts with data:
             try {
+              // bufferObj = JSON.parse('')
               bufferObj = JSON.parse(message.substring(6)) as Record<string, any>
 
               // ✅ 缓存有效的会话ID和消息ID
@@ -193,12 +194,11 @@ const handleStream = (
             }
             catch (e) {
               console.warn('JSON.parse failed for message:', message.substring(0, 100), 'error:', e)
-
               // ✅ 使用最后有效的ID，如果没有则使用undefined
               onData('', isFirstMessage, {
                 conversationId: lastValidConversationId,
                 messageId: lastValidMessageId || '',
-                errorMessage: '消息解析异常，使用最后有效的会话ID',
+                errorMessage: t('app.errorMessage.messageParserError'),
                 errorCode: 'PARSE_ERROR',
               })
 
@@ -441,6 +441,7 @@ export const ssePost = (
       return handleStream(res, (str: string, isFirstMessage: boolean, moreInfo: IOnDataMoreInfo) => {
         if (moreInfo.errorMessage) {
           Toast.notify({ type: 'error', message: moreInfo.errorMessage })
+          onCompleted?.(true) // ✅ 重置按钮状态
           return
         }
         onData?.(str, isFirstMessage, moreInfo)
@@ -449,6 +450,7 @@ export const ssePost = (
       }, onThought, onMessageEnd, onMessageReplace, onFile, onWorkflowStarted, onWorkflowFinished, onNodeStarted, onNodeFinished)
     }).catch((e) => {
       Toast.notify({ type: 'error', message: e })
+      onCompleted?.(true) // ✅ 重置按钮状态
       onError?.(e)
     })
 }
