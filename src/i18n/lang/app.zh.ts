@@ -1,10 +1,9 @@
 const translation = {
   common: {
-    welcome: '我是 J&T AI Assistant，你的智能助手',
+    welcome: '我是您的智能助手，期待为您服务',
     faqTip: '你可以试试这样问我',
     appUnavailable: '应用不可用',
     appUnkonwError: '应用不可用',
-
   },
   chat: {
     newChat: '新对话',
