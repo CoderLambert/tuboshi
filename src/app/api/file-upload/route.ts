@@ -13,12 +13,14 @@ export async function POST(request: NextRequest) {
     const { user } = getInfo(request)
     formData.append('user', userID || user)
     const res = await client.fileUpload(formData, userID || user)
+    console.log(`res : ${JSON.stringify(res)}`)
     console.log(`userID: ${userID}   user: ${user}`)
     console.log('=============file-upload  end============')
 
     return new Response(res.data.id as any)
   }
   catch (e: any) {
+    console.error(e)
     return new Response(e.message)
   }
 }
