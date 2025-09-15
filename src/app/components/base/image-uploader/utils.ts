@@ -32,7 +32,8 @@ export const imageUpload: ImageUpload = ({
     .then((res: { id: string }) => {
       onSuccessCallback(res)
     })
-    .catch(() => {
+    .catch((e) => {
+      console.error(e)
       onErrorCallback()
     })
 }
