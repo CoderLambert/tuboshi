@@ -15,6 +15,9 @@ type UploaderProps = {
   disabled?: boolean
 }
 
+const MAX_CANVAS_SIZE = 1080
+const COMPRESS_THRESHOLD = 2 * 1024 * 1024 // >2MB 压缩
+
 const Uploader: FC<UploaderProps> = ({
   children,
   onUpload,
@@ -25,16 +28,92 @@ const Uploader: FC<UploaderProps> = ({
   const { notify } = Toast
   const { t } = useTranslation()
 
+  function getSafePreviewUrl(file: File, cb: (url: string) => void) {
+    if (window.URL && URL.createObjectURL) {
+      try {
+        const blobUrl = URL.createObjectURL(file)
+        console.log('blobUrl', blobUrl)
+        const testImg = new Image()
+        testImg.onload = () => cb(blobUrl)
+        testImg.onerror = () => {
+          console.warn('[Uploader] blob URL 显示失败，回退 base64')
+          URL.revokeObjectURL(blobUrl)
+          readAsBase64(file, cb)
+        }
+        testImg.src = blobUrl
+        return
+      }
+      catch (err) {
+        console.error('[Uploader] createObjectURL 出错:', err)
+      }
+    }
+    readAsBase64(file, cb)
+  }
+
+  function readAsBase64(file: File, cb: (url: string) => void) {
+    const reader = new FileReader()
+    reader.onload = () => cb(reader.result as string)
+    reader.onerror = (err) => {
+      console.error('[Uploader] FileReader 出错:', err)
+      cb('')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  /** ✅ Canvas 压缩 + blob URL */
+  function compressWithCanvas(file: File, cb: (url: string) => void) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const img = new Image()
+      img.onload = () => {
+        let { width, height } = img
+        if (width > height && width > MAX_CANVAS_SIZE) {
+          height *= MAX_CANVAS_SIZE / width
+          width = MAX_CANVAS_SIZE
+        }
+        else if (height > MAX_CANVAS_SIZE) {
+          width *= MAX_CANVAS_SIZE / height
+          height = MAX_CANVAS_SIZE
+        }
+
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')!
+        ctx.drawImage(img, 0, 0, width, height)
+
+        // 转 blob
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const blobUrl = URL.createObjectURL(blob)
+              cb(blobUrl)
+            }
+            else {
+              console.warn('[Uploader] canvas.toBlob 失败，回退 base64')
+              readAsBase64(file, cb)
+            }
+          },
+          'image/jpeg',
+          0.8,
+        )
+      }
+      img.onerror = () => {
+        console.error('[Uploader] 压缩失败，回退 base64')
+        readAsBase64(file, cb)
+      }
+      img.src = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-
-    if (!file) {
-      console.log('[Uploader] 未选择文件')
-      return
-    }
+    console.log('==== file =====')
+    console.log(file)
+    if (!file) { return }
 
     if (limit && file.size > limit * 1024 * 1024) {
-      console.warn(`[Uploader] 文件超出大小限制: ${file.size} bytes`)
       notify({
         type: 'error',
         message: t('common.imageUploader.uploadFromComputerLimit', { size: limit }),
@@ -42,101 +121,49 @@ const Uploader: FC<UploaderProps> = ({
       return
     }
 
-    let previewUrl = ''
+    const previewHandler = file.size > COMPRESS_THRESHOLD
+      ? compressWithCanvas
+      : getSafePreviewUrl
 
-    try {
-      // ✅ 优先使用 ObjectURL
-      if (window.URL && window.URL.createObjectURL) {
-        previewUrl = URL.createObjectURL(file)
-        console.log('[Uploader] 使用 ObjectURL 生成预览:', previewUrl)
-
-        const imageFile: ImageFile = {
-          type: TransferMethod.local_file,
-          _id: `${Date.now()}`,
-          fileId: '',
-          file,
-          url: previewUrl,
-          base64Url: previewUrl, // 不再依赖 base64
-          progress: 0,
-        }
-
-        onUpload(imageFile)
-
-        imageUpload({
-          file: imageFile.file,
-          onProgressCallback: (progress) => {
-            console.log(`[Uploader] 上传进度: ${progress}%`)
-            onUpload({ ...imageFile, progress })
-          },
-          onSuccessCallback: (res) => {
-            console.log('[Uploader] 上传成功:', res)
-            onUpload({ ...imageFile, fileId: res.id, progress: 100 })
-            // URL.revokeObjectURL(previewUrl) // ✅ 释放资源
-          },
-          onErrorCallback: (err) => {
-            console.error('[Uploader] 上传失败:', err)
-            notify({
-              type: 'error',
-              message: t('common.imageUploader.uploadFromComputerUploadError'),
-            })
-            onUpload({ ...imageFile, progress: -1 })
-            URL.revokeObjectURL(previewUrl) // ✅ 释放资源
-          },
+    previewHandler(file, (previewUrl) => {
+      if (!previewUrl) {
+        notify({
+          type: 'error',
+          message: t('common.imageUploader.uploadFromComputerReadError'),
         })
+        return
       }
-      else {
-        // ⚠️ fallback: 旧环境用 FileReader
-        console.log('[Uploader] 回退到 FileReader')
 
-        const reader = new FileReader()
-        reader.onload = () => {
-          const imageFile: ImageFile = {
-            type: TransferMethod.local_file,
-            _id: `${Date.now()}`,
-            fileId: '',
-            file,
-            url: reader.result as string,
-            base64Url: reader.result as string,
-            progress: 0,
-          }
+      const imageFile: ImageFile = {
+        type: TransferMethod.local_file,
+        _id: `${Date.now()}`,
+        fileId: '',
+        file,
+        url: previewUrl,
+        base64Url: previewUrl,
+        progress: 0,
+      }
 
-          onUpload(imageFile)
+      onUpload(imageFile)
 
-          imageUpload({
-            file: imageFile.file,
-            onProgressCallback: (progress) => {
-              onUpload({ ...imageFile, progress })
-            },
-            onSuccessCallback: (res) => {
-              onUpload({ ...imageFile, fileId: res.id, progress: 100 })
-            },
-            onErrorCallback: (err) => {
-              console.error('[Uploader] 上传失败:', err)
-              notify({
-                type: 'error',
-                message: t('common.imageUploader.uploadFromComputerUploadError'),
-              })
-              onUpload({ ...imageFile, progress: -1 })
-            },
-          })
-        }
-        reader.onerror = (err) => {
-          console.error('[Uploader] FileReader 读取失败:', err)
+      imageUpload({
+        file: imageFile.file,
+        onProgressCallback: progress => onUpload({ ...imageFile, progress }),
+        onSuccessCallback: res => onUpload({ ...imageFile, fileId: res.id, progress: 100 }),
+        onErrorCallback: (err) => {
+          console.log('++++++++  imageUpload error +++++++++')
+          console.error(err)
           notify({
             type: 'error',
-            message: t('common.imageUploader.uploadFromComputerReadError'),
+            message: t('common.imageUploader.uploadFromComputerUploadError'),
           })
-        }
-        reader.readAsDataURL(file)
-      }
-    }
-    catch (err) {
-      console.error('[Uploader] 未知错误:', err)
-      notify({
-        type: 'error',
-        message: t('common.imageUploader.uploadFromComputerReadError'),
+          onUpload({ ...imageFile, progress: -1 })
+          if (previewUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(previewUrl)
+          }
+        },
       })
-    }
+    })
   }
 
   return (
