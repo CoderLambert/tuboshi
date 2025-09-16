@@ -71,7 +71,7 @@ const Uploader: FC<UploaderProps> = ({
           onSuccessCallback: (res) => {
             console.log('[Uploader] 上传成功:', res)
             onUpload({ ...imageFile, fileId: res.id, progress: 100 })
-            URL.revokeObjectURL(previewUrl) // ✅ 释放资源
+            // URL.revokeObjectURL(previewUrl) // ✅ 释放资源
           },
           onErrorCallback: (err) => {
             console.error('[Uploader] 上传失败:', err)
