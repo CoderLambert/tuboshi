@@ -81,8 +81,10 @@ export const useImageFiles = () => {
           const index = currentFiles.findIndex(f => f._id === imageFileId)
           if (index === -1) { return }
           const currentImageFile = currentFiles[index]
-          const newFiles = [...currentFiles.slice(0, index), { ...currentImageFile, fileId: res.id, progress: 100 }, ...currentFiles.slice(index + 1)]
+          const newFiles = [...currentFiles.slice(0, index), { ...currentImageFile, fileId: res.id, filePreviewUlr: res.preview_url, progress: 100 }, ...currentFiles.slice(index + 1)]
           filesRef.current = newFiles
+          console.log('======= image-uploader onSuccessCallback newFiles ==>')
+          console.log(newFiles)
           setFiles(newFiles)
         },
         onErrorCallback: () => {
@@ -93,6 +95,9 @@ export const useImageFiles = () => {
           const currentImageFile = currentFiles[index]
           const newFiles = [...currentFiles.slice(0, index), { ...currentImageFile, progress: -1 }, ...currentFiles.slice(index + 1)]
           filesRef.current = newFiles
+
+          console.log('======= image-uploader onErrorCallback newFiles ==>')
+          console.log(newFiles)
           setFiles(newFiles)
         },
       })

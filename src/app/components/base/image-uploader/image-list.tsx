@@ -92,8 +92,8 @@ const ImageList: FC<ImageListProps> = ({
               alt=''
               onLoad={() => handleImageLinkLoadSuccess(item)}
               onError={() => handleImageLinkLoadError(item)}
-              src={item.type === TransferMethod.remote_url ? item.url : item.base64Url}
-              onClick={() => item.progress === 100 && setImagePreviewUrl((item.type === TransferMethod.remote_url ? item.url : item.base64Url) as string)}
+              src={ item.url }
+              onClick={() => item.progress === 100 && setImagePreviewUrl((item.url) as string)}
             />
             {
               !readonly && (

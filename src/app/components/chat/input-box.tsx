@@ -55,8 +55,7 @@ const InputBox: FC<IInputBoxProps> = ({
       return
     }
 
-    if (!query.trim() || (checkCanSend && !checkCanSend()))
-      return
+    if (!query.trim() || (checkCanSend && !checkCanSend())) { return }
 
     onSend(query, files.filter(file => file.progress !== -1).map(fileItem => ({
       type: 'image',
@@ -65,27 +64,22 @@ const InputBox: FC<IInputBoxProps> = ({
       upload_file_id: fileItem.fileId,
     })))
 
-    if (files.length)
-      onClear()
+    if (files.length) { onClear() }
   }, [isResponding, query, checkCanSend, onSend, files, onClear])
 
   const handleStop = () => {
-    if (onStop)
-      onStop()
+    if (onStop) { onStop() }
   }
 
   const handleButtonClick = () => {
-    if (isResponding)
-      handleStop()
-     else
-      handleSend()
+    if (isResponding) { handleStop() }
+    else { handleSend() }
   }
 
   const handleKeyUp = (e: any) => {
     if (e.code === 'Enter') {
       e.preventDefault()
-      if (!e.shiftKey && !isUseInputMethod.current && !isResponding)
-        handleSend()
+      if (!e.shiftKey && !isUseInputMethod.current && !isResponding) { handleSend() }
     }
   }
 

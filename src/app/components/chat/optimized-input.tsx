@@ -84,6 +84,7 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
   useEffect(() => {
     const uploading = files.some(file => file.progress < 100 && file.progress !== -1)
     console.log('uploading:', uploading)
+    console.log('files:', files)
     setIsUploading(uploading)
   }, [files])
 

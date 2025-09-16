@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { getClient, getInfo, getValidParam } from '@/app/api/utils/common'
+import { NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
     console.log(`userID: ${userID}   user: ${user}`)
     console.log('=============file-upload  end============')
 
-    return new Response(res.data.id as any)
+    return NextResponse.json(res.data as any)
   }
   catch (e: any) {
     console.error(e)
