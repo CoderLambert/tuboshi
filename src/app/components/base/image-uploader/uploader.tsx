@@ -149,7 +149,7 @@ const Uploader: FC<UploaderProps> = ({
       imageUpload({
         file: imageFile.file,
         onProgressCallback: progress => onUpload({ ...imageFile, progress }),
-        onSuccessCallback: res => onUpload({ ...imageFile, fileId: res.id, progress: 100 }),
+        onSuccessCallback: res => onUpload({ ...imageFile, fileId: res.id, url: res.preview_url, progress: 100 }),
         onErrorCallback: (err) => {
           console.log('++++++++  imageUpload error +++++++++')
           console.error(err)
