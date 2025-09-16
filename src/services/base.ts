@@ -355,25 +355,265 @@ export const upload = (fetchOptions: any): Promise<any> => {
     method: 'POST',
     url: `${urlWithPrefix}`,
     data: {},
+    timeout: 6000, // 90秒超时
+    headers: {},
+    retryCount: 0,
   }
   const options = {
     ...defaultOptions,
     ...fetchOptions,
   }
+
   return new Promise((resolve, reject) => {
     const xhr = options.xhr
-    xhr.open(options.method, options.url)
-    for (const key in options.headers) { xhr.setRequestHeader(key, options.headers[key]) }
+    const startTime = Date.now()
+    let uploadProgress = 0
+    let requestCompleted = false
 
+    // 详细的请求信息日志
+    console.log('[Upload] Starting request:', {
+      url: options.url,
+      method: options.method,
+      timeout: options.timeout,
+      fileSize: options.data instanceof FormData
+        ? (Array.from(options.data.entries() as [string, any][]).reduce((size, [key, value]) => {
+          return size + (value instanceof File ? value.size : 0)
+        }, 0) as number) : 0,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+    })
+
+    // 错误处理函数
+    const handleError = (error: any, errorType: string) => {
+      if (requestCompleted) { return }
+
+      requestCompleted = true
+
+      const errorInfo = {
+        type: errorType,
+        message: error?.message || 'Unknown error',
+        status: xhr?.status,
+        statusText: xhr?.statusText,
+        readyState: xhr?.readyState,
+        response: xhr?.response,
+        responseText: xhr?.responseText,
+        responseType: xhr?.responseType,
+        uploadProgress,
+        duration: Date.now() - startTime,
+        url: options.url,
+        userAgent: navigator.userAgent,
+        isWebView: /WebView|wv/.test(navigator.userAgent),
+        deviceMemory: (navigator as any).deviceMemory,
+        connectionType: (navigator as any).connection?.effectiveType,
+        fileSize: options.data instanceof FormData
+          ? (Array.from(options.data.entries() as [string, any][]).reduce((size, [key, value]) => {
+            return size + (value instanceof File ? value.size : 0)
+          }, 0) as number) : 0,
+        networkType: (navigator as any).connection?.effectiveType,
+        downlink: (navigator as any).connection?.downlink,
+        rtt: (navigator as any).connection?.rtt,
+      }
+
+      console.error(`[Upload] ${errorType}:`, errorInfo)
+
+      // 显示用户友好的错误提示
+      let userMessage = '上传失败，请重试'
+
+      switch (errorType) {
+        case 'TIMEOUT_ERROR':
+          userMessage = '上传超时，请检查网络连接'
+          break
+        case 'NETWORK_ERROR':
+          userMessage = '网络连接失败，请检查网络'
+          break
+        case 'HTTP_ERROR':
+          if (xhr?.status === 413) {
+            userMessage = '文件过大，请选择较小的文件'
+          }
+          else if (xhr?.status === 401) {
+            userMessage = '登录已过期，请重新登录'
+          }
+          else if (xhr?.status >= 500) {
+            userMessage = '服务器错误，请稍后重试'
+          }
+          else {
+            userMessage = `上传失败 (${xhr?.status || 'unknown'})`
+          }
+          break
+        case 'ABORT_ERROR':
+          userMessage = '上传已取消'
+          break
+        default:
+          userMessage = '上传失败，请重试'
+      }
+
+      Toast.notify({ type: 'error', message: userMessage })
+      reject(errorInfo)
+    }
+
+    // 打开连接
+    try {
+      xhr.open(options.method, options.url)
+      console.log('[Upload] Connection opened successfully')
+    }
+    catch (error) {
+      handleError(error, 'OPEN_ERROR')
+      return
+    }
+
+    // 设置请求头
+    try {
+      for (const key in options.headers) {
+        xhr.setRequestHeader(key, options.headers[key])
+      }
+
+      // 添加通用请求头
+      if (!options.headers['Content-Type'] && !(options.data instanceof FormData)) {
+        xhr.setRequestHeader('Content-Type', 'application/json')
+      }
+
+      // 添加用户代理信息和调试头
+      xhr.setRequestHeader('X-Client-Info', JSON.stringify({
+        userAgent: navigator.userAgent,
+        isWebView: /WebView|wv/.test(navigator.userAgent),
+        timestamp: Date.now(),
+        deviceMemory: (navigator as any).deviceMemory,
+        connectionType: (navigator as any).connection?.effectiveType,
+      }))
+
+      console.log('[Upload] Headers set successfully')
+    }
+    catch (error) {
+      handleError(error, 'HEADER_ERROR')
+      return
+    }
+
+    // 设置超时
+    xhr.timeout = options.timeout
+
+    // 超时处理
+    xhr.ontimeout = () => {
+      if (requestCompleted) { return }
+      requestCompleted = true
+      handleError(new Error('Request timeout'), 'TIMEOUT_ERROR')
+    }
+
+    // 网络错误处理
+    xhr.onerror = () => {
+      if (requestCompleted) { return }
+      requestCompleted = true
+      handleError(new Error('Network error'), 'NETWORK_ERROR')
+    }
+
+    // 请求中止处理
+    xhr.onabort = () => {
+      if (requestCompleted) { return }
+      requestCompleted = true
+      handleError(new Error('Request aborted'), 'ABORT_ERROR')
+    }
+
+    // 设置凭据
     xhr.withCredentials = true
+
+    // 状态变化监听
     xhr.onreadystatechange = function () {
+      console.log(`[Upload] State changed: ${xhr.readyState}`, {
+        status: xhr.status,
+        statusText: xhr.statusText,
+        readyState: xhr.readyState,
+        duration: Date.now() - startTime,
+        uploadProgress,
+      })
+
       if (xhr.readyState === 4) {
-        if (xhr.status === 200) { resolve({ id: xhr.response }) }
-        else { reject(xhr) }
+        if (requestCompleted) { return }
+        requestCompleted = true
+
+        // 检查是否为超时或网络错误（status 为 0 通常表示网络问题）
+        if (xhr.status === 0) {
+          console.error('Network error or timeout')
+          handleError(new Error('Network error or timeout'), 'NETWORK_ERROR')
+        }
+        else if (xhr.status === 200) {
+          try {
+            console.log('[Upload] Request completed successfully:', {
+              status: xhr.status,
+              response: xhr.response,
+              duration: Date.now() - startTime,
+              uploadProgress,
+            })
+
+            // 尝试解析响应
+            let response
+            if (typeof xhr.response === 'string') {
+              try {
+                response = JSON.parse(xhr.response)
+              }
+              catch {
+                response = xhr.response
+              }
+            }
+            else {
+              response = xhr.response
+            }
+
+            resolve(response)
+          }
+          catch (error) {
+            handleError(error, 'RESPONSE_PARSE_ERROR')
+          }
+        }
+        else {
+          handleError(xhr, 'HTTP_ERROR')
+        }
       }
     }
-    xhr.upload.onprogress = options.onprogress
-    xhr.send(options.data)
+
+    // 上传进度监听
+    xhr.upload.onprogress = (event: ProgressEvent) => {
+      if (event.lengthComputable) {
+        uploadProgress = Math.round((event.loaded / event.total) * 100)
+        console.log('[Upload] Upload progress:', {
+          loaded: event.loaded,
+          total: event.total,
+          progress: uploadProgress,
+          duration: Date.now() - startTime,
+        })
+      }
+
+      if (options.onprogress) {
+        options.onprogress(event)
+      }
+    }
+
+    // 下载进度监听
+    xhr.onprogress = (event: ProgressEvent) => {
+      if (event.lengthComputable) {
+        console.log('[Upload] Download progress:', {
+          loaded: event.loaded,
+          total: event.total,
+          duration: Date.now() - startTime,
+        })
+      }
+    }
+
+    // 发送请求
+    try {
+      console.log('[Upload] Sending request...')
+      xhr.send(options.data)
+    }
+    catch (error) {
+      handleError(error, 'SEND_ERROR')
+    }
+
+    // 清理函数
+    return () => {
+      if (!requestCompleted) {
+        requestCompleted = true
+        xhr.abort()
+        console.log('[Upload] Request aborted')
+      }
+    }
   })
 }
 
