@@ -1,6 +1,6 @@
 'use client'
 import type { FC } from 'react'
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import cn from 'clsx'
 import Answer from './answer'
@@ -42,13 +42,34 @@ const SimpleChat: FC<ISimpleChatProps> = ({
   const { t } = useTranslation()
   const chatListRef = useRef<HTMLDivElement>(null)
 
+  // 自动滚动到底部 - 使用 window.scroll
+  const scrollToBottom = useCallback(() => {
+    console.debug('[SmartScroll] Executing auto-scroll to bottom')
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: 'smooth',
+    })
+  }, [])
+
+  // 当消息列表变化时自动滚动到底部
+  useEffect(() => {
+    if (chatList.length > 0) {
+      // 使用双重 requestAnimationFrame 确保 DOM 完全更新后再滚动
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          scrollToBottom()
+        })
+      })
+    }
+  }, [chatList.length, scrollToBottom])
+
   // 建议点击处理
   const suggestionClick = useCallback((suggestion: string) => {
     onSend(suggestion, [])
   }, [onSend])
 
   return (
-    <div className={cn(!feedbackDisabled && 'px-3.5', 'relative flex h-full flex-col')}>
+    <div className={cn(!feedbackDisabled && 'px-3.5', 'relative flex h-full flex-col overflow-x-auto')}>
       {/* 聊天内容区域 */}
       {(chatList.length > 0 || historyMessages.length > 0 || showLoadHistoryButton) && (
         <div className="flex-1 overflow-y-auto">
