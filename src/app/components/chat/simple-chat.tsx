@@ -69,7 +69,7 @@ const SimpleChat: FC<ISimpleChatProps> = ({
   }, [onSend])
 
   return (
-    <div className={cn(!feedbackDisabled && 'px-3.5', 'relative flex h-full flex-col overflow-x-auto')}>
+    <div className={cn(!feedbackDisabled && 'px-3.5', 'relative flex h-full flex-col')}>
       {/* 聊天内容区域 */}
       {(chatList.length > 0 || historyMessages.length > 0 || showLoadHistoryButton) && (
         <div className="flex-1 overflow-y-auto">
