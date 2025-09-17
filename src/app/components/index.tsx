@@ -806,7 +806,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         }
         else {
           console.warn('Skipping conversation ID update due to empty tempNewConversationId')
-          setHasExtremeError(true) // ✅ 标记极端异常（没有有效会话ID）
+          // setHasExtremeError(true) // ✅ 标记极端异常（没有有效会话ID）
 
           // ✅ 方案1：将占位符替换为错误消息
           setChatList(produce(getChatList(), (draft) => {
@@ -814,7 +814,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
             if (placeholderIndex !== -1) {
               draft[placeholderIndex] = {
                 ...draft[placeholderIndex],
-                content: t('app.errorMessage.conversationError'),
+                // content: t('app.errorMessage.conversationError'),
                 isError: true,
               }
             }
@@ -939,6 +939,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         ))
       },
       onError() {
+        console.log('====================onError===================')
         handleResponding(false)
         setHasExtremeError(true) // ✅ 标记极端异常
 
