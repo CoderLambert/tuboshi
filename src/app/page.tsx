@@ -1,5 +1,4 @@
 'use client'
-import Cookies from 'js-cookie'
 import Image from 'next/image'
 import maomaoPng from '@/assets/maomao@2x.png'
 import styles from './chatPage.module.css'
@@ -11,10 +10,11 @@ import { useTranslation } from 'react-i18next'
 import type { QACategory } from '@/hooks/useAppStore'
 
 import { useNativeBridge } from '@/hooks/useNativeBridge'
-import { API_PREFIX, USERID_COOKIE_NAME } from '@/config'
+import { USERID_COOKIE_NAME } from '@/config'
 import SafeAreaLayout from './components/SafeAreaLayout'
 import { useEffect } from 'react'
-console.log('API_PREFIX ==》', API_PREFIX)
+
+import { enhancedCookies } from '@/lib/browser-cookie'
 
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
@@ -38,7 +38,6 @@ export default function Home() {
   }
 
   useEffect(() => {
-    // if (process.env.NODE_ENV === 'development') {
     import('eruda').then((eruda) => {
       eruda.default.init() // 初始化 Eruda
     })
@@ -48,15 +47,14 @@ export default function Home() {
   // 设置用户ID cookie
   useEffect(() => {
     if (userInfo && userInfo['user-id']) {
-      console.log('userInfo ==> ', userInfo)
-      Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
+      enhancedCookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
       console.log('USERID_COOKIE_NAME ==>', userInfo['user-id'])
-      console.log('userInfo ==>', userInfo)
     }
   }, [userInfo])
 
   useEffect(() => {
-    if (gptConfig) { console.log('gptConfig loaded:', gptConfig) }
+    if (gptConfig) { console.log('gpt_config loaded:', gptConfig) }
+    enhancedCookies.set('gpt_config', JSON.stringify(gptConfig))
   }, [gptConfig])
 
   return (
