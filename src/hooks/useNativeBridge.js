@@ -4,11 +4,9 @@ import useAppStore from './useAppStore'
 export function useNativeBridge() {
   const callNativeMethod = (methodName, params, callbackName) => {
     return new Promise((resolve, reject) => {
-      if (!methodName || typeof methodName !== 'string')
-        reject(new Error('Invalid method name'))
+      if (!methodName || typeof methodName !== 'string') { reject(new Error('Invalid method name')) }
 
-      if (typeof params !== 'object')
-        reject(new Error('Invalid parameters'))
+      if (typeof params !== 'object') { reject(new Error('Invalid parameters')) }
 
       try {
         if (window.flutter_inappwebview) {
@@ -82,7 +80,7 @@ export function useNativeBridge() {
         // const res = await callNativeMethod('getUserInfo', {})
         // setUserInfo(res)
         setUserInfo({
-          'user-id': '4707011993',
+          'user-id': '4707011998',
         })
       }
       getInfo()
@@ -131,7 +129,7 @@ export function useNativeBridge() {
     const getUserID = async () => {
       // const res = await callNativeMethod('getUserID', {})
       setUserID({
-        'user-id': '4707011993',
+        'user-id': '4707011998',
       })
       // setUserID(res)
     }

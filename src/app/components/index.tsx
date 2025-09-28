@@ -16,12 +16,11 @@ import OptimizedInput from '@/app/components/chat/optimized-input'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import { userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from './chat/app-unavailable'
-import { APP_INFO, USERID_COOKIE_NAME, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
+import { APP_INFO, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import TryToAsk from './chat/try-to-ask'
 import { useNativeBridge } from '@/hooks/useNativeBridge'
-import Cookies from 'js-cookie'
 import useAppStore from '@/hooks/useAppStore'
 import Loading from '@/app/components/base/loading'
 
@@ -54,7 +53,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const [appUnavailable, setAppUnavailable] = useState<boolean>(false)
   const [isUnknownReason, setIsUnknownReason] = useState<boolean>(false)
   const [promptConfig, setPromptConfig] = useState<PromptConfig | null>(null)
-  const [inited, setInited] = useState<boolean>(false)
+  const [indited, setIndited] = useState<boolean>(false)
   // const [, { setFalse: hideSidebar }] = useBoolean(false)
   const [visionConfig, setVisionConfig] = useState<VisionSettings | undefined>({
     enabled: true,
@@ -295,7 +294,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   const handleConversationSwitch = () => {
     console.log('handleConversationSwitch')
-    if (!inited) { return }
+    if (!indited) { return }
 
     // update inputs of current conversation
 
@@ -361,11 +360,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     if (isNewConversation && isChatStarted) { setChatList(generateNewChatListWithOpenStatement()) }
   }
 
-  const { useUserID } = useNativeBridge()
-  const userInfo = useUserID()
-  console.log('Main userInfo ==> ', userInfo)
-  Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
-
   const handleFeedback = async (messageId: string, feedback: Feedbacktype) => {
     await updateFeedback({ url: `/messages/${messageId}/feedbacks`, body: { rating: feedback.rating } })
     const newChatList = chatList.map((item) => {
@@ -415,7 +409,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     if (conversationMessagesAbortControllerRef.current) { conversationMessagesAbortControllerRef.current.abort() }
     if (suggestedQuestionsAbortControllerRef.current) { suggestedQuestionsAbortControllerRef.current.abort() }
   },
-  [handleResponding])
+  [handleResponding, userID])
 
   const handleSend = useCallback(async (message: string, files?: VisionFile[]) => {
     // ✅ 发送新消息时重置异常状态
@@ -809,7 +803,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         setApiKey(key)
         setAppId(id)
         setApiUrl(url)
-        console.log('=========== loadConfig start========')
+        console.log('=========== 1. loadConfig start========')
         console.log('apiKey', key)
         console.log('appId', id)
         console.log('apiUrl', url)
@@ -817,6 +811,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       }
       catch (error) {
         console.error('Failed to load app config:', error)
+        Toast.notify({ message: 'Failed to load app config', type: 'error' })
       // 使用默认值
       }
     }
@@ -824,13 +819,10 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     loadConfig()
   }, [])
 
+  // 等待加载配置完成，设置加载结束标志
   useEffect(() => {
     if (apiKey && appId && apiUrl) {
-      console.log('=========== loadConfig  finish ========')
-
-      console.log('apiKey', apiKey)
-      console.log('appId', appId)
-      console.log('apiUrl', apiUrl)
+      console.log('=========== 2. loadConfig  finish success ========')
       // 在这里执行依赖这些配置的逻辑
       hasSetAppConfig.current = true
     }
@@ -908,11 +900,14 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     return cleanup
   }, []) // 空依赖数组，但内部会重试直到ref可用
 
-  useEffect(handleConversationSwitch, [currConversationId, inited])
-
+  // 切换会话事件监听
+  useEffect(handleConversationSwitch, [currConversationId, indited])
+  // 初始化会话
   useEffect(() => {
-    setCurrConversationId(chatList[0]?.id || '-1', appId!, false)
-  }, [])
+    if(indited && appId) {
+      setCurrConversationId(chatList[0]?.id || '-1', appId!, false)
+    }
+  }, [indited, appId])
 
   // 同步historyMessages到ref
   useEffect(() => {
@@ -921,14 +916,15 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   // init
   useEffect(() => {
-    if (!hasSetAppConfig) {
+    if (!hasSetAppConfig.current) {
       setAppUnavailable(true)
       return
     }
+    else {
+      setAppUnavailable(false)
+    }
 
     if(!userID['user-id']) { return }
-
-    let isMounted = true // 防止组件卸载后的状态更新
 
     const initializeApp = async () => {
       try {
@@ -988,34 +984,28 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           setCurrConversationId(currentConversation.id, appId!, false)
         }
 
-        setInited(true)
+        setIndited(true)
       }
       catch (e: any) {
-        if (e.status === 404) {
-          setAppUnavailable(true)
-        }
-        else {
+        if (e.status !== 404) {
           setIsUnknownReason(true)
-          setAppUnavailable(true)
         }
+
+        setAppUnavailable(true)
       }
     }
 
     initializeApp()
-
-    return () => {
-      isMounted = false
-    }
-  }, [userID, hasSetAppConfig])
+  }, [userID, hasSetAppConfig, appId])
 
   // 监听FAQ问题点击事件
   useEffect(() => {
-    if(!hasSetAppConfig) { return }
+    if(!hasSetAppConfig.current) { return }
 
     const handleSendMessage = (message: string) => {
-      // 如果当前是新会话状态，先确保有一个有效的会话
+    // 如果当前是新会话状态，先确保有一个有效的会话
       if (isNewConversation && conversationList.length > 0) {
-        // 使用第一个现有会话，避免创建新会话
+      // 使用第一个现有会话，避免创建新会话
         const firstConversation = conversationList[0]
         console.log(`firstConversation   ==> ${JSON.stringify(firstConversation)}}`)
         if (firstConversation && firstConversation.id !== '-1') {
@@ -1040,7 +1030,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     return () => {
       eventBus.off(EVENTS.SEND_MESSAGE, handleSendMessage)
     }
-  }, [isNewConversation, conversationList, hasSetAppConfig])
+  }, [hasSetAppConfig, appId, isNewConversation, conversationList, handleSend, setCurrConversationId])
 
   if (appUnavailable) { return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set appId and apiKey in config/index.tsx' : ''} /> }
 
