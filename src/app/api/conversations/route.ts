@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getClient, getInfo, setSession } from '@/app/api/utils/common'
 import { getValidParam } from '@/app/api/utils/common'
 import { cookies } from 'next/headers'
+import { errorHandler } from '../utils/errorHandler'
 
 export async function GET(request: NextRequest) {
   const { sessionId, user } = getInfo(request)
@@ -30,9 +31,6 @@ export async function GET(request: NextRequest) {
     })
   }
   catch (error: any) {
-    return NextResponse.json({
-      data: [],
-      error: error.message,
-    })
+    return errorHandler(error)
   }
 }
