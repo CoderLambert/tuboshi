@@ -2,7 +2,7 @@ import Cookies from 'js-cookie'
 import CryptoJS from 'crypto-js'
 
 export const SECRET_KEY = 'wyr^a4D>YZjTg3kU'
-const NEED_ENCRYPT_COOKIES = ['api_key', 'api_url', 'app_id']
+const NEED_ENCRYPT_COOKIES = ['api_key', 'api_url', 'app_id', 'gpt_config']
 
 console.log(`SECRET_KEY   ==>  ${SECRET_KEY}`)
 
