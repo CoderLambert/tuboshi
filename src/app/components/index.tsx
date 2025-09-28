@@ -16,7 +16,7 @@ import OptimizedInput from '@/app/components/chat/optimized-input'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import { userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from './chat/app-unavailable'
-import { APP_INFO, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
+import { APP_INFO, getGptConfig, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import TryToAsk from './chat/try-to-ask'
@@ -796,17 +796,18 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        const key = await getAppKey()
-        const id = await getAppId()
-        const url = await getApiUrl()
+        const gptConfig = await getGptConfig()
+        // const key = await getAppKey()
+        // const id = await getAppId()
+        // const url = await getApiUrl()
 
-        setApiKey(key)
-        setAppId(id)
-        setApiUrl(url)
+        setApiKey(gptConfig.app_key)
+        setAppId(gptConfig.app_id)
+        setApiUrl(gptConfig.api_url)
         console.log('=========== 1. loadConfig start========')
-        console.log('apiKey', key)
-        console.log('appId', id)
-        console.log('apiUrl', url)
+        console.log('apiKey', gptConfig.app_key)
+        console.log('appId', gptConfig.app_id)
+        console.log('apiUrl', gptConfig.api_url)
         console.log('=========== loadConfig end ========')
       }
       catch (error) {

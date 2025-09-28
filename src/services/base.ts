@@ -356,15 +356,14 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent, del
     }),
     new Promise((resolve, reject) => {
       globalThis.fetch(urlWithPrefix, options)
-        .then((res: any) => {
+        .then(async (res: any) => {
           clearTimer()
           const resClone = res.clone()
           // Error handler
           if (!/^(2|3)\d{2}$/.test(res.status)) {
             try {
-              const bodyJson = res.json()
-              console.error('bodyJson  ==>')
-              console.log(res.status, bodyJson)
+              const bodyJson = await res.json()
+
               switch (res.status) {
                 case 401: {
                   Toast.notify({ type: 'error', message: 'Invalid token' })
@@ -372,19 +371,19 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent, del
                 }
 
                 case 500: {
-                  Toast.notify({ type: 'error', message: 'Server error' })
+                  Toast.notify({ type: 'error', message: bodyJson.message })
                   return
                 }
 
-                default:
-                  new Promise(() => {
-                    bodyJson.then((data: any) => {
-                      Toast.notify({ type: 'error', message: data.message })
-                    })
-                  })
+                default: {
+                  Toast.notify({ type: 'error', message: bodyJson.message })
+                  return
+                }
               }
             }
             catch (e) {
+              console.error('bodyJson  ==>')
+              console.log(e)
               Toast.notify({ type: 'error', message: `${e}` })
             }
 

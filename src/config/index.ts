@@ -1,50 +1,39 @@
 import type { AppInfo } from '@/types/app'
 import { getGPTConfig } from '@/lib/jsBridge'
-// export const API_KEY = 'app-Bw7GY5U1f7d4XIxXxWRuHueC'
-// export const APP_ID = 'a486b436-4997-4331-b6ec-a78d6f47122c'
-// export const API_URL = 'http://10.21.61.78:31092/v1'
-import Cookies from 'js-cookie'
-export const API_KEY = 'app-OzDb7ZrJKLPQ8rYpYTq5ZZg9'
-export const APP_ID = 'c4acfcf5-ff94-49f2-9c6b-c78f04f03e2b'
-export const API_URL = 'https://ai-agent.jtexpress.ph/v1'
-export const APP_ID_COOKIE_NAME = 'app_id'
-export const API_URL_COOKIE_NAME = 'api_url'
-export const API_KEY_COOKIE_NAME = 'api_key'
-export const isShowPrompt = false
-export const API_PREFIX = '/api'
+
+export const GPT_CONFIG_COOKIE_NAME = 'gpt_config'
 export const LOCALE_COOKIE_NAME = 'locale'
 export const USERID_COOKIE_NAME = 'user_id'
+
+export const isShowPrompt = false
+export const API_PREFIX = '/api'
+
 export const DEFAULT_VALUE_MAX_LEN = 48
 export const promptTemplate = 'I want you to act as a assistant.'
 
 export const getGptConfig = async () => {
   const res = await getGPTConfig()
   console.log('getGptConfig', res)
-  Cookies.set(APP_ID_COOKIE_NAME, res.app_id)
-  Cookies.set(API_URL_COOKIE_NAME, res.api_url)
-  Cookies.set(API_KEY_COOKIE_NAME, res.app_key)
-  console.log('****** Coockie set finished *******')
+  console.log('****** getGptConfig Cookies set finished *******')
   return res
 }
 
 export const getAppKey = async () => {
   const gptConfig = await getGptConfig()
   console.log('getAppKey', gptConfig.app_key)
-  return gptConfig.app_key || API_KEY
+  return gptConfig.app_key
 }
 
 export const getAppId = async () => {
   const gptConfig = await getGptConfig()
   console.log('getAppId ', gptConfig.app_id)
-
-  // const store = useAppStore.getState() as AppConfigStore
-  return gptConfig.app_id || APP_ID
+  return gptConfig.app_id
 }
 
 export const getApiUrl = async () => {
   const gptConfig = await getGptConfig()
   console.log('getApiUrl ', gptConfig.api_url)
-  return gptConfig.api_url || API_URL
+  return gptConfig.api_url
 }
 
 // 大模型平台 App 信息配置， 需要 jsBridge 返回

@@ -1,9 +1,11 @@
 import type { NextRequest } from 'next/server'
 import { ChatClient } from '@/lib/client'
 import { v4 } from 'uuid'
-import { API_KEY } from '@/config'
-import { API_KEY_COOKIE_NAME, API_URL_COOKIE_NAME, USERID_COOKIE_NAME } from '@/config'
+import { GPT_CONFIG_COOKIE_NAME } from '@/config'
+import { USERID_COOKIE_NAME } from '@/config'
 import { cookies } from 'next/headers'
+import { decrypt, shouldEncrypt } from '@/lib/browser-cookie'
+import { InternalServerError, errorMessages } from '@/app/api/utils/errorHandler'
 export const getInfo = (request: NextRequest) => {
   const sessionId = request.cookies.get('session_id')?.value || v4()
   console.log('========= getInfo start ============')
@@ -26,21 +28,38 @@ export const setSession = (sessionId: string) => {
 }
 
 export const getClient = async (request: NextRequest): Promise<ChatClient> => {
-  const REAL_API_KEY = request.cookies.get(API_KEY_COOKIE_NAME)?.value
-  console.log('clientPromise TEST_API_KEY', REAL_API_KEY)
-  const REAL_API_URL = request.cookies.get(API_URL_COOKIE_NAME)?.value
-
-  console.log('clientPromise TEST_API_URL', REAL_API_URL)
   const cookieStore = await cookies()
   console.log('cookieStore', cookieStore.getAll())
-  if (!REAL_API_KEY || !REAL_API_URL) {
-    console.error('Missing API_KEY or API_URL from cookies, generating fallback (may fail)')
+
+  const encryptGptConfig = cookieStore.get(GPT_CONFIG_COOKIE_NAME)?.value
+  console.log('encryptGptConfig', encryptGptConfig)
+
+  if (!encryptGptConfig) {
+    console.error('Missing GPT_CONFIG from cookies, generating fallback (may fail)')
     throw new Error('invalid api key or api url')
   }
+  const gptConfig = shouldEncrypt(GPT_CONFIG_COOKIE_NAME) ? decrypt(encryptGptConfig) : encryptGptConfig
 
-  console.log('clientPromise real key', REAL_API_KEY || API_KEY)
+  console.log('gptConfig', gptConfig)
 
-  return new ChatClient(REAL_API_KEY, REAL_API_URL)
+  if(!gptConfig) {
+    throw new InternalServerError(errorMessages.invalid_gpt_config)
+  }
+
+  try {
+    const gptConfigData = JSON.parse(gptConfig)
+
+    if (!gptConfigData.app_key || !gptConfigData.api_url) {
+      throw new InternalServerError(errorMessages.invalid_gpt_config)
+    }
+
+    console.log('clientPromise real key', gptConfigData.app_key)
+    return new ChatClient(gptConfigData.app_key, gptConfigData.api_url)
+  }
+  catch (error) {
+    console.error('Error parsing GPT_CONFIG from cookies:', error)
+    throw new InternalServerError(errorMessages.invalid_gpt_config)
+  }
 }
 
 export function getValidParam(param: string | null): string | undefined {
