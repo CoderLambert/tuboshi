@@ -174,7 +174,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         const answerIds = currentHistoryMessages.filter(item => item.isAnswer).map(item => item.id)
       }
       console.log(`firstMessageId   ${firstMessageId}`)
-      const res = await fetchChatList(getCurrConversationId(), firstMessageId, 5, userID['user-id'])
+      const res = await fetchChatList(getCurrConversationId(), firstMessageId, 5)
       const { data, has_more } = res
       if (data && data.length > 0) {
         const historyItems: ChatItem[] = []
@@ -391,7 +391,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     if (taskIdRef.current) {
       console.log('taskIdRef.current', taskIdRef.current)
       try {
-        await stopChatMessage(taskIdRef.current, userID['user-id'])
+        await stopChatMessage(taskIdRef.current)
         handleResponding(false)
         notify({ type: 'success', message: t('app.generation.stopped') })
       }
@@ -587,7 +587,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
               console.log(`responseItem.id ---> ${responseItem.id}`)
               const { data } = await fetchSuggestedQuestions(
                 responseItem.id,
-                userID['user-id'],
               )
               setSuggestQuestionsAfterAnswer(data)
             }
@@ -895,7 +894,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
     const initializeApp = async () => {
       try {
-        const [conversationData, appParams] = await Promise.all([fetchConversations(userID['user-id']), fetchAppParams(userID['user-id'])])
+        const [conversationData, appParams] = await Promise.all([fetchConversations(), fetchAppParams()])
         console.log('conversationData', conversationData)
         console.log('appParams', appParams)
         setChatConfig(appParams)
