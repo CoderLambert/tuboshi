@@ -44,15 +44,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const inputBoxRef = useRef<HTMLDivElement>(null)
 
   const userID = useAppStore((state: any) => state.userID)
-
-  console.log('useAppStore userID', userID)
-  // const apiKey = getAppKey()
-  // console.log('apiKey', apiKey)
-  // const appId = getAppId()
-  // console.log('appId', appId)
-  // const apiUrl = getApiUrl()
-  // console.log('apiKey', apiUrl)
-
   const [apiKey, setApiKey] = useState<string | undefined>(undefined)
   const [appId, setAppId] = useState<string | undefined>(undefined)
   const [apiUrl, setApiUrl] = useState<string | undefined>(undefined)
@@ -74,15 +65,12 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   const [abortController, setAbortController] = useState<AbortController | null>(null)
   const { notify } = Toast
-  const [controlFocus, setControlFocus] = useState(0)
-  const [openingSuggestedQuestions, setOpeningSuggestedQuestions] = useState<string[]>([])
   const hasStopResponded = useRef(false)
   const taskIdRef = useRef('')
   const isRespondingRef = useRef(false)
 
   // const [hasStopResponded, setHasStopResponded, getHasStopResponded] = useGetState(false)
   const [isRespondingConIsCurrCon, setIsRespondingConCurrCon, getIsRespondingConIsCurrCon] = useGetState(true)
-  const [userQuery, setUserQuery] = useState('')
   const conversationMessagesAbortControllerRef = useRef<AbortController | null>(null)
   const suggestedQuestionsAbortControllerRef = useRef<AbortController | null>(null)
   const [suggestQuestionsAfterAnswer, setSuggestQuestionsAfterAnswer] = useState<string[]>([])
@@ -105,124 +93,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const [showLoadHistoryButton, setShowLoadHistoryButton] = useState(false)
   const [isResponding, setIsResponding] = useState(false)
   const [isSuggestQuestionsLoading, setIsSuggestQuestionsLoading] = useState(false)
-
-  // onData change thought (the produce obj). https://github.com/immerjs/immer/issues/576
-  useEffect(() => {
-    setAutoFreeze(false)
-    return () => {
-      setAutoFreeze(true)
-    }
-  }, [])
-
-  // 在现有的 useEffect 之后添加新的 useEffect
-  useEffect(() => {
-    const loadConfig = async () => {
-      try {
-        const key = await getAppKey()
-        const id = await getAppId()
-        const url = await getApiUrl()
-
-        setApiKey(key)
-        setAppId(id)
-        setApiUrl(url)
-        console.log('=========== loadConfig start========')
-        console.log('apiKey', key)
-        console.log('appId', id)
-        console.log('apiUrl', url)
-        console.log('=========== loadConfig end ========')
-      }
-      catch (error) {
-        console.error('Failed to load app config:', error)
-      // 使用默认值
-      }
-    }
-
-    loadConfig()
-  }, [])
-
-  useEffect(() => {
-    if (apiKey && appId && apiUrl) {
-      console.log('=========== loadConfig  finish ========')
-
-      console.log('apiKey', apiKey)
-      console.log('appId', appId)
-      console.log('apiUrl', apiUrl)
-      // 在这里执行依赖这些配置的逻辑
-      hasSetAppConfig.current = true
-    }
-  }, [apiKey, appId, apiUrl])
-
-  // 动态计算输入框高度
-  useEffect(() => {
-    // 延迟初始计算，确保DOM已渲染
-    const timer = setTimeout(() => {
-      updateInputBoxHeight()
-    }, 100)
-
-    // 监听窗口大小变化
-    const handleResize = () => {
-      updateInputBoxHeight()
-    }
-    window.addEventListener('resize', handleResize)
-
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [])
-
-  // 设置观察器来监听输入框高度变化
-  useEffect(() => {
-    const setupObservers = () => {
-      if (!inputBoxRef.current) {
-        // 如果ref还没有设置，延迟重试
-        setTimeout(setupObservers, 100)
-        return
-      }
-
-      // 立即更新一次
-      updateInputBoxHeight()
-
-      // 监听输入框内容变化（使用ResizeObserver）
-      let resizeObserver: ResizeObserver | null = null
-      if (window.ResizeObserver) {
-        resizeObserver = new ResizeObserver((entries) => {
-          for (const entry of entries) {
-            // 使用 borderBoxSize 获取包含边框和padding的完整高度
-            const height = entry.borderBoxSize?.[0]?.blockSize || entry.contentRect.height + 32
-            console.log('ResizeObserver检测到高度变化:', height) // 调试日志
-            setInputBoxHeight(height)
-          }
-        })
-        resizeObserver.observe(inputBoxRef.current)
-      }
-
-      // 监听DOM变化（使用MutationObserver）
-      let mutationObserver: MutationObserver | null = null
-      if (window.MutationObserver) {
-        mutationObserver = new MutationObserver(() => {
-          // 延迟一点执行，确保DOM更新完成
-          setTimeout(updateInputBoxHeight, 50)
-        })
-        mutationObserver.observe(inputBoxRef.current, {
-          childList: true,
-          subtree: true,
-          attributes: true,
-          attributeFilter: ['style', 'class'],
-        })
-      }
-
-      // 返回清理函数
-      return () => {
-        if (resizeObserver) { resizeObserver.disconnect() }
-
-        if (mutationObserver) { mutationObserver.disconnect() }
-      }
-    }
-
-    const cleanup = setupObservers()
-    return cleanup
-  }, []) // 空依赖数组，但内部会重试直到ref可用
 
   /*
   * conversation info
@@ -251,89 +121,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const [hasExtremeError, setHasExtremeError] = useState(false) // ✅ 极端异常状态
   const conversationIntroduction = currConversationInfo?.introduction || ''
   const suggestedQuestions = currConversationInfo?.suggested_questions || []
-
-  const handleConversationSwitch = () => {
-    console.log('handleConversationSwitch')
-    if (!inited) { return }
-
-    // update inputs of current conversation
-
-    let notSyncToStateIntroduction = ''
-    let notSyncToStateInputs: Record<string, any> | undefined | null = {
-      // token: APP_TOKEN,
-      ...inputsFormConfig,
-    }
-    if (!isNewConversation) {
-      const item = conversationList.find(item => item.id === getCurrConversationId())
-      notSyncToStateInputs = item?.inputs || {}
-      setCurrInputs(notSyncToStateInputs as any)
-      notSyncToStateIntroduction = item?.introduction || ''
-      setExistConversationInfo({
-        name: item?.name || '',
-        introduction: notSyncToStateIntroduction,
-        suggested_questions: suggestedQuestions,
-      })
-    }
-    else {
-      notSyncToStateInputs = newConversationInputs
-      setCurrInputs(notSyncToStateInputs)
-    }
-
-    // update chat list of current conversation
-    if (!isNewConversation && !conversationIdChangeBecauseOfNew && !isResponding) {
-      // 初始加载最近5条消息
-      fetchChatList(getCurrConversationId(), undefined, 5, userID['user-id']).then((res: any) => {
-        const { data, has_more } = res
-        const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs)
-
-        data.forEach((item: any) => {
-          newChatList.push({
-            id: `question-${item.id}`,
-            content: item.query,
-            isAnswer: false,
-            message_files: item.message_files?.filter((file: any) => file.belongs_to === 'user') || [],
-
-          })
-          newChatList.push({
-            id: item.id,
-            content: item.answer,
-            agent_thoughts: addFileInfos(item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts, item.message_files),
-            feedback: item.feedback,
-            isAnswer: true,
-            message_files: item.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],
-          })
-        })
-        setChatList(newChatList)
-
-        // 设置历史消息状态
-        setHasMoreHistory(has_more)
-        setShowLoadHistoryButton(has_more)
-      }).catch((error) => {
-        console.error('初始加载消息失败:', error)
-        // 如果加载失败，至少显示开场白
-        setChatList(generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs))
-        setHasMoreHistory(false)
-        setShowLoadHistoryButton(false)
-      })
-    }
-
-    if (isNewConversation && isChatStarted) { setChatList(generateNewChatListWithOpenStatement()) }
-  }
-  useEffect(handleConversationSwitch, [currConversationId, inited])
-
-  useEffect(() => {
-    setCurrConversationId(chatList[0]?.id || '-1', appId!, false)
-  }, [])
-
   // 使用ref来避免闭包问题
   const isLoadingHistoryRef = useRef(false)
   const historyMessagesRef = useRef<ChatItem[]>([])
-
-  // 同步historyMessages到ref
-  useEffect(() => {
-    historyMessagesRef.current = historyMessages
-  }, [historyMessages])
-
   // 加载历史消息
   const loadHistoryMessages = useCallback(async () => {
     console.log('🔄 loadHistoryMessages called - isLoadingHistoryRef:', isLoadingHistoryRef.current, 'hasMoreHistory:', hasMoreHistory)
@@ -443,134 +233,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     return []
   }
 
-  // init
-  useEffect(() => {
-    if (!hasSetAppConfig) {
-      setAppUnavailable(true)
-      return
-    }
-
-    if(!userID['user-id']) { return }
-
-    let isMounted = true // 防止组件卸载后的状态更新
-
-    const initializeApp = async () => {
-      try {
-        const [conversationData, appParams] = await Promise.all([fetchConversations(userID['user-id']), fetchAppParams(userID['user-id'])])
-        console.log('conversationData', conversationData)
-        console.log('appParams', appParams)
-        setChatConfig(appParams)
-
-        // handle current conversation id
-        const { data: conversations, error } = conversationData as { data: ConversationItem[]; error: string }
-        // const conversations = []
-        if (error) {
-          Toast.notify({ type: 'error', message: error })
-          throw new Error(error)
-        }
-        // 如果u个会话列表为空，则代表新的会话。否则继续之前最近的会话
-        const currentConversation = conversations[0]
-        const isNewConversation = !currentConversation
-
-        // const isNewConversation = true
-        console.log('isNewConversation', isNewConversation)
-        // fetch new conversation info
-        const { user_input_form, opening_statement: introduction, file_upload, system_parameters, suggested_questions = [] }: any = appParams
-        // setLocaleOnClient(APP_INFO.default_language, true)
-        setNewConversationInfo({
-          name: t('app.chat.newChatDefaultName'),
-          introduction,
-          suggested_questions,
-        })
-        if (!isNewConversation) {
-          setExistConversationInfo({
-            name: currentConversation.name || t('app.chat.newChatDefaultName'),
-            introduction,
-            suggested_questions,
-          })
-        }
-
-        const prompt_variables = userInputsFormToPromptVariables(user_input_form)
-        setPromptConfig({
-          prompt_template: promptTemplate,
-          prompt_variables,
-        } as PromptConfig)
-        setVisionConfig({
-          enabled: file_upload?.enabled || false,
-          number_limits: file_upload?.number_limits || 2,
-          detail: Resolution.low,
-          transfer_methods: file_upload?.allowed_file_upload_methods || [TransferMethod.local_file],
-          image_file_size_limit: system_parameters?.image_file_size_limit || 0,
-        })
-        setConversationList(conversations as ConversationItem[])
-
-        if (isNewConversation) {
-          setCurrConversationId('-1', appId!, false)
-        }
-        else {
-          // 如果没有当前会话但有历史会话，使用第一个历史会话避免默认新会话状态
-          setCurrConversationId(currentConversation.id, appId!, false)
-        }
-
-        setInited(true)
-      }
-      catch (e: any) {
-        if (e.status === 404) {
-          setAppUnavailable(true)
-        }
-        else {
-          setIsUnknownReason(true)
-          setAppUnavailable(true)
-        }
-      }
-    }
-
-    initializeApp()
-
-    return () => {
-      isMounted = false
-    }
-  }, [userID, hasSetAppConfig])
-
-  // 监听FAQ问题点击事件
-  useEffect(() => {
-    if(!hasSetAppConfig) { return }
-
-    const handleSendMessage = (message: string) => {
-      // 如果当前是新会话状态，先确保有一个有效的会话
-      if (isNewConversation && conversationList.length > 0) {
-        // 使用第一个现有会话，避免创建新会话
-        const firstConversation = conversationList[0]
-        console.log(`firstConversation   ==> ${JSON.stringify(firstConversation)}}`)
-        if (firstConversation && firstConversation.id !== '-1') {
-          setCurrConversationId(firstConversation.id, appId!, false)
-          // 等待会话切换完成后再发送消息
-          setTimeout(() => {
-            handleSend(message)
-          }, 100)
-          return
-        }
-      }
-      else {
-        console.log('is Not firstConversation')
-
-        setCurrConversationId('-1', appId!, false)
-      }
-      handleSend(message)
-    }
-
-    eventBus.on(EVENTS.SEND_MESSAGE, handleSendMessage)
-
-    return () => {
-      eventBus.off(EVENTS.SEND_MESSAGE, handleSendMessage)
-    }
-  }, [isNewConversation, conversationList, hasSetAppConfig])
-
-  const { useUserID } = useNativeBridge()
-  const userInfo = useUserID()
-  console.log('Main userInfo ==> ', userInfo)
-  Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
-
   const logError = (message: string) => {
     notify({ type: 'error', message })
   }
@@ -630,6 +292,130 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       upload_file_id: fileItem.id,
     }
   }
+
+  const handleConversationSwitch = () => {
+    console.log('handleConversationSwitch')
+    if (!inited) { return }
+
+    // update inputs of current conversation
+
+    let notSyncToStateIntroduction = ''
+    let notSyncToStateInputs: Record<string, any> | undefined | null = {
+      // token: APP_TOKEN,
+      ...inputsFormConfig,
+    }
+    if (!isNewConversation) {
+      const item = conversationList.find(item => item.id === getCurrConversationId())
+      notSyncToStateInputs = item?.inputs || {}
+      setCurrInputs(notSyncToStateInputs as any)
+      notSyncToStateIntroduction = item?.introduction || ''
+      setExistConversationInfo({
+        name: item?.name || '',
+        introduction: notSyncToStateIntroduction,
+        suggested_questions: suggestedQuestions,
+      })
+    }
+    else {
+      notSyncToStateInputs = newConversationInputs
+      setCurrInputs(notSyncToStateInputs)
+    }
+
+    // update chat list of current conversation
+    if (!isNewConversation && !conversationIdChangeBecauseOfNew && !isResponding) {
+      // 初始加载最近5条消息
+      fetchChatList(getCurrConversationId(), undefined, 5, userID['user-id']).then((res: any) => {
+        const { data, has_more } = res
+        const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs)
+
+        data.forEach((item: any) => {
+          newChatList.push({
+            id: `question-${item.id}`,
+            content: item.query,
+            isAnswer: false,
+            message_files: item.message_files?.filter((file: any) => file.belongs_to === 'user') || [],
+
+          })
+          newChatList.push({
+            id: item.id,
+            content: item.answer,
+            agent_thoughts: addFileInfos(item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts, item.message_files),
+            feedback: item.feedback,
+            isAnswer: true,
+            message_files: item.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],
+          })
+        })
+        setChatList(newChatList)
+
+        // 设置历史消息状态
+        setHasMoreHistory(has_more)
+        setShowLoadHistoryButton(has_more)
+      }).catch((error) => {
+        console.error('初始加载消息失败:', error)
+        // 如果加载失败，至少显示开场白
+        setChatList(generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs))
+        setHasMoreHistory(false)
+        setShowLoadHistoryButton(false)
+      })
+    }
+
+    if (isNewConversation && isChatStarted) { setChatList(generateNewChatListWithOpenStatement()) }
+  }
+
+  const { useUserID } = useNativeBridge()
+  const userInfo = useUserID()
+  console.log('Main userInfo ==> ', userInfo)
+  Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
+
+  const handleFeedback = async (messageId: string, feedback: Feedbacktype) => {
+    await updateFeedback({ url: `/messages/${messageId}/feedbacks`, body: { rating: feedback.rating } })
+    const newChatList = chatList.map((item) => {
+      if (item.id === messageId) {
+        return {
+          ...item,
+          feedback,
+        }
+      }
+      return item
+    })
+    setChatList(newChatList)
+    // 根据反馈结果进行提示
+    if (feedback.rating) {
+      if(feedback.rating === 'like') { notify({ type: 'success', message: t('common.operation.likeSuccess') }) }
+
+      if(feedback.rating === 'dislike') { notify({ type: 'success', message: t('common.operation.dislikeSuccess') }) }
+    }
+    else{
+      notify({ type: 'success', message: t('common.operation.likeCancel') })
+    }
+  }
+  const handleResponding = useCallback((isResponding: boolean) => {
+    setIsResponding(isResponding)
+    isRespondingRef.current = isResponding
+  }, [])
+  const handleStop = useCallback(async () => {
+    hasStopResponded.current = true
+    handleResponding(false)
+
+    if (taskIdRef.current) {
+      console.log('taskIdRef.current', taskIdRef.current)
+      try {
+        await stopChatMessage(taskIdRef.current, userID['user-id'])
+        handleResponding(false)
+        notify({ type: 'success', message: t('app.generation.stopped') })
+      }
+      catch (error) {
+        console.error('Failed to stop message:', error)
+        notify({ type: 'error', message: t('app.generation.stopFailed') })
+      }
+    }
+    else {
+      notify({ type: 'error', message: t('app.generation.stopFailed') })
+    }
+
+    if (conversationMessagesAbortControllerRef.current) { conversationMessagesAbortControllerRef.current.abort() }
+    if (suggestedQuestionsAbortControllerRef.current) { suggestedQuestionsAbortControllerRef.current.abort() }
+  },
+  [handleResponding])
 
   const handleSend = useCallback(async (message: string, files?: VisionFile[]) => {
     // ✅ 发送新消息时重置异常状态
@@ -1004,56 +790,257 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     })
   }, [isResponding, notify, t, currInputs, visionConfig, isNewConversation, currConversationId, getChatList, setChatList])
 
-  const handleFeedback = async (messageId: string, feedback: Feedbacktype) => {
-    await updateFeedback({ url: `/messages/${messageId}/feedbacks`, body: { rating: feedback.rating } })
-    const newChatList = chatList.map((item) => {
-      if (item.id === messageId) {
-        return {
-          ...item,
-          feedback,
-        }
-      }
-      return item
-    })
-    setChatList(newChatList)
-    // 根据反馈结果进行提示
-    if (feedback.rating) {
-      if(feedback.rating === 'like') { notify({ type: 'success', message: t('common.operation.likeSuccess') }) }
-
-      if(feedback.rating === 'dislike') { notify({ type: 'success', message: t('common.operation.dislikeSuccess') }) }
+  // onData change thought (the produce obj). https://github.com/immerjs/immer/issues/576
+  useEffect(() => {
+    setAutoFreeze(false)
+    return () => {
+      setAutoFreeze(true)
     }
-    else{
-      notify({ type: 'success', message: t('common.operation.likeCancel') })
-    }
-  }
-  const handleResponding = useCallback((isResponding: boolean) => {
-    setIsResponding(isResponding)
-    isRespondingRef.current = isResponding
   }, [])
-  const handleStop = useCallback(async () => {
-    hasStopResponded.current = true
-    handleResponding(false)
 
-    if (taskIdRef.current) {
-      console.log('taskIdRef.current', taskIdRef.current)
+  // 在现有的 useEffect 之后添加新的 useEffect
+  useEffect(() => {
+    const loadConfig = async () => {
       try {
-        await stopChatMessage(taskIdRef.current, userID['user-id'])
-        handleResponding(false)
-        notify({ type: 'success', message: t('app.generation.stopped') })
+        const key = await getAppKey()
+        const id = await getAppId()
+        const url = await getApiUrl()
+
+        setApiKey(key)
+        setAppId(id)
+        setApiUrl(url)
+        console.log('=========== loadConfig start========')
+        console.log('apiKey', key)
+        console.log('appId', id)
+        console.log('apiUrl', url)
+        console.log('=========== loadConfig end ========')
       }
       catch (error) {
-        console.error('Failed to stop message:', error)
-        notify({ type: 'error', message: t('app.generation.stopFailed') })
+        console.error('Failed to load app config:', error)
+      // 使用默认值
       }
     }
-    else {
-      notify({ type: 'error', message: t('app.generation.stopFailed') })
+
+    loadConfig()
+  }, [])
+
+  useEffect(() => {
+    if (apiKey && appId && apiUrl) {
+      console.log('=========== loadConfig  finish ========')
+
+      console.log('apiKey', apiKey)
+      console.log('appId', appId)
+      console.log('apiUrl', apiUrl)
+      // 在这里执行依赖这些配置的逻辑
+      hasSetAppConfig.current = true
+    }
+  }, [apiKey, appId, apiUrl])
+
+  // 动态计算输入框高度
+  useEffect(() => {
+    // 延迟初始计算，确保DOM已渲染
+    const timer = setTimeout(() => {
+      updateInputBoxHeight()
+    }, 100)
+
+    // 监听窗口大小变化
+    const handleResize = () => {
+      updateInputBoxHeight()
+    }
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  // 设置观察器来监听输入框高度变化
+  useEffect(() => {
+    const setupObservers = () => {
+      if (!inputBoxRef.current) {
+        // 如果ref还没有设置，延迟重试
+        setTimeout(setupObservers, 100)
+        return
+      }
+
+      // 立即更新一次
+      updateInputBoxHeight()
+
+      // 监听输入框内容变化（使用ResizeObserver）
+      let resizeObserver: ResizeObserver | null = null
+      if (window.ResizeObserver) {
+        resizeObserver = new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            // 使用 borderBoxSize 获取包含边框和padding的完整高度
+            const height = entry.borderBoxSize?.[0]?.blockSize || entry.contentRect.height + 32
+            console.log('ResizeObserver检测到高度变化:', height) // 调试日志
+            setInputBoxHeight(height)
+          }
+        })
+        resizeObserver.observe(inputBoxRef.current)
+      }
+
+      // 监听DOM变化（使用MutationObserver）
+      let mutationObserver: MutationObserver | null = null
+      if (window.MutationObserver) {
+        mutationObserver = new MutationObserver(() => {
+          // 延迟一点执行，确保DOM更新完成
+          setTimeout(updateInputBoxHeight, 50)
+        })
+        mutationObserver.observe(inputBoxRef.current, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['style', 'class'],
+        })
+      }
+
+      // 返回清理函数
+      return () => {
+        if (resizeObserver) { resizeObserver.disconnect() }
+
+        if (mutationObserver) { mutationObserver.disconnect() }
+      }
     }
 
-    if (conversationMessagesAbortControllerRef.current) { conversationMessagesAbortControllerRef.current.abort() }
-    if (suggestedQuestionsAbortControllerRef.current) { suggestedQuestionsAbortControllerRef.current.abort() }
-  },
-  [handleResponding])
+    const cleanup = setupObservers()
+    return cleanup
+  }, []) // 空依赖数组，但内部会重试直到ref可用
+
+  useEffect(handleConversationSwitch, [currConversationId, inited])
+
+  useEffect(() => {
+    setCurrConversationId(chatList[0]?.id || '-1', appId!, false)
+  }, [])
+
+  // 同步historyMessages到ref
+  useEffect(() => {
+    historyMessagesRef.current = historyMessages
+  }, [historyMessages])
+
+  // init
+  useEffect(() => {
+    if (!hasSetAppConfig) {
+      setAppUnavailable(true)
+      return
+    }
+
+    if(!userID['user-id']) { return }
+
+    let isMounted = true // 防止组件卸载后的状态更新
+
+    const initializeApp = async () => {
+      try {
+        const [conversationData, appParams] = await Promise.all([fetchConversations(userID['user-id']), fetchAppParams(userID['user-id'])])
+        console.log('conversationData', conversationData)
+        console.log('appParams', appParams)
+        setChatConfig(appParams)
+
+        // handle current conversation id
+        const { data: conversations, error } = conversationData as { data: ConversationItem[]; error: string }
+        // const conversations = []
+        if (error) {
+          Toast.notify({ type: 'error', message: error })
+          throw new Error(error)
+        }
+        // 如果u个会话列表为空，则代表新的会话。否则继续之前最近的会话
+        const currentConversation = conversations[0]
+        const isNewConversation = !currentConversation
+
+        // const isNewConversation = true
+        console.log('isNewConversation', isNewConversation)
+        // fetch new conversation info
+        const { user_input_form, opening_statement: introduction, file_upload, system_parameters, suggested_questions = [] }: any = appParams
+        // setLocaleOnClient(APP_INFO.default_language, true)
+        setNewConversationInfo({
+          name: t('app.chat.newChatDefaultName'),
+          introduction,
+          suggested_questions,
+        })
+        if (!isNewConversation) {
+          setExistConversationInfo({
+            name: currentConversation.name || t('app.chat.newChatDefaultName'),
+            introduction,
+            suggested_questions,
+          })
+        }
+
+        const prompt_variables = userInputsFormToPromptVariables(user_input_form)
+        setPromptConfig({
+          prompt_template: promptTemplate,
+          prompt_variables,
+        } as PromptConfig)
+        setVisionConfig({
+          enabled: file_upload?.enabled || false,
+          number_limits: file_upload?.number_limits || 2,
+          detail: Resolution.low,
+          transfer_methods: file_upload?.allowed_file_upload_methods || [TransferMethod.local_file],
+          image_file_size_limit: system_parameters?.image_file_size_limit || 0,
+        })
+        setConversationList(conversations as ConversationItem[])
+
+        if (isNewConversation) {
+          setCurrConversationId('-1', appId!, false)
+        }
+        else {
+          // 如果没有当前会话但有历史会话，使用第一个历史会话避免默认新会话状态
+          setCurrConversationId(currentConversation.id, appId!, false)
+        }
+
+        setInited(true)
+      }
+      catch (e: any) {
+        if (e.status === 404) {
+          setAppUnavailable(true)
+        }
+        else {
+          setIsUnknownReason(true)
+          setAppUnavailable(true)
+        }
+      }
+    }
+
+    initializeApp()
+
+    return () => {
+      isMounted = false
+    }
+  }, [userID, hasSetAppConfig])
+
+  // 监听FAQ问题点击事件
+  useEffect(() => {
+    if(!hasSetAppConfig) { return }
+
+    const handleSendMessage = (message: string) => {
+      // 如果当前是新会话状态，先确保有一个有效的会话
+      if (isNewConversation && conversationList.length > 0) {
+        // 使用第一个现有会话，避免创建新会话
+        const firstConversation = conversationList[0]
+        console.log(`firstConversation   ==> ${JSON.stringify(firstConversation)}}`)
+        if (firstConversation && firstConversation.id !== '-1') {
+          setCurrConversationId(firstConversation.id, appId!, false)
+          // 等待会话切换完成后再发送消息
+          setTimeout(() => {
+            handleSend(message)
+          }, 100)
+          return
+        }
+      }
+      else {
+        console.log('is Not firstConversation')
+
+        setCurrConversationId('-1', appId!, false)
+      }
+      handleSend(message)
+    }
+
+    eventBus.on(EVENTS.SEND_MESSAGE, handleSendMessage)
+
+    return () => {
+      eventBus.off(EVENTS.SEND_MESSAGE, handleSendMessage)
+    }
+  }, [isNewConversation, conversationList, hasSetAppConfig])
 
   if (appUnavailable) { return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set appId and apiKey in config/index.tsx' : ''} /> }
 
