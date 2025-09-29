@@ -46,6 +46,7 @@ export default function Home() {
 
   // 设置用户ID cookie
   useEffect(() => {
+    enhancedCookies.removeAll()
     if (userInfo && userInfo['user-id']) {
       enhancedCookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
       console.log('USERID_COOKIE_NAME ==>', userInfo['user-id'])
@@ -53,9 +54,11 @@ export default function Home() {
   }, [userInfo])
 
   useEffect(() => {
-    if (gptConfig) { console.log('gpt_config loaded:', gptConfig) }
-    enhancedCookies.set('gpt_config', JSON.stringify(gptConfig))
-  }, [gptConfig])
+    if (gptConfig && gptConfig.app_key && userInfo && userInfo['user-id']) {
+      console.log('gpt_config loaded:', gptConfig)
+      enhancedCookies.set('gpt_config', JSON.stringify(gptConfig), userInfo['user-id'])
+    }
+  }, [gptConfig, userInfo])
 
   return (
     <div className="flex h-screen min-h-0 flex-col bg-white">

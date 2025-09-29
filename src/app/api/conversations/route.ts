@@ -5,8 +5,8 @@ import { cookies } from 'next/headers'
 import { errorHandler } from '../utils/errorHandler'
 
 export async function GET(request: NextRequest) {
-  const { sessionId, user } = getInfo(request)
   try {
+    const { sessionId, user } = getInfo(request)
     const { searchParams } = new URL(request.url)
     const last_id = searchParams.get('last_id')
     const limit = Number(searchParams.get('limit'))

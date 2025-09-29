@@ -18,8 +18,7 @@ export async function GET(request: NextRequest) {
   console.log('GET user', user)
   console.log(' =====================messages  end===================== ')
 
-  const { data }: any = await client.getConversationMessages( user, conversationId as string, limit, first_id )
-  console.log('data', data)
+  const { data }: any = await client.getConversationMessages(user, conversationId as string, limit, first_id)
   return NextResponse.json(data, {
     headers: setSession(sessionId),
   })
