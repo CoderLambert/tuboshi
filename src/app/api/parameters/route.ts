@@ -11,8 +11,8 @@ function setSession(sessionId: string) {
 }
 
 export async function GET(request: NextRequest) {
-  const { sessionId, user } = getInfo(request)
   try {
+    const { sessionId, user } = getInfo(request)
     const client = await getClient(request)
     const { data } = await client.getApplicationParameters(user)
     return NextResponse.json(data as object, {

@@ -5,21 +5,22 @@ import { GPT_CONFIG_COOKIE_NAME } from '@/config'
 import { USERID_COOKIE_NAME } from '@/config'
 import { cookies } from 'next/headers'
 import { decrypt, shouldEncrypt } from '@/lib/browser-cookie'
-import { InternalServerError, errorMessages } from '@/app/api/utils/errorHandler'
+import { ForbiddenError, InternalServerError, errorMessages } from '@/app/api/utils/errorHandler'
 export const getInfo = (request: NextRequest) => {
   const sessionId = request.cookies.get('session_id')?.value || v4()
   console.log('========= getInfo start ============')
-  // const user = request.cookies.get(USERID_COOKIE_NAME)?.value || ''
-  console.log('request.cookies.get(USERID_COOKIE_NAME)?.value', request.cookies.get(USERID_COOKIE_NAME)?.value || '')
-  // const user = '4707011993'
-  const user = request.cookies.get(USERID_COOKIE_NAME)?.value || ''
-  console.log('USERID_COOKIE_NAME:', USERID_COOKIE_NAME)
+  const user = request.cookies.get(USERID_COOKIE_NAME)?.value
   console.log('getInfo user', user)
   console.log('========= getInfo end ============')
 
-  return {
-    sessionId,
-    user,
+  if(user && sessionId) {
+    return {
+      sessionId,
+      user,
+    }
+  }
+  else {
+    throw new ForbiddenError('Invalid session')
   }
 }
 
@@ -33,14 +34,20 @@ export const getClient = async (request: NextRequest): Promise<ChatClient> => {
 
   const encryptGptConfig = cookieStore.get(GPT_CONFIG_COOKIE_NAME)?.value
   console.log('encryptGptConfig', encryptGptConfig)
+  const userId = cookieStore.get(USERID_COOKIE_NAME)?.value
+  if(!userId) {
+    throw new ForbiddenError('Invalid user')
+  }
 
   if (!encryptGptConfig) {
     console.error('Missing GPT_CONFIG from cookies, generating fallback (may fail)')
-    throw new Error('invalid api key or api url')
+    throw new InternalServerError(errorMessages.invalid_gpt_config)
   }
-  const gptConfig = shouldEncrypt(GPT_CONFIG_COOKIE_NAME) ? decrypt(encryptGptConfig) : encryptGptConfig
+  const gptConfig = shouldEncrypt(GPT_CONFIG_COOKIE_NAME) ? decrypt(encryptGptConfig, userId) : encryptGptConfig
 
   console.log('gptConfig', gptConfig)
+
+  console.log('clientPromise userId', userId)
 
   if(!gptConfig) {
     throw new InternalServerError(errorMessages.invalid_gpt_config)
