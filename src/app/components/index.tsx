@@ -798,6 +798,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         setConversationIdChangeBecauseOfNew(false)
         resetNewConversationInputs()
         setChatNotStarted()
+        setCurrConversationId(tempNewConversationId, appId!, true)
         handleResponding(false)
 
         // 开启建议问题后，且没有停止对话时，请求建议问题
