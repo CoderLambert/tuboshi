@@ -12,6 +12,7 @@ function useConversation() {
   // when set conversation id, we do not have set appId
   const setCurrConversationId = (id: string, appId: string, isSetToLocalStroge = true, newConversationName = '') => {
     // ✅ 输入验证
+    console.log(`id ${id} - appId ${appId} `)
     if (!id || typeof id !== 'string') {
       console.warn('Invalid conversation ID:', id)
       throw new Error(`Invalid conversation ID: ${id}`)
@@ -19,7 +20,7 @@ function useConversation() {
 
     if (!appId || typeof appId !== 'string') {
       console.warn('Invalid app ID:', appId)
-      throw new Error(`Invalid app ID: ${appId}`)
+      // throw new Error(`Invalid app ID: ${appId}`)
     }
 
     // ✅ 特殊值检查
@@ -35,7 +36,7 @@ function useConversation() {
     }
 
     doSetCurrConversationId(trimmedId)
-
+    console.log(`trimmedId - ${trimmedId} - ${getCurrConversationId()}`)
     if (isSetToLocalStroge && trimmedId !== '-1') {
       try {
         let conversationIdInfo: any
