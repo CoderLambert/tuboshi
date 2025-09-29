@@ -46,7 +46,6 @@ export default function Home() {
 
   // 设置用户ID cookie
   useEffect(() => {
-    enhancedCookies.removeAll()
     if (userInfo && userInfo['user-id']) {
       enhancedCookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
       console.log('USERID_COOKIE_NAME ==>', userInfo['user-id'])
