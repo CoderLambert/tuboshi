@@ -51,7 +51,7 @@ const VoiceInput = ({
     drawRecordId.current = requestAnimationFrame(drawRecord)
     const canvas = canvasRef.current!
     const ctx = ctxRef.current!
-    if (recorder.current === null) return 
+    if (recorder.current === null) { return }
     const dataUnit8Array = recorder.current.getRecordAnalyseData()
     const dataArray = [].slice.call(dataUnit8Array)
     const lineLength = Number.parseInt(`${canvas.width / 3}`)
@@ -109,6 +109,25 @@ const VoiceInput = ({
       }
     }
   }, [clearInterval, onCancel, onConverted])
+
+  const handleCancelRecorder = useCallback(async () => {
+    clearInterval()
+    setStartRecord(false)
+    setStartConvert(false)
+    recorder.current!.stop()
+    drawRecordId.current && cancelAnimationFrame(drawRecordId.current)
+    drawRecordId.current = null
+    const canvas = canvasRef.current!
+    const ctx = ctxRef.current!
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    // 录音完成后销毁资源
+    if (recorder.current) {
+      recorder.current.destroy()
+      recorder.current = null
+    }
+    onCancel()
+  }, [clearInterval, onCancel, onConverted])
+
   const handleStartRecord = async () => {
     try {
       // 确保有一个新的 recorder 实例
@@ -151,7 +170,7 @@ const VoiceInput = ({
       }
     }
   }
-  if (originDuration >= 600 && startRecord) { handleStopRecorder() }
+  if (originDuration >= 60 && startRecord) { handleStopRecorder() }
 
   useEffect(() => {
     initCanvas()
@@ -173,6 +192,11 @@ const VoiceInput = ({
 
   const minutes = Number.parseInt(`${Number.parseInt(`${originDuration}`) / 60}`)
   const seconds = Number.parseInt(`${originDuration}`) % 60
+  // 计算进度百分比 (0-100)
+  const progress = Math.min(100, (originDuration / 60) * 100)
+
+  // 判断是否接近时间限制 (最后10秒)
+  // const isNearLimit = originDuration >= 50
 
   return (
     <div className={cn(s.wrapper, 'absolute inset-0 rounded-xl')}>
@@ -197,27 +221,58 @@ const VoiceInput = ({
             )
           }
         </div>
-        {
-          startRecord && (
-            <div
-              className='hover:bg-primary-100 mr-1 flex h-8 w-8 cursor-pointer items-center justify-center  rounded-lg'
-              onClick={handleStopRecorder}
-            >
-              <StopCircle className='text-primary-600 h-5 w-5' />
-            </div>
-          )
-        }
-        {
-          startConvert && (
-            <div
-              className='mr-1 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg  hover:bg-gray-200'
-              onClick={onCancel}
-            >
-              <RiCloseLine className='h-4 w-4 text-white' />
-            </div>
-          )
-        }
-        <div className={`w-[90px] pl-1 text-xs font-medium ${originDuration > 500 ? 'text-[#F04438]' : 'text-white'}`}>{`0${minutes.toFixed(0)}:${seconds >= 10 ? seconds : `0${seconds}`}`}</div>
+        {/* 时间显示区域 */}
+        <div className="flex items-center justify-center mr-2">
+          {/* 进度环和按钮组合 */}
+          <div className="relative">
+            <svg className="h-8 w-8">
+              <circle
+                cx="16"
+                cy="16"
+                r="14"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                className='text-gray-300'
+              />
+              <circle
+                cx="16"
+                cy="16"
+                r="14"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                className='text-primary-600 transition-all duration-1000'
+                transform="rotate(-90 16 16)"
+                strokeDasharray={`${2 * Math.PI * 14}`}
+                strokeDashoffset={`${2 * Math.PI * 14 * (1 - progress / 100)}`}
+              />
+            </svg>
+            {/* 嵌套在进度环中心的按钮 */}
+            {startRecord && (
+              <div
+                className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                onClick={handleStopRecorder}
+              >
+                <StopCircle className="text-primary-600 h-4 w-4" />
+              </div>
+            )}
+            {startConvert && (
+              <div
+                className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                onClick={handleCancelRecorder}
+              >
+                <RiCloseLine className="h-4 w-4 text-white-700" />
+              </div>
+            )}
+          </div>
+
+           {/* 时间文本 */}
+          <div className={`text-xs font-medium text-gray-700 w-[40px] ml-2 mr-4`}>
+            {`0${minutes.toFixed(0)}:${seconds >= 10 ? seconds : `0${seconds}`}`}
+          </div>
+        </div>
       </div>
     </div>
   )
