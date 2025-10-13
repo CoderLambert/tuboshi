@@ -568,7 +568,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const { useUserID } = useNativeBridge()
   const userInfo = useUserID()
   console.log('Main userInfo ==> ', userInfo)
-  Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
+  if (typeof window !== 'undefined') {
+    Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
+  }
 
   const logError = (message: string) => {
     notify({ type: 'error', message })
