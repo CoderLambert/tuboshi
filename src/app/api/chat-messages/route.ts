@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { getClient, getInfo } from '@/app/api/utils/common'
+import { errorHandler } from '../utils/errorHandler'
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
     else { return new Response(res.data as any) }
   }
   catch (e: any) {
-    console.log(e)
-    return new Response(e.message)
+    console.error(e)
+    return errorHandler(e)
   }
 }

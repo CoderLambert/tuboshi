@@ -4,7 +4,7 @@ import type { AnnotationReply, MessageEnd, MessageReplace, ThoughtItem } from '@
 import type { VisionFile } from '@/types/app'
 import type { Timeout } from 'ahooks/lib/useRequest/src/types'
 import { t } from 'i18next'
-
+import { tryRepairJson } from '@/utils/string'
 const TIME_OUT = 200000
 
 const ContentType = {
@@ -161,6 +161,11 @@ const handleStream = (
   let buffer = ''
   let bufferObj: Record<string, any>
   let isFirstMessage = true
+
+  // ✅ 新增：缓存最后有效的会话ID和消息ID
+  let lastValidConversationId: string | undefined
+  let lastValidMessageId: string | undefined
+
   function read() {
     let hasError = false
     reader?.read().then((result: any) => {
@@ -168,27 +173,86 @@ const handleStream = (
         onCompleted && onCompleted()
         return
       }
-      buffer += decoder.decode(result.value, { stream: true })
+
+      // ✅ 改进：更安全的缓冲区处理
+      const chunk = decoder.decode(result.value, { stream: true })
+      buffer += chunk
+
+      // ✅ 改进：确保完整的消息行
       const lines = buffer.split('\n')
+      buffer = lines.pop() || '' // 保留最后一个可能不完整的行
+
       try {
         lines.forEach((message) => {
-          if (message.startsWith('data: ')) { // check if it starts with data:
+          if (message.startsWith('data: ')) {
+            const jsonStr = message.substring(6).trim()
+            if (!jsonStr) { return } // 跳过空消息
+
             try {
-              bufferObj = JSON.parse(message.substring(6)) as Record<string, any>// remove data: and parse as json
+              bufferObj = JSON.parse(jsonStr) as Record<string, any>
+              console.log('bufferObj:', bufferObj)
+
+              // ✅ 缓存有效的会话ID和消息ID
+              if (bufferObj.conversation_id && typeof bufferObj.conversation_id === 'string') {
+                lastValidConversationId = bufferObj.conversation_id
+              }
+              if (bufferObj.message_id && typeof bufferObj.message_id === 'string') {
+                lastValidMessageId = bufferObj.message_id
+              }
+              if (bufferObj.id && typeof bufferObj.id === 'string') {
+                lastValidMessageId = bufferObj.id
+              }
             }
             catch (e) {
-              // mute handle message cut off
-              onData('', isFirstMessage, {
-                conversationId: bufferObj?.conversation_id,
-                messageId: bufferObj?.message_id,
+              console.warn('JSON.parse failed for message:', jsonStr.substring(0, 100), 'error:', e)
+
+              // ✅ 尝试修复 JSON
+              const repairedJson = tryRepairJson(jsonStr)
+              if (repairedJson) {
+                try {
+                  bufferObj = JSON.parse(repairedJson) as Record<string, any>
+                  console.log('Repaired bufferObj:', bufferObj)
+
+                  // 同样缓存 ID
+                  if (bufferObj.conversation_id && typeof bufferObj.conversation_id === 'string') {
+                    lastValidConversationId = bufferObj.conversation_id
+                  }
+                  if (bufferObj.message_id && typeof bufferObj.message_id === 'string') {
+                    lastValidMessageId = bufferObj.message_id
+                  }
+                  if (bufferObj.id && typeof bufferObj.id === 'string') {
+                    lastValidMessageId = bufferObj.id
+                  }
+                  return // 修复成功，继续处理
+                }
+                catch (e2) {
+                  console.warn('Repaired JSON still failed:', e2)
+                }
+              }
+
+              // ✅ 修复失败，使用最后有效的ID
+              Toast.notify({
+                type: 'error',
+                message: t('app.errorMessage.messageParserError'),
               })
+              onData('', isFirstMessage, {
+                conversationId: lastValidConversationId,
+                messageId: lastValidMessageId || '',
+                errorMessage: t('app.errorMessage.messageParserError'),
+                errorCode: 'PARSE_ERROR',
+              })
+
+              // 如果没有有效的会话ID，标记为错误
+              if (!lastValidConversationId) {
+                hasError = true
+              }
               return
             }
             if (bufferObj.status === 400 || !bufferObj.event) {
               onData('', false, {
-                conversationId: undefined,
+                conversationId: lastValidConversationId,
                 messageId: '',
-                errorMessage: bufferObj?.message,
+                errorMessage: bufferObj?.message || '服务端返回错误',
                 errorCode: bufferObj?.code,
               })
               hasError = true
@@ -198,9 +262,9 @@ const handleStream = (
             if (bufferObj.event === 'message' || bufferObj.event === 'agent_message') {
               // can not use format here. Because message is splited.
               onData(unicodeToChar(bufferObj.answer), isFirstMessage, {
-                conversationId: bufferObj.conversation_id,
+                conversationId: bufferObj.conversation_id || lastValidConversationId,
                 taskId: bufferObj.task_id,
-                messageId: bufferObj.id,
+                messageId: bufferObj.id || lastValidMessageId,
               })
               isFirstMessage = false
             }
@@ -233,11 +297,11 @@ const handleStream = (
         buffer = lines[lines.length - 1]
       }
       catch (e) {
-        console.error('handleStream  error')
+        console.error('handleStream error:', e)
         onData('', false, {
-          conversationId: undefined,
-          messageId: '',
-          errorMessage: `${e}`,
+          conversationId: lastValidConversationId,
+          messageId: lastValidMessageId || '',
+          errorMessage: `流处理异常: ${e}`,
         })
         hasError = true
         onCompleted?.(true)
@@ -292,15 +356,14 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent, del
     }),
     new Promise((resolve, reject) => {
       globalThis.fetch(urlWithPrefix, options)
-        .then((res: any) => {
+        .then(async (res: any) => {
           clearTimer()
           const resClone = res.clone()
           // Error handler
           if (!/^(2|3)\d{2}$/.test(res.status)) {
             try {
-              const bodyJson = res.json()
-              console.error('bodyJson  ==>')
-              console.log(res.status, bodyJson)
+              const bodyJson = await res.json()
+
               switch (res.status) {
                 case 401: {
                   Toast.notify({ type: 'error', message: 'Invalid token' })
@@ -308,20 +371,19 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent, del
                 }
 
                 case 500: {
-                  Toast.notify({ type: 'error', message: 'Server error' })
+                  Toast.notify({ type: 'error', message: bodyJson.message })
                   return
                 }
 
-                default:
-
-                  new Promise(() => {
-                    bodyJson.then((data: any) => {
-                      Toast.notify({ type: 'error', message: data.message })
-                    })
-                  })
+                default: {
+                  Toast.notify({ type: 'error', message: bodyJson.message })
+                  return
+                }
               }
             }
             catch (e) {
+              console.error('bodyJson  ==>')
+              console.log(e)
               Toast.notify({ type: 'error', message: `${e}` })
             }
 
@@ -658,6 +720,7 @@ export const ssePost = (
       return handleStream(res, (str: string, isFirstMessage: boolean, moreInfo: IOnDataMoreInfo) => {
         if (moreInfo.errorMessage) {
           Toast.notify({ type: 'error', message: moreInfo.errorMessage })
+          onCompleted?.(true) // ✅ 重置按钮状态
           return
         }
         onData?.(str, isFirstMessage, moreInfo)
@@ -666,6 +729,7 @@ export const ssePost = (
       }, onThought, onMessageEnd, onMessageReplace, onFile, onWorkflowStarted, onWorkflowFinished, onNodeStarted, onNodeFinished)
     }).catch((e) => {
       Toast.notify({ type: 'error', message: e })
+      onCompleted?.(true) // ✅ 重置按钮状态
       onError?.(e)
     })
 }

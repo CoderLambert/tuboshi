@@ -1,5 +1,4 @@
 'use client'
-import Cookies from 'js-cookie'
 import Image from 'next/image'
 import maomaoPng from '@/assets/maomao@2x.png'
 import styles from './chatPage.module.css'
@@ -14,6 +13,9 @@ import { useNativeBridge } from '@/hooks/useNativeBridge'
 import { USERID_COOKIE_NAME } from '@/config'
 import SafeAreaLayout from './components/SafeAreaLayout'
 import { useEffect } from 'react'
+
+import { enhancedCookies } from '@/lib/browser-cookie'
+
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
   const { t } = useTranslation()
@@ -35,19 +37,27 @@ export default function Home() {
     eventBus.emit(EVENTS.SEND_MESSAGE, question)
   }
 
+  useEffect(() => {
+    import('eruda').then((eruda) => {
+      eruda.default.init() // 初始化 Eruda
+    })
+    // }
+  }, [])
+
   // 设置用户ID cookie
   useEffect(() => {
     if (userInfo && userInfo['user-id']) {
-      console.log('userInfo ==> ', userInfo)
-      Cookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
+      enhancedCookies.set(USERID_COOKIE_NAME, userInfo['user-id'])
       console.log('USERID_COOKIE_NAME ==>', userInfo['user-id'])
-      console.log('userInfo ==>', userInfo)
     }
   }, [userInfo])
 
   useEffect(() => {
-    if (gptConfig) { console.log('gptConfig loaded:', gptConfig) }
-  }, [gptConfig])
+    if (gptConfig && gptConfig.app_key && userInfo && userInfo['user-id']) {
+      console.log('gpt_config loaded:', gptConfig)
+      enhancedCookies.set('gpt_config', JSON.stringify(gptConfig), userInfo['user-id'])
+    }
+  }, [gptConfig, userInfo])
 
   return (
     <div className="flex h-screen min-h-0 flex-col bg-white">

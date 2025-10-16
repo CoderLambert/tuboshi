@@ -132,7 +132,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       }
       catch (error) {
         console.error('Failed to load app config:', error)
-      // 使用默认值
+        // 使用默认值
       }
     }
 
@@ -247,7 +247,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   const [conversationIdChangeBecauseOfNew, setConversationIdChangeBecauseOfNew, getConversationIdChangeBecauseOfNew] = useGetState(false)
   const [isChatStarted, { setFalse: setChatNotStarted }] = useBoolean(false)
-  const conversationIntroduction = currConversationInfo?.introduction || ''
+  const [hasExtremeError, setHasExtremeError] = useState(false) // ✅ 极端异常状态
   const suggestedQuestions = currConversationInfo?.suggested_questions || []
 
   const handleConversationSwitch = () => {
@@ -280,7 +280,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     // update chat list of current conversation
     if (!isNewConversation && !conversationIdChangeBecauseOfNew && !isResponding) {
       // 初始加载最近5条消息
-      fetchChatList(getCurrConversationId(), undefined, 5, userID['user-id']).then((res: any) => {
+      fetchChatList(getCurrConversationId(), undefined, 5).then((res: any) => {
         const { data, has_more } = res
         const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs)
 
@@ -385,7 +385,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         const answerIds = currentHistoryMessages.filter(item => item.isAnswer).map(item => item.id)
       }
       console.log(`firstMessageId   ${firstMessageId}`)
-      const res = await fetchChatList(getCurrConversationId(), firstMessageId, 5, userID['user-id'])
+      const res = await fetchChatList(getCurrConversationId(), firstMessageId, 5)
       const { data, has_more } = res
       if (data && data.length > 0) {
         const historyItems: ChatItem[] = []
@@ -443,7 +443,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   // init
   useEffect(() => {
-    if (!hasSetAppConfig) {
+    if(!appId) { return }
+    if (!hasSetAppConfig.current) {
       setAppUnavailable(true)
       return
     }
@@ -454,7 +455,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
     const initializeApp = async () => {
       try {
-        const [conversationData, appParams] = await Promise.all([fetchConversations(userID['user-id']), fetchAppParams(userID['user-id'])])
+        const [conversationData, appParams] = await Promise.all([fetchConversations(), fetchAppParams()])
         console.log('conversationData', conversationData)
         console.log('appParams', appParams)
         setChatConfig(appParams)
@@ -528,11 +529,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     return () => {
       isMounted = false
     }
-  }, [userID, hasSetAppConfig])
+  }, [userID, hasSetAppConfig, appId])
 
   // 监听FAQ问题点击事件
   useEffect(() => {
-    if(!hasSetAppConfig) { return }
+    if(!hasSetAppConfig.current) { return }
 
     const handleSendMessage = (message: string) => {
       // 如果当前是新会话状态，先确保有一个有效的会话
@@ -603,7 +604,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     console.log('updateCurrentQA', responseItem)
     // 添加内容检查，避免创建空内容的消息
     if (!responseItem.content && !responseItem.agent_thoughts?.length && !responseItem.message_files?.length) {
-    // 如果是空消息，不更新UI
+      // 如果是空消息，不更新UI
       console.log('Empty responseItem, not updating UI')
       console.log(responseItem)
       return
@@ -630,8 +631,10 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   }
 
   const handleSend = useCallback(async (message: string, files?: VisionFile[]) => {
+    // ✅ 发送新消息时重置异常状态
+    setHasExtremeError(false)
     if (files && files.length > 0) {
-    // 过滤出有效的文件
+      // 过滤出有效的文件
       const validFiles = files.filter(file =>
         file.transfer_method === TransferMethod.local_file
           ? file.upload_file_id && file.upload_file_id !== ''
@@ -647,7 +650,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       // 确保所有本地文件都有 upload_file_id
       const hasInvalidLocalFiles = validFiles.some(file =>
         file.transfer_method === TransferMethod.local_file
-      && (!file.upload_file_id || file.upload_file_id === ''),
+          && (!file.upload_file_id || file.upload_file_id === ''),
       )
 
       if (hasInvalidLocalFiles) {
@@ -784,7 +787,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         }
 
         if (getConversationIdChangeBecauseOfNew()) {
-          const { data: allConversations }: any = await fetchConversations(userID['user-id'])
+          const { data: allConversations }: any = await fetchConversations()
           const newItem: any = await generationConversationName(allConversations[0].id)
 
           const newAllConversations = produce(allConversations, (draft: any) => {
@@ -807,7 +810,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
               console.log(`responseItem.id ---> ${responseItem.id}`)
               const { data } = await fetchSuggestedQuestions(
                 responseItem.id,
-                userID['user-id'],
               )
               setSuggestQuestionsAfterAnswer(data)
             }
@@ -916,9 +918,18 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       },
       onError() {
         handleResponding(false)
-        // role back placeholder answer
+        setHasExtremeError(true) // ✅ 标记极端异常
+
+        // ✅ 方案1：将占位符替换为错误消息，让用户可以继续会话
         setChatList(produce(getChatList(), (draft) => {
-          draft.splice(draft.findIndex(item => item.id === placeholderAnswerId), 1)
+          const placeholderIndex = draft.findIndex(item => item.id === placeholderAnswerId)
+          if (placeholderIndex !== -1) {
+            draft[placeholderIndex] = {
+              ...draft[placeholderIndex],
+              content: '抱歉，消息发送遇到问题。您可以继续发送其他消息。',
+              isError: true, // ✅ 添加错误标识
+            }
+          }
         }))
       },
       onWorkflowStarted: ({ workflow_run_id, task_id }) => {
@@ -1003,7 +1014,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     if (taskIdRef.current) {
       console.log('taskIdRef.current', taskIdRef.current)
       try {
-        await stopChatMessage(taskIdRef.current, userID['user-id'])
+        await stopChatMessage(taskIdRef.current)
         handleResponding(false)
         notify({ type: 'success', message: t('app.generation.stopped') })
       }
@@ -1086,6 +1097,27 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
             />
           )
         }
+
+        {/* ✅ 方案2：极端异常时显示刷新提示 */}
+        {hasExtremeError && (
+          <div className='mb-3 rounded-lg bg-red-50 p-3 text-center'>
+            <div className='mb-2 text-sm text-red-600'>
+              检测到会话异常，建议刷新页面重新开始
+            </div>
+            <button
+              onClick={() => {
+                // 清除相关状态
+                setChatList([])
+                setHasExtremeError(false)
+                // 刷新页面
+                window.location.reload()
+              }}
+              className='rounded bg-red-500 px-3 py-1 text-xs text-white hover:bg-red-600'
+            >
+              刷新页面
+            </button>
+          </div>
+        )}
 
         <OptimizedInput
           onSend={handleSend}
