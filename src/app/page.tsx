@@ -37,12 +37,12 @@ export default function Home() {
     eventBus.emit(EVENTS.SEND_MESSAGE, question)
   }
 
-  useEffect(() => {
-    import('eruda').then((eruda) => {
-      eruda.default.init() // 初始化 Eruda
-    })
-    // }
-  }, [])
+  // useEffect(() => {
+  //   import('eruda').then((eruda) => {
+  //     eruda.default.init() // 初始化 Eruda
+  //   })
+  //   // }
+  // }, [])
 
   // 设置用户ID cookie
   useEffect(() => {
