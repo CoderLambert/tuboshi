@@ -228,8 +228,8 @@ const OptimizedInput: FC<IOptimizedInputProps> = ({
   const handleVoiceInputComplete = useCallback((text: string) => {
     setIsVoiceInputVisible(false)
     if (text) {
-      setLocalQuery(text)
-      queryRef.current = text
+      queryRef.current += text
+      setLocalQuery(queryRef.current)
     }
   }, [])
 
