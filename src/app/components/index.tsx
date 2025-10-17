@@ -816,6 +816,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     const isActuallyNewConversation = getCurrConversationId() === '-1'
     console.log('发送消息时 - currConversationId:', getCurrConversationId(), 'isNewConversation:', isNewConversation, 'isActuallyNewConversation:', isActuallyNewConversation)
 
+    // ✅ 如果是新会话，设置状态标记
+    if (isActuallyNewConversation) {
+      setConversationIdChangeBecauseOfNew(true)
+    }
+
     const data: Record<string, any> = {
       inputs: {
         ...toServerInputs,
@@ -870,6 +875,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
     const prevTempNewConversationId = getCurrConversationId() || '-1'
     let tempNewConversationId = ''
+    // 保存消息内容用于后续生成标题
+    const firstMessageContent = message
 
     console.log(`data ---> ${JSON.stringify(data)}`)
 
@@ -916,15 +923,131 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           return
         }
 
-        if (getConversationIdChangeBecauseOfNew()) {
-          const { data: allConversations }: any = await fetchConversations()
-          const newItem: any = await generationConversationName(allConversations[0].id)
+        // ✅ 新建会话完成后更新会话列表
+        if (tempNewConversationId && tempNewConversationId !== getCurrConversationId()) {
+          console.log('新建会话完成，更新会话列表...')
 
-          const newAllConversations = produce(allConversations, (draft: any) => {
-            draft[0].name = newItem.name
-          })
-          setConversationList(newAllConversations as any)
+          try {
+            // 获取最新的会话列表
+            const { data: allConversations }: any = await fetchConversations()
+            console.log('获取到最新会话列表:', allConversations)
+
+            // 如果新会话不在列表中，添加到列表开头
+            const newConversationExists = allConversations.some((conv: any) => conv.id === tempNewConversationId)
+
+            if (!newConversationExists) {
+              // 新会话还未出现在列表中，重新获取一次
+              console.log('新会话未在列表中，重新获取...')
+              setTimeout(async () => {
+                try {
+                  const { data: refreshedConversations }: any = await fetchConversations()
+                  setConversationList(refreshedConversations as ConversationItem[])
+                  console.log('刷新会话列表完成')
+
+                  // ✅ 延迟后尝试生成会话名称
+                  const delayedNewConversationIndex = refreshedConversations.findIndex((conv: any) => conv.id === tempNewConversationId)
+                  if (delayedNewConversationIndex !== -1) {
+                    try {
+                      console.log(`延迟后找到新会话，尝试生成会话名称`)
+                      const newItem: any = await generationConversationName(tempNewConversationId)
+                      const newAllConversations = produce(refreshedConversations, (draft: any) => {
+                        if (draft[delayedNewConversationIndex].id === tempNewConversationId) {
+                          draft[delayedNewConversationIndex].name = newItem.name
+                        }
+                      })
+                      setConversationList(newAllConversations as any)
+                      console.log('延迟更新会话名称完成:', newItem.name)
+
+                      // 更新当前会话信息（确保在更新会话ID后也能正确显示标题）
+                      setExistConversationInfo({
+                        name: newItem.name,
+                        introduction: '',
+                        suggested_questions: [],
+                      })
+                      console.log('延迟更新当前会话标题完成:', newItem.name)
+                    } catch (error) {
+                      console.error('延迟生成会话名称失败:', error)
+                      // 使用第一条消息作为标题
+                      if (firstMessageContent) {
+                        const truncatedTitle = firstMessageContent.length > 20 ? firstMessageContent.substring(0, 20) + '...' : firstMessageContent
+                        const newAllConversations = produce(refreshedConversations, (draft: any) => {
+                          if (draft[delayedNewConversationIndex].id === tempNewConversationId) {
+                            draft[delayedNewConversationIndex].name = truncatedTitle
+                          }
+                        })
+                        setConversationList(newAllConversations as any)
+                        console.log('延迟使用消息内容作为会话标题:', truncatedTitle)
+
+                        // 更新当前会话信息（确保在更新会话ID后也能正确显示标题）
+                        setExistConversationInfo({
+                          name: truncatedTitle,
+                          introduction: '',
+                          suggested_questions: [],
+                        })
+                      }
+                    }
+                  }
+                } catch (error) {
+                  console.error('刷新会话列表失败:', error)
+                }
+              }, 1000)
+            } else {
+              // 直接更新会话列表
+              setConversationList(allConversations as ConversationItem[])
+              console.log('直接更新会话列表完成')
+            }
+
+            // ✅ 尝试生成会话名称 - 找到新会话在列表中的位置
+            const newConversationIndex = allConversations.findIndex((conv: any) => conv.id === tempNewConversationId)
+            if (newConversationIndex !== -1) {
+              try {
+                console.log(`找到新会话在列表中的位置: ${newConversationIndex}，尝试生成会话名称`)
+                const newItem: any = await generationConversationName(tempNewConversationId)
+                const newAllConversations = produce(allConversations, (draft: any) => {
+                  if (draft[newConversationIndex].id === tempNewConversationId) {
+                    draft[newConversationIndex].name = newItem.name
+                  }
+                })
+                setConversationList(newAllConversations as any)
+                console.log('更新会话名称完成:', newItem.name)
+
+                // ✅ 同时更新当前会话信息（确保在更新会话ID后也能正确显示标题）
+                // 由于会话ID即将更新，isNewConversation会变为false，所以需要同时设置existConversationInfo
+                setExistConversationInfo({
+                  name: newItem.name,
+                  introduction: '',
+                  suggested_questions: [],
+                })
+                console.log('更新当前会话标题完成:', newItem.name)
+              } catch (error) {
+                console.error('生成会话名称失败:', error)
+                // 如果生成名称失败，至少使用第一条消息作为标题
+                if (firstMessageContent && newConversationIndex !== -1) {
+                  const truncatedTitle = firstMessageContent.length > 20 ? firstMessageContent.substring(0, 20) + '...' : firstMessageContent
+                  const newAllConversations = produce(allConversations, (draft: any) => {
+                    if (draft[newConversationIndex].id === tempNewConversationId) {
+                      draft[newConversationIndex].name = truncatedTitle
+                    }
+                  })
+                  setConversationList(newAllConversations as any)
+                  console.log('使用消息内容作为会话标题:', truncatedTitle)
+
+                  // 更新当前会话信息（确保在更新会话ID后也能正确显示标题）
+                  setExistConversationInfo({
+                    name: truncatedTitle,
+                    introduction: '',
+                    suggested_questions: [],
+                  })
+                }
+              }
+            } else {
+              console.warn('未找到新会话在列表中的位置:', tempNewConversationId)
+            }
+          } catch (error) {
+            console.error('更新会话列表失败:', error)
+          }
         }
+
         setConversationIdChangeBecauseOfNew(false)
         resetNewConversationInputs()
         setChatNotStarted()
