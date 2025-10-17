@@ -23,6 +23,7 @@ import { useNativeBridge } from '@/hooks/useNativeBridge'
 import Cookies from 'js-cookie'
 import useAppStore from '@/hooks/useAppStore'
 import Loading from '@/app/components/base/loading'
+import { ConversationList, ConversationToggle } from '@/app/components/conversation'
 
 export type IMainProps = {
   params: any
@@ -85,6 +86,14 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const conversationMessagesAbortControllerRef = useRef<AbortController | null>(null)
   const suggestedQuestionsAbortControllerRef = useRef<AbortController | null>(null)
   const [suggestQuestionsAfterAnswer, setSuggestQuestionsAfterAnswer] = useState<string[]>([])
+
+  // 会话管理相关状态
+  const [showConversationList, setShowConversationList] = useState(false)
+  const [isSwitchingConversation, setIsSwitchingConversation] = useState(false)
+
+  // 添加 ref 来跟踪是否应该跳过会话切换逻辑
+  const shouldSkipConversationSwitch = useRef(false)
+
   const updateInputBoxHeight = () => {
     if (inputBoxRef.current) {
       const height = inputBoxRef.current.offsetHeight
@@ -240,6 +249,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     setCurrInputs,
     setNewConversationInfo,
     setExistConversationInfo,
+    // 新增的会话管理方法
+    switchToConversation,
+    createNewConversation,
+    deleteConversationFromList,
+    renameConversationInList,
   } = useConversation()
   //  获取用户需要输入的表单
   const { useInputsFormConfig } = useNativeBridge()
@@ -250,73 +264,182 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const [hasExtremeError, setHasExtremeError] = useState(false) // ✅ 极端异常状态
   const suggestedQuestions = currConversationInfo?.suggested_questions || []
 
-  const handleConversationSwitch = () => {
-    console.log('handleConversationSwitch')
+  // 会话切换处理
+  const handleConversationSelect = useCallback((conversationId: string) => {
+    if (!appId) {
+      notify({ type: 'error', message: 'App configuration not ready' })
+      return
+    }
+
+    const conversation = conversationList.find(c => c.id === conversationId)
+    console.log('Switching to conversation:', conversation?.name || 'New Conversation')
+
+    switchToConversation(conversationId, appId)
+    setShowConversationList(false)
+
+    // 显示切换成功提示
+    setTimeout(() => {
+      Toast.notify({
+        type: 'success',
+        message: t('app.conversation.switchSuccess') || '已切换到会话'
+      })
+    }, 500)
+  }, [appId, switchToConversation, notify, conversationList, t])
+
+  // 新建会话处理
+  const handleNewConversation = useCallback(() => {
+    if (!appId) {
+      notify({ type: 'error', message: 'App configuration not ready' })
+      return
+    }
+
+    console.log('Creating new conversation')
+    createNewConversation(appId)
+    setShowConversationList(false)
+
+    // 显示新建会话成功提示
+    setTimeout(() => {
+      Toast.notify({
+        type: 'success',
+        message: t('app.conversation.newChatCreated') || '已创建新会话'
+      })
+    }, 500)
+  }, [appId, createNewConversation, notify, t])
+
+  const handleConversationSwitch = useCallback(() => {
+    console.log('handleConversationSwitch - currConversationId:', getCurrConversationId(), 'isNewConversation:', isNewConversation)
     if (!inited) { return }
 
-    // update inputs of current conversation
-
-    let notSyncToStateIntroduction = ''
-    let notSyncToStateInputs: Record<string, any> | undefined | null = {
-      // token: APP_TOKEN,
-      ...inputsFormConfig,
-    }
-    if (!isNewConversation) {
-      const item = conversationList.find(item => item.id === getCurrConversationId())
-      notSyncToStateInputs = item?.inputs || {}
-      setCurrInputs(notSyncToStateInputs as any)
-      notSyncToStateIntroduction = item?.introduction || ''
-      setExistConversationInfo({
-        name: item?.name || '',
-        introduction: notSyncToStateIntroduction,
-        suggested_questions: suggestedQuestions,
-      })
-    }
-    else {
-      notSyncToStateInputs = newConversationInputs
-      setCurrInputs(notSyncToStateInputs)
+    // ✅ 检查是否应该跳过会话切换逻辑
+    if (shouldSkipConversationSwitch.current) {
+      console.log('跳过会话切换逻辑 (shouldSkipConversationSwitch = true)')
+      shouldSkipConversationSwitch.current = false
+      return
     }
 
-    // update chat list of current conversation
-    if (!isNewConversation && !conversationIdChangeBecauseOfNew && !isResponding) {
-      // 初始加载最近5条消息
-      fetchChatList(getCurrConversationId(), undefined, 5).then((res: any) => {
-        const { data, has_more } = res
-        const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs)
+    // 开始会话切换
+    setIsSwitchingConversation(true)
 
-        data.forEach((item: any) => {
-          newChatList.push({
-            id: `question-${item.id}`,
-            content: item.query,
-            isAnswer: false,
-            message_files: item.message_files?.filter((file: any) => file.belongs_to === 'user') || [],
+    // 清空当前聊天列表和历史消息
+    setChatList([])
+    setHistoryMessages([])
+    setShowLoadHistoryButton(false)
+    setHasMoreHistory(true)
+    setSuggestQuestionsAfterAnswer([])
 
+    const switchConversation = async () => {
+      try {
+        if (!isNewConversation) {
+          // 处理已存在的会话
+          const conversation = conversationList.find(item => item.id === getCurrConversationId())
+          if (!conversation) {
+            console.warn('Conversation not found:', getCurrConversationId())
+            return
+          }
+
+          console.log('Loading existing conversation:', conversation.name)
+
+          // 更新会话输入参数
+          const conversationInputs = conversation.inputs || {}
+          setCurrInputs(conversationInputs as any)
+
+          // 更新会话信息
+          setExistConversationInfo({
+            name: conversation.name || t('app.chat.newChatDefaultName'),
+            introduction: conversation.introduction || '',
+            suggested_questions: conversation.suggested_questions || [],
           })
-          newChatList.push({
-            id: item.id,
-            content: item.answer,
-            agent_thoughts: addFileInfos(item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts, item.message_files),
-            feedback: item.feedback,
-            isAnswer: true,
-            message_files: item.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],
+
+          // 加载该会话的消息
+          if (!isResponding) {
+            try {
+              console.log('Fetching messages for conversation:', getCurrConversationId())
+              const res = await fetchChatList(getCurrConversationId(), undefined, 5)
+              const { data, has_more } = res
+
+              console.log('Loaded messages:', data.length, 'has_more:', has_more)
+
+              const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(
+                conversation.introduction || '',
+                conversationInputs
+              )
+
+              data.forEach((item: any) => {
+                newChatList.push({
+                  id: `question-${item.id}`,
+                  content: item.query,
+                  isAnswer: false,
+                  message_files: item.message_files?.filter((file: any) => file.belongs_to === 'user') || [],
+                })
+                newChatList.push({
+                  id: item.id,
+                  content: item.answer,
+                  agent_thoughts: addFileInfos(
+                    item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts,
+                    item.message_files
+                  ),
+                  feedback: item.feedback,
+                  isAnswer: true,
+                  message_files: item.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],
+                })
+              })
+
+              setChatList(newChatList)
+              setHasMoreHistory(has_more)
+              setShowLoadHistoryButton(has_more)
+
+              console.log('Successfully loaded conversation messages')
+            } catch (error) {
+              console.error('Failed to load conversation messages:', error)
+              // 如果加载失败，至少显示开场白
+              setChatList(generateNewChatListWithOpenStatement(conversation.introduction || '', conversationInputs))
+              setHasMoreHistory(false)
+              setShowLoadHistoryButton(false)
+
+              // 显示错误提示
+              Toast.notify({
+                type: 'error',
+                message: t('app.errorMessage.historyLoadFailed') || '加载历史消息失败'
+              })
+            }
+          }
+        } else {
+          // 处理新会话
+          console.log('Creating new conversation')
+
+          // 重置新会话输入参数
+          if (newConversationInputs) {
+            setCurrInputs(newConversationInputs)
+          }
+
+          // 重置新会话信息
+          setNewConversationInfo({
+            name: t('app.chat.newChatDefaultName'),
+            introduction: '',
+            suggested_questions: [],
           })
+
+          // 清空聊天列表，显示空白状态
+          setChatList(generateNewChatListWithOpenStatement())
+          setHasMoreHistory(false)
+          setShowLoadHistoryButton(false)
+        }
+      } catch (error) {
+        console.error('Error during conversation switch:', error)
+        Toast.notify({
+          type: 'error',
+          message: t('app.errorMessage.conversationSwitchFailed') || '切换会话失败'
         })
-        setChatList(newChatList)
-
-        // 设置历史消息状态
-        setHasMoreHistory(has_more)
-        setShowLoadHistoryButton(has_more)
-      }).catch((error) => {
-        console.error('初始加载消息失败:', error)
-        // 如果加载失败，至少显示开场白
-        setChatList(generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs))
-        setHasMoreHistory(false)
-        setShowLoadHistoryButton(false)
-      })
+      } finally {
+        // 结束会话切换
+        setIsSwitchingConversation(false)
+      }
     }
 
-    if (isNewConversation && isChatStarted) { setChatList(generateNewChatListWithOpenStatement()) }
-  }
+    // 调用异步函数
+    switchConversation()
+  }, [inited, isNewConversation, conversationList, getCurrConversationId, isResponding,
+      newConversationInputs, setCurrInputs, setExistConversationInfo, setNewConversationInfo, t])
   useEffect(handleConversationSwitch, [currConversationId, inited])
 
   useEffect(() => {
@@ -688,13 +811,18 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       })
     }
     console.log(`toServerInputs ---> ${JSON.stringify(toServerInputs)}`)
+
+    // ✅ 确保正确判断是否为新会话
+    const isActuallyNewConversation = getCurrConversationId() === '-1'
+    console.log('发送消息时 - currConversationId:', getCurrConversationId(), 'isNewConversation:', isNewConversation, 'isActuallyNewConversation:', isActuallyNewConversation)
+
     const data: Record<string, any> = {
       inputs: {
         ...toServerInputs,
         ...inputsFormConfig,
       },
       query: message,
-      conversation_id: isNewConversation ? null : currConversationId,
+      conversation_id: isActuallyNewConversation ? null : getCurrConversationId(),
     }
 
     if (visionConfig?.enabled && files && files?.length > 0) {
@@ -800,7 +928,13 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         setConversationIdChangeBecauseOfNew(false)
         resetNewConversationInputs()
         setChatNotStarted()
-        setCurrConversationId(tempNewConversationId, appId!, true)
+        // ✅ 修复：避免在消息响应完成后触发会话切换逻辑导致消息被清空
+        // 设置 ref 来跳过会话切换逻辑
+        if (tempNewConversationId && tempNewConversationId !== getCurrConversationId()) {
+          console.log('更新会话ID从', getCurrConversationId(), '到', tempNewConversationId, '跳过触发会话切换')
+          shouldSkipConversationSwitch.current = true
+          setCurrConversationId(tempNewConversationId, appId!, true)
+        }
         handleResponding(false)
 
         // 开启建议问题后，且没有停止对话时，请求建议问题
@@ -1040,6 +1174,16 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   return (
     <div className='flex min-h-screen max-w-full flex-col bg-white' style={{ paddingBottom: `${inputBoxHeight}px` }}>
+      {/* 会话列表 */}
+      <ConversationList
+        conversationList={conversationList}
+        currentConversationId={currConversationId}
+        onConversationSelect={handleConversationSelect}
+        onNewConversation={handleNewConversation}
+        isVisible={showConversationList}
+        onClose={() => setShowConversationList(false)}
+      />
+
       <MobilePullToRefresh
         onLoadMore={loadHistoryMessages}
         loadingMore={isLoadingHistory}
@@ -1048,12 +1192,30 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       >
         {/* 页面内容区域 - 包含所有内容的页面级滚动 */}
         <div className='flex flex-col bg-white'>
-          {/* 头部内容 */}
-          {headerContent && (
-            <div className='shrink-0'>
-              {headerContent}
+          {/* 头部内容 - 包含会话切换按钮 */}
+          <div className='shrink-0 sticky top-0 z-40 bg-white border-b border-gray-100'>
+            <div className='flex items-center justify-between p-4'>
+              <div className='flex items-center gap-3'>
+                <ConversationToggle
+                  onClick={() => setShowConversationList(true)}
+                  conversationCount={conversationList.length}
+                />
+                <div>
+                  <h1 className='text-lg font-semibold text-gray-900'>
+                    {currConversationInfo?.name || t('app.chat.newChatDefaultName')}
+                  </h1>
+                  {currConversationInfo?.introduction && (
+                    <p className='text-sm text-gray-500 mt-1 line-clamp-1'>
+                      {currConversationInfo.introduction}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
+
+            {/* 原有的头部内容 */}
+            {headerContent}
+          </div>
 
           {/* FAQ内容 */}
           {faqContent && (
@@ -1065,19 +1227,34 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           {/* 聊天消息区域 - 占据剩余空间 */}
           <div className='flex-1 p-4'>
             <div className='h-full'>
-              <SimpleChat
-                chatList={chatList}
-                onSend={handleSend}
-                onFeedback={handleFeedback}
-                isResponding={isResponding}
-                checkCanSend={checkCanSend}
-                visionConfig={visionConfig}
-                isHideSendInput={true}
-                showLoadHistoryButton={showLoadHistoryButton}
-                isLoadingHistory={isLoadingHistory}
-                onLoadHistory={loadHistoryMessages}
-                historyMessages={historyMessages}
-              />
+              {/* 会话切换加载指示器 */}
+              {isSwitchingConversation && (
+                <div className='flex items-center justify-center h-full'>
+                  <div className='flex flex-col items-center gap-4'>
+                    <Loading type='area' />
+                    <p className='text-sm text-gray-500'>
+                      {t('app.conversation.switching') || '切换会话中...'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* 正常聊天内容 */}
+              {!isSwitchingConversation && (
+                <SimpleChat
+                  chatList={chatList}
+                  onSend={handleSend}
+                  onFeedback={handleFeedback}
+                  isResponding={isResponding}
+                  checkCanSend={checkCanSend}
+                  visionConfig={visionConfig}
+                  isHideSendInput={true}
+                  showLoadHistoryButton={showLoadHistoryButton}
+                  isLoadingHistory={isLoadingHistory}
+                  onLoadHistory={loadHistoryMessages}
+                  historyMessages={historyMessages}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -1086,7 +1263,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       {/* 固定在窗口底部的输入框 */}
       <div
         ref={inputBoxRef}
-        className='fixed bottom-0 left-0 right-0 z-50 p-4'
+        className='fixed bottom-0 left-0 right-0 z-50 p-4 bg-white border-t border-gray-200'
 
       >
         {

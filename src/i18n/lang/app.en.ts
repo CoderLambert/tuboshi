@@ -79,6 +79,24 @@ const translation = {
     copied: 'Copied',
     copy: 'Copy',
   },
+  conversation: {
+    title: 'Conversations',
+    newChat: 'New Chat',
+    searchPlaceholder: 'Search conversations...',
+    noConversations: 'No conversations yet',
+    noSearchResults: 'No matching conversations found',
+    startFirstChat: 'Start your first conversation',
+    totalCount: 'Total {{count}} conversations',
+    toggle: 'Conversations',
+    toggleTitle: 'Switch conversation',
+    deleteConfirm: 'Are you sure you want to delete this conversation?',
+    renamePrompt: 'Enter new conversation name:',
+    renameSuccess: 'Conversation renamed successfully',
+    deleteSuccess: 'Conversation deleted successfully',
+    switchSuccess: 'Switched to conversation successfully',
+    switching: 'Switching conversation...',
+    newChatCreated: 'New conversation created',
+  },
 }
 
 export default translation

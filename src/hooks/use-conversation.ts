@@ -12,7 +12,7 @@ function useConversation() {
   // when set conversation id, we do not have set appId
   const setCurrConversationId = (id: string, appId: string, isSetToLocalStroge = true, newConversationName = '') => {
     // ✅ 输入验证
-    console.log(`id ${id} - appId ${appId} `)
+    console.log(`id ${id} - appId ${appId}`)
     if (!id || typeof id !== 'string') {
       console.warn('Invalid conversation ID:', id)
       throw new Error(`Invalid conversation ID: ${id}`)
@@ -155,6 +155,57 @@ function useConversation() {
   const [existConversationInfo, setExistConversationInfo] = useState<ConversationInfoType | null>(null)
   const currConversationInfo = isNewConversation ? newConversationInfo : existConversationInfo
 
+  // 新增：切换到指定会话
+  const switchToConversation = (conversationId: string, appId: string) => {
+    if (conversationId === currConversationId) {
+      return // 已经是当前会话，无需切换
+    }
+
+    console.log(`Switching from conversation ${currConversationId} to ${conversationId}`)
+    setCurrConversationId(conversationId, appId, true)
+  }
+
+  // 新增：创建新会话
+  const createNewConversation = (appId: string) => {
+    console.log('Creating new conversation')
+    setCurrConversationId('-1', appId, true)
+    resetNewConversationInputs()
+
+    // 重置新会话信息
+    setNewConversationInfo({
+      name: '新会话',
+      introduction: '',
+      suggested_questions: [],
+    })
+  }
+
+  // 新增：删除会话（仅本地操作，实际删除需要调用API）
+  const deleteConversationFromList = (conversationId: string) => {
+    setConversationList(prev => prev.filter(conv => conv.id !== conversationId))
+
+    // 如果删除的是当前会话，切换到第一个可用会话或新会话
+    if (conversationId === currConversationId) {
+      const remainingConversations = conversationList.filter(conv => conv.id !== conversationId)
+      if (remainingConversations.length > 0) {
+        switchToConversation(remainingConversations[0].id, '') // 这里需要传入正确的appId
+      } else {
+        createNewConversation('') // 这里需要传入正确的appId
+      }
+    }
+  }
+
+  // 新增：重命名会话（仅本地操作，实际重命名需要调用API）
+  const renameConversationInList = (conversationId: string, newName: string) => {
+    setConversationList(prev =>
+      produce(prev, draft => {
+        const conversation = draft.find(conv => conv.id === conversationId)
+        if (conversation) {
+          conversation.name = newName
+        }
+      })
+    )
+  }
+
   return {
     conversationList,
     setConversationList,
@@ -171,6 +222,11 @@ function useConversation() {
     currConversationInfo,
     setNewConversationInfo,
     setExistConversationInfo,
+    // 新增的方法
+    switchToConversation,
+    createNewConversation,
+    deleteConversationFromList,
+    renameConversationInList,
   }
 }
 
