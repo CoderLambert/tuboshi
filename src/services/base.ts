@@ -417,7 +417,7 @@ export const upload = (fetchOptions: any): Promise<any> => {
     method: 'POST',
     url: `${urlWithPrefix}`,
     data: {},
-    timeout: 6000, // 90秒超时
+    timeout: 60000, // 90秒超时
     headers: {},
     retryCount: 0,
   }
