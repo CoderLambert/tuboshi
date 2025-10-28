@@ -74,6 +74,7 @@ export class DifyClient {
     }
 
     const url = `${this.baseUrl}${endpoint}`
+    console.log(url)
     return axios({
       method,
       url,
