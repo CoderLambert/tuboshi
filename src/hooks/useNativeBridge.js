@@ -94,7 +94,7 @@ export function useNativeBridge() {
     useEffect(() => {
       const getInfo = async () => {
         // const res = await callNativeMethod('getGPTConfig', {})
-// "app_key":"app-H0a14iPrpCSsasasdlYbtrjU","app_id":"39882922-efb9-441d-a7d3-473e7ff2d778","api_url":"https://ai-agent.jntexpress.id/v1
+        // "app_key":"app-H0a14iPrpCSsasasdlYbtrjU","app_id":"39882922-efb9-441d-a7d3-473e7ff2d778","api_url":"https://ai-agent.jntexpress.id/v1
 
         const res = { app_key: 'app-H0a14iPrpCSsasasdlYbtrjU', app_id: '39882922-efb9-441d-a7d3-473e7ff2d778', api_url: 'https://ai-agent.jntexpress.id/v1' }
         setGPTConfig(res)
