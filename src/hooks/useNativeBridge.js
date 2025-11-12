@@ -2,6 +2,21 @@ import { useEffect } from 'react'
 import useAppStore from './useAppStore'
 /* global Android, window */
 export function useNativeBridge() {
+  // 辅助函数：解析Android平台返回值
+  const parseAndroidResponse = (data) => {
+    if (typeof data === 'object') return data
+    if (typeof data === 'string') {
+      try {
+        return JSON.parse(data)
+      }
+ catch {
+        console.warn('[Android Bridge] 返回值解析失败，将返回原始字符串:', data)
+        return data
+      }
+    }
+    return data
+  }
+
   const callNativeMethod = (methodName, params, callbackName) => {
     return new Promise((resolve, reject) => {
       if (!methodName || typeof methodName !== 'string')
@@ -36,17 +51,18 @@ export function useNativeBridge() {
           else if (window.Android) {
             if (typeof callbackName === 'string') {
               window[callbackName] = (data) => {
-                resolve(data)
+                resolve(parseAndroidResponse(data))
               }
             }
+
             // 调用原生安卓方法
             if (methodName === 'jsToNative') {
               const res = Android[methodName](JSON.stringify(params))
-              resolve(res)
+              resolve(parseAndroidResponse(res))
             }
             else {
               const res = Android[methodName]()
-              resolve(res)
+              resolve(parseAndroidResponse(res))
             }
           }
           else {
@@ -137,6 +153,7 @@ export function useNativeBridge() {
     useEffect(() => {
       const getInfo = async () => {
         const res = await callNativeMethod('getStatusBarHeight', {})
+        console.log('useEffect statusBarHeight', res)
         setStatusBarHeight(res)
       }
       getInfo()
