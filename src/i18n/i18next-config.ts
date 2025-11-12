@@ -3,15 +3,19 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import commonEn from './lang/common.en'
 import commonZh from './lang/common.zh'
+import commonPt from './lang/common.pt'
 
 import appEn from './lang/app.en'
 import appZh from './lang/app.zh'
+import appPt from './lang/app.pt'
 
 import toolsEn from './lang/tools.en'
 import toolsZh from './lang/tools.zh'
+import toolsPt from './lang/tools.pt'
 
 import timeEn from './lang/time.en'
 import timeZh from './lang/time.zh'
+import timePt from './lang/time.pt'
 
 import type { Locale } from '.'
 import { APP_INFO } from '../config'
@@ -33,6 +37,15 @@ const resources = {
       // tools
       tools: toolsZh,
       time: timeZh,
+    },
+  },
+  'pt': {
+    translation: {
+      common: commonPt,
+      app: appPt,
+      // tools
+      tools: toolsPt,
+      time: timePt,
     },
   },
 }
