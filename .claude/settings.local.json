@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm add:*)",
+      "Bash(mkdir:*)",
+      "Bash(pnpm run build:*)",
+      "Bash(pnpm run type-check:*)",
+      "Bash(pnpm run es:check:*)",
+      "Bash(timeout:*)",
+      "Bash(node verify-refactor.js:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(pnpm install:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
