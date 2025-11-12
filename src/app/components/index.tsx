@@ -15,7 +15,7 @@ import OptimizedInput from '@/app/components/chat/optimized-input'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import { userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from './chat/app-unavailable'
-import { APP_INFO, USERID_COOKIE_NAME, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
+import { APP_INFO, USERID_COOKIE_NAME, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import TryToAsk from './chat/try-to-ask'
@@ -114,6 +114,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const [showLoadHistoryButton, setShowLoadHistoryButton] = useState(false)
   const [isResponding, setIsResponding] = useState(false)
   const [isSuggestQuestionsLoading, setIsSuggestQuestionsLoading] = useState(false)
+  const { useGPTConfig } = useNativeBridge()
+  const gptConfig = useGPTConfig()
+  console.log('**********   useGPTConfig   gptConfig', gptConfig)
 
   // 使用全局发送状态
   const { isSendingMessage, setIsSendingMessage } = useSending()
@@ -130,17 +133,13 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        const key = await getAppKey()
-        const id = await getAppId()
-        const url = await getApiUrl()
-
-        setApiKey(key)
-        setAppId(id)
-        setApiUrl(url)
+        setApiKey(gptConfig.app_key)
+        setAppId(gptConfig.app_id)
+        setApiUrl(gptConfig.api_url)
         console.log('=========== loadConfig start========')
-        console.log('apiKey', key)
-        console.log('appId', id)
-        console.log('apiUrl', url)
+        console.log('apiKey', gptConfig.app_key)
+        console.log('appId', gptConfig.app_id)
+        console.log('apiUrl', gptConfig.api_url)
         console.log('=========== loadConfig end ========')
       }
       catch (error) {
@@ -155,7 +154,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   useEffect(() => {
     if (apiKey && appId && apiUrl) {
       console.log('=========== loadConfig  finish ========')
-
       console.log('apiKey', apiKey)
       console.log('appId', appId)
       console.log('apiUrl', apiUrl)
@@ -175,6 +173,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     const handleResize = () => {
       updateInputBoxHeight()
     }
+
     window.addEventListener('resize', handleResize)
 
     return () => {
@@ -226,9 +225,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
       // 返回清理函数
       return () => {
-        if (resizeObserver) { resizeObserver.disconnect() }
+        if (resizeObserver) resizeObserver.disconnect()
 
-        if (mutationObserver) { mutationObserver.disconnect() }
+        if (mutationObserver) mutationObserver.disconnect()
       }
     }
 
@@ -270,6 +269,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const [hasExtremeError, setHasExtremeError] = useState(false) // ✅ 极端异常状态
   const suggestedQuestions = currConversationInfo?.suggested_questions || []
 
+  const handleConversationSwitch = () => {
+    console.log('handleConversationSwitch')
+    if (!inited) return
   // 会话切换处理
   const handleConversationSelect = useCallback((conversationId: string) => {
     if (!appId) {
@@ -481,6 +483,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           // 处理新会话
           console.log('Creating new conversation')
 
+    if (isNewConversation && isChatStarted) setChatList(generateNewChatListWithOpenStatement())
+  }
           // 重置新会话输入参数
           if (newConversationInputs) {
             setCurrInputs(newConversationInputs)
@@ -632,7 +636,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
         // 更新状态
         setHasMoreHistory(has_more)
-        if (!has_more) { setShowLoadHistoryButton(false) }
+        if (!has_more) setShowLoadHistoryButton(false)
       }
       else {
         setHasMoreHistory(false)
@@ -658,12 +662,14 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   // init
   useEffect(() => {
+    if(!appId) return
     if (!appId) { return }
     if (!hasSetAppConfig.current) {
       setAppUnavailable(true)
       return
     }
 
+    if(!userID['user-id']) return
     if (!userID['user-id']) { return }
 
     let isMounted = true // 防止组件卸载后的状态更新
@@ -792,9 +798,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   }
 
   const checkCanSend = () => {
-    if (getCurrConversationId() !== '-1') { return true }
+    if (getCurrConversationId() !== '-1') return true
 
-    if (!currInputs || !promptConfig?.prompt_variables) { return true }
+    if (!currInputs || !promptConfig?.prompt_variables) return true
 
     const inputLens = Object.values(currInputs).length
     const promptVariablesLens = promptConfig.prompt_variables.length
@@ -831,7 +837,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     const newListWithAnswer = produce(
       getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
       (draft) => {
-        if (!draft.find(item => item.id === questionId)) { draft.push({ ...questionItem }) }
+        if (!draft.find(item => item.id === questionId)) draft.push({ ...questionItem })
 
         draft.push({ ...responseItem })
       })
@@ -903,11 +909,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     if (currInputs) {
       Object.keys(currInputs).forEach((key) => {
         const value = currInputs[key]
-        if (value.supportFileType) { toServerInputs[key] = transformToServerFile(value) }
+        if (value.supportFileType) toServerInputs[key] = transformToServerFile(value)
 
-        else if (value[0]?.supportFileType) { toServerInputs[key] = value.map((item: any) => transformToServerFile(item)) }
+        else if (value[0]?.supportFileType) toServerInputs[key] = value.map((item: any) => transformToServerFile(item))
 
-        else { toServerInputs[key] = value }
+        else toServerInputs[key] = value
       })
     }
     console.log(`toServerInputs ---> ${JSON.stringify(toServerInputs)}`)
@@ -990,7 +996,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         }
         else {
           const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
-          if (lastThought) { lastThought.thought = lastThought.thought + message } // need immer setAutoFreeze
+          if (lastThought) lastThought.thought = lastThought.thought + message // need immer setAutoFreeze
         }
         if (messageId && !hasSetResponseId) {
           // 如果chat-message 响应异常，将会导致id 使用的是 前端生成的 假id
@@ -1198,7 +1204,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       },
       onFile(file) {
         const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
-        if (lastThought) { lastThought.message_files = [...(lastThought as any).message_files, { ...file }] }
+        if (lastThought) lastThought.message_files = [...(lastThought as any).message_files, { ...file }]
 
         updateCurrentQA({
           responseItem,
@@ -1253,7 +1259,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           const newListWithAnswer = produce(
             getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
             (draft) => {
-              if (!draft.find(item => item.id === questionId)) { draft.push({ ...questionItem }) }
+              if (!draft.find(item => item.id === questionId)) draft.push({ ...questionItem })
 
               draft.push({
                 ...responseItem,
@@ -1267,7 +1273,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         const newListWithAnswer = produce(
           getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
           (draft) => {
-            if (!draft.find(item => item.id === questionId)) { draft.push({ ...questionItem }) }
+            if (!draft.find(item => item.id === questionId)) draft.push({ ...questionItem })
 
             draft.push({ ...responseItem })
           })
@@ -1279,7 +1285,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           (draft) => {
             const current = draft.find(item => item.id === messageReplace.id)
 
-            if (current) { current.content = messageReplace.answer }
+            if (current) current.content = messageReplace.answer
           },
         ))
       },
@@ -1400,9 +1406,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     if (suggestedQuestionsAbortControllerRef.current) { suggestedQuestionsAbortControllerRef.current.abort() }
   }, [handleResponding])
 
-  if (appUnavailable) { return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set appId and apiKey in config/index.tsx' : ''} /> }
+  if (appUnavailable) return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set appId and apiKey in config/index.tsx' : ''} />
 
-  if (!appId || !APP_INFO || !promptConfig) { return <Loading className='mt-16' type='app' /> }
+  if (!appId || !APP_INFO || !promptConfig) return <Loading className='mt-16' type='app' />
 
   return (
     <div className='flex min-h-screen max-w-full flex-col bg-white' style={{ paddingBottom: `${inputBoxHeight}px` }}>
