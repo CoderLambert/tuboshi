@@ -34,6 +34,9 @@ export default function I18nProvider({ children }: I18nProviderProps) {
         case 'en':
           lang = 'en'
           break
+        case 'pt':
+          lang = 'pt'
+          break
         default:
           lang = defaultLanguage
       }
