@@ -1,9 +1,10 @@
-import type { NextConfig } from 'next';
-import { codeInspectorPlugin } from 'code-inspector-plugin';
-import { PHASE_DEVELOPMENT_SERVER } from 'next/constants';
+import type { NextConfig } from 'next'
+import { codeInspectorPlugin } from 'code-inspector-plugin'
+import { PHASE_DEVELOPMENT_SERVER } from 'next/constants'
 
 export default (phase: string): NextConfig => {
   const commonConfig: NextConfig = {
+    basePath: '/chat/aa',
     // 转换这些包以确保老浏览器兼容性
     transpilePackages: [
       // 基础包
@@ -155,7 +156,7 @@ export default (phase: string): NextConfig => {
       'style-to-object',
       'toggle-selection',
       'trim-lines',
-      'trough'
+      'trough',
     ],
 
     // 将有问题的包标记为外部包，避免服务端处理问题
@@ -166,7 +167,7 @@ export default (phase: string): NextConfig => {
       'cytoscape',
       'katex',
       'langium',
-      'estree-util-is-identifier-name'
+      'estree-util-is-identifier-name',
     ],
 
     // 启用生产环境 Source Map 用于调试
@@ -198,24 +199,24 @@ export default (phase: string): NextConfig => {
 
     // 确保兼容性
     env: {
-      BROWSERSLIST_ENV: 'production'
-    }
-  };
+      BROWSERSLIST_ENV: 'production',
+    },
+  }
 
   const webpackConfig = (config: any) => {
     // 处理 Markdown 文件
     config.module.rules.push({
       test: /\.md$/,
       use: 'raw-loader',
-    });
+    })
 
     // 处理 .mjs 文件
-    config.resolve.extensions = ['.mjs', '.js', '.jsx', '.ts', '.tsx'];
+    config.resolve.extensions = ['.mjs', '.js', '.jsx', '.ts', '.tsx']
     config.module.rules.push({
       test: /\.mjs$/,
       include: /node_modules/,
       type: 'javascript/auto',
-    });
+    })
 
     // 强制 SWC 转换所有现代语法 - 更激进的方法
     config.module.rules.forEach((rule: any) => {
@@ -223,7 +224,7 @@ export default (phase: string): NextConfig => {
         rule.use.forEach((useItem: any) => {
           // 处理 SWC loader
           if (useItem.loader && useItem.loader.includes('swc-loader')) {
-            useItem.options = useItem.options || {};
+            useItem.options = useItem.options || {}
 
             // 强制设置 SWC 配置
             useItem.options.jsc = {
@@ -240,16 +241,16 @@ export default (phase: string): NextConfig => {
                 functionBind: true,
                 exportDefaultFrom: true,
                 exportNamespaceFrom: true,
-                importMeta: true
+                importMeta: true,
               },
               transform: {
                 react: {
-                  runtime: 'automatic'
-                }
+                  runtime: 'automatic',
+                },
               },
               externalHelpers: false,
-              keepClassNames: true
-            };
+              keepClassNames: true,
+            }
 
             // 强制设置环境配置
             useItem.options.env = {
@@ -257,7 +258,7 @@ export default (phase: string): NextConfig => {
                 chrome: '60',
                 firefox: '55',
                 safari: '11',
-                edge: '16'
+                edge: '16',
               },
               mode: 'usage',
               coreJs: '3',
@@ -271,31 +272,29 @@ export default (phase: string): NextConfig => {
                 'transform-private-property-in-object',
                 'transform-class-static-block',
                 'transform-export-namespace-from',
-                'transform-dynamic-import'
-              ]
-            };
+                'transform-dynamic-import',
+              ],
+            }
 
-            useItem.options.module = { type: 'es6' };
-            useItem.options.minify = false;
+            useItem.options.module = { type: 'es6' }
+            useItem.options.minify = false
           }
-        });
+        })
       }
-    });
+    })
 
-
-
-    return config;
-  };
+    return config
+  }
 
   if (phase === PHASE_DEVELOPMENT_SERVER) {
     return {
       ...commonConfig,
       webpack: (config: any) => {
-        webpackConfig(config);
-        config.plugins.push(codeInspectorPlugin({ bundler: 'webpack', editor: 'code' }));
-        return config;
+        webpackConfig(config)
+        config.plugins.push(codeInspectorPlugin({ bundler: 'webpack', editor: 'code' }))
+        return config
       },
-    };
+    }
   }
 
   return {
@@ -305,7 +304,5 @@ export default (phase: string): NextConfig => {
       ignoreBuildErrors: true,
     },
     webpack: webpackConfig,
-  };
-};
-
-
+  }
+}

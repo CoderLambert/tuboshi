@@ -167,6 +167,8 @@ export class ChatClient extends DifyClient {
       files,
       ...(conversation_id ? { conversation_id } : {}),
     }
+    console.log(' ============ data ===========')
+    console.log(data)
     return this.sendRequest(
       routes.createChatMessage.method,
       routes.createChatMessage.url(),

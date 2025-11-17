@@ -80,7 +80,7 @@ export function useNativeBridge() {
         // const res = await callNativeMethod('getUserInfo', {})
         // setUserInfo(res)
         setUserInfo({
-          'user-id': '4707011998',
+          'user-id': '358284',
         })
       }
       getInfo()
@@ -94,9 +94,9 @@ export function useNativeBridge() {
     useEffect(() => {
       const getInfo = async () => {
         // const res = await callNativeMethod('getGPTConfig', {})
-        // "app_key":"app-H0a14iPrpCSsasasdlYbtrjU","app_id":"39882922-efb9-441d-a7d3-473e7ff2d778","api_url":"https://ai-agent.jntexpress.id/v1
+        // "app_key":"app-mwyf82VneBotRkMoRqlSwbaj","app_id":"164a30dd-52c1-4caa-903f-c4bd0a644ad5","api_url":"https://ai-agent.yunlu-tech.cn/v1
 
-        const res = { app_key: 'app-H0a14iPrpCSsasasdlYbtrjU', app_id: '39882922-efb9-441d-a7d3-473e7ff2d778', api_url: 'https://ai-agent.jntexpress.id/v1' }
+        const res = { app_key: 'app-mwyf82VneBotRkMoRqlSwbaj', app_id: '164a30dd-52c1-4caa-903f-c4bd0a644ad5', api_url: 'https://ai-agent.yunlu-tech.cn/v1' }
         setGPTConfig(res)
       }
       getInfo()
@@ -113,7 +113,7 @@ export function useNativeBridge() {
         // console.log('useEffect inputsFormConfig', res)
         // ts-ignore
         const res = {
-          token: 'f6c2e97900f34dfa95b862f966eeb091',
+          token: 'c7d83d37593d44d59d391da71a1e9469',
           app_version: '3.1.9.3', // eslint-disable-line sonarjs/no-hardcoded-ip
           langType: 'EN',
           app_platform: '.outfield.',
@@ -131,7 +131,7 @@ export function useNativeBridge() {
     const getUserID = async () => {
       // const res = await callNativeMethod('getUserID', {})
       setUserID({
-        'user-id': '4707011998',
+        'user-id': '358284',
       })
       // setUserID(res)
     }

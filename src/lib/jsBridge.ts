@@ -88,7 +88,7 @@ export function getGPTConfig() {
   //     app_id: string
   //     api_url: string
   // }>
-  const res = { app_key: 'app-b9TjpM58FhCOuWUPhCGzAydW', app_id: '9f47d0e7-93f5-45c9-9e50-8b411ab421bf', api_url: 'https://ai-agent.jntexpress.id/v1' }
+  const res = { app_key: 'app-mwyf82VneBotRkMoRqlSwbaj', app_id: '164a30dd-52c1-4caa-903f-c4bd0a644ad5', api_url: 'https://ai-agent.yunlu-tech.cn/v1' }
 
   return res
 }

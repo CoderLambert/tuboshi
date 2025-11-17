@@ -162,7 +162,7 @@ curl 'https://localhost:3000/api/chat-messages' \
   -H 'Accept-Language: zh-CN,zh;q=0.9' \
   -H 'Cache-Control: no-cache' \
   -H 'Connection: keep-alive' \
-  -b 'session_id=28d9f81a-b36b-445e-931f-e22451233feb; sessionId=28d9f81a-b36b-445e-931f-e22451233feb; locale=en; app_id=9f47d0e7-93f5-45c9-9e50-8b411ab421bf; api_url=https://ai-agent.jtexpress.ph/v1; api_key=app-b9TjpM58FhCOuWUPhCGzAydW; user_id=4707011993; SERVERID=2949538bc4c91f7400cc361115332483|1756691725|1756691725; __next_hmr_refresh_hash__=706da354927d71cc7df8f8044709f23c633457081244afec' \
+  -b 'session_id=28d9f81a-b36b-445e-931f-e22451233feb; sessionId=28d9f81a-b36b-445e-931f-e22451233feb; locale=en; app_id=164a30dd-52c1-4caa-903f-c4bd0a644ad5; api_url=https://ai-agent.jtexpress.ph/v1; api_key=app-mwyf82VneBotRkMoRqlSwbaj; user_id=4707011993; SERVERID=2949538bc4c91f7400cc361115332483|1756691725|1756691725; __next_hmr_refresh_hash__=706da354927d71cc7df8f8044709f23c633457081244afec' \
   -H 'Origin: https://localhost:3000' \
   -H 'Pragma: no-cache' \
   -H 'Referer: https://localhost:3000/' \
@@ -171,7 +171,7 @@ curl 'https://localhost:3000/api/chat-messages' \
   -H 'Sec-Fetch-Site: same-origin' \
   -H 'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1' \
   -H 'content-type: application/json' \
-  --data-raw '{"inputs":{"token":"f6c2e97900f34dfa95b862f966eeb091","app_version":"3.1.9.3","langType":"EN","app_platform":".outfield."},"query":"hi","conversation_id":"-1","response_mode":"streaming"}'
+  --data-raw '{"inputs":{"token":"c7d83d37593d44d59d391da71a1e9469","app_version":"3.1.9.3","langType":"EN","app_platform":".outfield."},"query":"hi","conversation_id":"-1","response_mode":"streaming"}'
 ```
 
 <form data-format="text"> // Default to text
