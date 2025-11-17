@@ -23,7 +23,7 @@ import { useNativeBridge } from '@/hooks/useNativeBridge'
 import Cookies from 'js-cookie'
 import useAppStore from '@/hooks/useAppStore'
 import Loading from '@/app/components/base/loading'
-import { ConversationList, ConversationToggle } from '@/app/components/conversation'
+import { ConversationList } from '@/app/components/conversation'
 
 export type IMainProps = {
   params: any
@@ -254,6 +254,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     createNewConversation,
     deleteConversationFromList,
     renameConversationInList,
+    emitCreateConversation,
+    emitToggleHistoryConversation,
   } = useConversation()
   //  获取用户需要输入的表单
   const { useInputsFormConfig } = useNativeBridge()
@@ -281,7 +283,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     setTimeout(() => {
       Toast.notify({
         type: 'success',
-        message: t('app.conversation.switchSuccess') || '已切换到会话'
+        message: t('app.conversation.switchSuccess') || '已切换到会话',
       })
     }, 500)
   }, [appId, switchToConversation, notify, conversationList, t])
@@ -301,7 +303,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     setTimeout(() => {
       Toast.notify({
         type: 'success',
-        message: t('app.conversation.newChatCreated') || '已创建新会话'
+        message: t('app.conversation.newChatCreated') || '已创建新会话',
       })
     }, 500)
   }, [appId, createNewConversation, notify, t])
@@ -361,7 +363,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
               const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(
                 conversation.introduction || '',
-                conversationInputs
+                conversationInputs,
               )
 
               data.forEach((item: any) => {
@@ -376,7 +378,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
                   content: item.answer,
                   agent_thoughts: addFileInfos(
                     item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts,
-                    item.message_files
+                    item.message_files,
                   ),
                   feedback: item.feedback,
                   isAnswer: true,
@@ -389,7 +391,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
               setShowLoadHistoryButton(has_more)
 
               console.log('Successfully loaded conversation messages')
-            } catch (error) {
+            }
+            catch (error) {
               console.error('Failed to load conversation messages:', error)
               // 如果加载失败，至少显示开场白
               setChatList(generateNewChatListWithOpenStatement(conversation.introduction || '', conversationInputs))
@@ -399,11 +402,12 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
               // 显示错误提示
               Toast.notify({
                 type: 'error',
-                message: t('app.errorMessage.historyLoadFailed') || '加载历史消息失败'
+                message: t('app.errorMessage.historyLoadFailed') || '加载历史消息失败',
               })
             }
           }
-        } else {
+        }
+        else {
           // 处理新会话
           console.log('Creating new conversation')
 
@@ -424,13 +428,15 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           setHasMoreHistory(false)
           setShowLoadHistoryButton(false)
         }
-      } catch (error) {
+      }
+      catch (error) {
         console.error('Error during conversation switch:', error)
         Toast.notify({
           type: 'error',
-          message: t('app.errorMessage.conversationSwitchFailed') || '切换会话失败'
+          message: t('app.errorMessage.conversationSwitchFailed') || '切换会话失败',
         })
-      } finally {
+      }
+      finally {
         // 结束会话切换
         setIsSwitchingConversation(false)
       }
@@ -439,7 +445,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     // 调用异步函数
     switchConversation()
   }, [inited, isNewConversation, conversationList, getCurrConversationId, isResponding,
-      newConversationInputs, setCurrInputs, setExistConversationInfo, setNewConversationInfo, t])
+    newConversationInputs, setCurrInputs, setExistConversationInfo, setNewConversationInfo, t])
   useEffect(handleConversationSwitch, [currConversationId, inited])
 
   useEffect(() => {
@@ -454,6 +460,23 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   useEffect(() => {
     historyMessagesRef.current = historyMessages
   }, [historyMessages])
+
+  const toggleSwitchHistoryConversation = useCallback(() => {
+    console.log('🔄 toggleSwitchHistoryConversation called')
+    setShowConversationList(pre => !pre)
+  }, [])
+  useEffect(() => {
+    // 监听事件，当用户点击创建新会话时，调用emitCreateConversation方法
+    eventBus.on(EVENTS.NEW_CONVERSATION, handleNewConversation)
+    // 监听事件，当用户点击切换历史会话时，调用emitToggleHistoryConversation方法
+    eventBus.on(EVENTS.TOGGLE_HISTORY_CONVERSATION, toggleSwitchHistoryConversation)
+
+    return () => {
+      // 组件卸载时，取消事件监听
+      eventBus.off(EVENTS.NEW_CONVERSATION, handleNewConversation)
+      eventBus.off(EVENTS.TOGGLE_HISTORY_CONVERSATION, toggleSwitchHistoryConversation)
+    }
+  })
 
   // 加载历史消息
   const loadHistoryMessages = useCallback(async () => {
@@ -566,13 +589,13 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   // init
   useEffect(() => {
-    if(!appId) { return }
+    if (!appId) { return }
     if (!hasSetAppConfig.current) {
       setAppUnavailable(true)
       return
     }
 
-    if(!userID['user-id']) { return }
+    if (!userID['user-id']) { return }
 
     let isMounted = true // 防止组件卸载后的状态更新
 
@@ -656,7 +679,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   // 监听FAQ问题点击事件
   useEffect(() => {
-    if(!hasSetAppConfig.current) { return }
+    if (!hasSetAppConfig.current) { return }
 
     const handleSendMessage = (message: string) => {
       // 如果当前是新会话状态，先确保有一个有效的会话
@@ -775,7 +798,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       // 确保所有本地文件都有 upload_file_id
       const hasInvalidLocalFiles = validFiles.some(file =>
         file.transfer_method === TransferMethod.local_file
-          && (!file.upload_file_id || file.upload_file_id === ''),
+        && (!file.upload_file_id || file.upload_file_id === ''),
       )
 
       if (hasInvalidLocalFiles) {
@@ -948,7 +971,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
                   const delayedNewConversationIndex = refreshedConversations.findIndex((conv: any) => conv.id === tempNewConversationId)
                   if (delayedNewConversationIndex !== -1) {
                     try {
-                      console.log(`延迟后找到新会话，尝试生成会话名称`)
+                      console.log('延迟后找到新会话，尝试生成会话名称')
                       const newItem: any = await generationConversationName(tempNewConversationId)
                       const newAllConversations = produce(refreshedConversations, (draft: any) => {
                         if (draft[delayedNewConversationIndex].id === tempNewConversationId) {
@@ -965,11 +988,12 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
                         suggested_questions: [],
                       })
                       console.log('延迟更新当前会话标题完成:', newItem.name)
-                    } catch (error) {
+                    }
+                    catch (error) {
                       console.error('延迟生成会话名称失败:', error)
                       // 使用第一条消息作为标题
                       if (firstMessageContent) {
-                        const truncatedTitle = firstMessageContent.length > 20 ? firstMessageContent.substring(0, 20) + '...' : firstMessageContent
+                        const truncatedTitle = firstMessageContent.length > 20 ? `${firstMessageContent.substring(0, 20)}...` : firstMessageContent
                         const newAllConversations = produce(refreshedConversations, (draft: any) => {
                           if (draft[delayedNewConversationIndex].id === tempNewConversationId) {
                             draft[delayedNewConversationIndex].name = truncatedTitle
@@ -987,11 +1011,13 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
                       }
                     }
                   }
-                } catch (error) {
+                }
+                catch (error) {
                   console.error('刷新会话列表失败:', error)
                 }
               }, 1000)
-            } else {
+            }
+            else {
               // 直接更新会话列表
               setConversationList(allConversations as ConversationItem[])
               console.log('直接更新会话列表完成')
@@ -1019,11 +1045,12 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
                   suggested_questions: [],
                 })
                 console.log('更新当前会话标题完成:', newItem.name)
-              } catch (error) {
+              }
+              catch (error) {
                 console.error('生成会话名称失败:', error)
                 // 如果生成名称失败，至少使用第一条消息作为标题
                 if (firstMessageContent && newConversationIndex !== -1) {
-                  const truncatedTitle = firstMessageContent.length > 20 ? firstMessageContent.substring(0, 20) + '...' : firstMessageContent
+                  const truncatedTitle = firstMessageContent.length > 20 ? `${firstMessageContent.substring(0, 20)}...` : firstMessageContent
                   const newAllConversations = produce(allConversations, (draft: any) => {
                     if (draft[newConversationIndex].id === tempNewConversationId) {
                       draft[newConversationIndex].name = truncatedTitle
@@ -1040,10 +1067,12 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
                   })
                 }
               }
-            } else {
+            }
+            else {
               console.warn('未找到新会话在列表中的位置:', tempNewConversationId)
             }
-          } catch (error) {
+          }
+          catch (error) {
             console.error('更新会话列表失败:', error)
           }
         }
@@ -1064,7 +1093,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         if (chatConfig?.suggested_questions_after_answer?.enabled && !hasStopResponded.current) {
           try {
             // 添加获取建议问题 api 调用
-            if(responseItem && responseItem?.id) {
+            if (responseItem && responseItem?.id) {
               setIsSuggestQuestionsLoading(true)
               console.log(`responseItem.id ---> ${responseItem.id}`)
               const { data } = await fetchSuggestedQuestions(
@@ -1254,11 +1283,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     setChatList(newChatList)
     // 根据反馈结果进行提示
     if (feedback.rating) {
-      if(feedback.rating === 'like') { notify({ type: 'success', message: t('common.operation.likeSuccess') }) }
+      if (feedback.rating === 'like') { notify({ type: 'success', message: t('common.operation.likeSuccess') }) }
 
-      if(feedback.rating === 'dislike') { notify({ type: 'success', message: t('common.operation.dislikeSuccess') }) }
+      if (feedback.rating === 'dislike') { notify({ type: 'success', message: t('common.operation.dislikeSuccess') }) }
     }
-    else{
+    else {
       notify({ type: 'success', message: t('common.operation.likeCancel') })
     }
   }
@@ -1288,8 +1317,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
     if (conversationMessagesAbortControllerRef.current) { conversationMessagesAbortControllerRef.current.abort() }
     if (suggestedQuestionsAbortControllerRef.current) { suggestedQuestionsAbortControllerRef.current.abort() }
-  },
-  [handleResponding])
+  }, [handleResponding])
 
   if (appUnavailable) { return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set appId and apiKey in config/index.tsx' : ''} /> }
 
@@ -1297,7 +1325,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   return (
     <div className='flex min-h-screen max-w-full flex-col bg-white' style={{ paddingBottom: `${inputBoxHeight}px` }}>
-      {/* 会话列表 */}
+    {/* 会话列表 */}
       <ConversationList
         conversationList={conversationList}
         currentConversationId={currConversationId}
@@ -1306,7 +1334,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         isVisible={showConversationList}
         onClose={() => setShowConversationList(false)}
       />
-
       <MobilePullToRefresh
         onLoadMore={loadHistoryMessages}
         loadingMore={isLoadingHistory}
@@ -1315,31 +1342,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       >
         {/* 页面内容区域 - 包含所有内容的页面级滚动 */}
         <div className='flex flex-col bg-white'>
-          {/* 头部内容 - 包含会话切换按钮 */}
-          <div className='shrink-0 sticky top-0 z-40 bg-white border-b border-gray-100'>
-            <div className='flex items-center justify-between p-4'>
-              <div className='flex items-center gap-3'>
-                <ConversationToggle
-                  onClick={() => setShowConversationList(true)}
-                  conversationCount={conversationList.length}
-                />
-                <div>
-                  <h1 className='text-lg font-semibold text-gray-900'>
-                    {currConversationInfo?.name || t('app.chat.newChatDefaultName')}
-                  </h1>
-                  {currConversationInfo?.introduction && (
-                    <p className='text-sm text-gray-500 mt-1 line-clamp-1'>
-                      {currConversationInfo.introduction}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* 原有的头部内容 */}
-            {headerContent}
-          </div>
-
           {/* FAQ内容 */}
           {faqContent && (
             <div className='shrink-0'>
@@ -1352,7 +1354,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
             <div className='h-full'>
               {/* 会话切换加载指示器 */}
               {isSwitchingConversation && (
-                <div className='flex items-center justify-center h-full'>
+                <div className='flex h-full items-center justify-center'>
                   <div className='flex flex-col items-center gap-4'>
                     <Loading type='area' />
                     <p className='text-sm text-gray-500'>
@@ -1386,8 +1388,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       {/* 固定在窗口底部的输入框 */}
       <div
         ref={inputBoxRef}
-        className='fixed bottom-0 left-0 right-0 z-50 p-4 bg-white border-t border-gray-200'
-
+        className='fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white p-4'
       >
         {
           chatConfig?.suggested_questions_after_answer?.enabled && !!suggestQuestionsAfterAnswer?.length && (
@@ -1429,7 +1430,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           chatConfig={chatConfig}
           isResponding={isResponding}
         />
-
       </div>
     </div>
   )

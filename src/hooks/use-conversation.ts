@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { produce } from 'immer'
 import { useGetState } from 'ahooks'
-import type { ConversationItem } from '@/types/app'
+import type { IConversationItem } from '@/types/app'
 import {
   type ConversationInfoType,
   getConversationIdFromStorage as getFromStorage,
@@ -13,8 +13,9 @@ import {
   validateRenameConversationParams,
   validateSwitchConversationParams,
 } from '@/lib/validation'
+import { EVENTS, eventBus } from '@/app/utils/event-bus'
 function useConversation() {
-  const [conversationList, setConversationList] = useState<ConversationItem[]>([])
+  const [conversationList, setConversationList] = useState<IConversationItem[]>([])
   const [currConversationId, doSetCurrConversationId, getCurrConversationId] = useGetState<string>('-1')
   // when set conversation id, we do not have set appId
   const setCurrConversationId = (id: unknown, appId: unknown, isSetToLocalStroge = true, _newConversationName = '') => {
@@ -140,6 +141,15 @@ function useConversation() {
       throw error
     }
   }
+  const emitCreateConversation = function () {
+    console.log('emitCreateConversation')
+    eventBus.emit(EVENTS.NEW_CONVERSATION)
+  }
+
+  const emitToggleHistoryConversation = function () {
+    console.log('emitToggleHistoryConversation')
+    eventBus.emit(EVENTS.TOGGLE_HISTORY_CONVERSATION)
+  }
 
   return {
     conversationList,
@@ -162,6 +172,9 @@ function useConversation() {
     createNewConversation,
     deleteConversationFromList,
     renameConversationInList,
+
+    emitCreateConversation,
+    emitToggleHistoryConversation,
   }
 }
 

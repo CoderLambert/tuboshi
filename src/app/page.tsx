@@ -15,7 +15,7 @@ import SafeAreaLayout from './components/SafeAreaLayout'
 import { useEffect } from 'react'
 
 import { enhancedCookies } from '@/lib/browser-cookie'
-
+import useConversation from '@/hooks/use-conversation'
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
   const { t } = useTranslation()
@@ -36,6 +36,8 @@ export default function Home() {
   const handleQuestionClick = (question: string) => {
     eventBus.emit(EVENTS.SEND_MESSAGE, question)
   }
+
+  const { emitCreateConversation, emitToggleHistoryConversation } = useConversation()
 
   useEffect(() => {
     import('eruda').then((eruda) => {
@@ -62,7 +64,7 @@ export default function Home() {
   return (
     <div className="flex h-screen min-h-0 flex-col bg-white">
 
-      <SafeAreaLayout title="J&T AI Assistant">
+      <SafeAreaLayout title="J&T AI Assistant" onNewConversation={emitCreateConversation} onShowHistory={emitToggleHistoryConversation}>
         <div className={styles.header}>
           <Image className={styles.logo} src={maomaoPng} alt="Maomao" />
           <h1 className={styles.intro}>{t('app.common.welcome')}</h1>

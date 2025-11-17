@@ -24,4 +24,7 @@ export const eventBus = new EventBus()
 // 事件类型
 export const EVENTS = {
   SEND_MESSAGE: 'send_message',
+  NEW_CONVERSATION: 'new_conversation',
+  SWITCH_CONVERSATION: 'switch_conversation',
+  TOGGLE_HISTORY_CONVERSATION: 'toggle_history_container',
 } as const
