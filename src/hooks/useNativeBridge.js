@@ -95,6 +95,7 @@ export function useNativeBridge() {
       const getInfo = async () => {
         // const res = await callNativeMethod('getGPTConfig', {})
         // "app_key":"app-mwyf82VneBotRkMoRqlSwbaj","app_id":"164a30dd-52c1-4caa-903f-c4bd0a644ad5","api_url":"https://ai-agent.yunlu-tech.cn/v1
+        // "app_key":"app-mwyf82VneBotRkMoRqlSwbaj","app_id":"164a30dd-52c1-4caa-903f-c4bd0a644ad5","api_url":"https://ai-agent.yunlu-tech.cn/v1
 
         const res = { app_key: 'app-mwyf82VneBotRkMoRqlSwbaj', app_id: '164a30dd-52c1-4caa-903f-c4bd0a644ad5', api_url: 'https://ai-agent.yunlu-tech.cn/v1' }
         setGPTConfig(res)

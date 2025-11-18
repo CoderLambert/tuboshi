@@ -5,7 +5,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/zh-cn'
 import type { ConversationItem as ConversationItemType } from '@/types/app'
-import { ChatBubbleLeftRightIcon, EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
+import { ChatBubbleLeftRightIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 import cn from 'clsx'
 
 dayjs.extend(relativeTime)
@@ -29,17 +29,10 @@ const ConversationItem: FC<IConversationItemProps> = ({
   className,
 }) => {
   // 处理会话名称显示
-  const displayName = conversation.name ||
-    (conversation.introduction ?
-      conversation.introduction.substring(0, 30) + (conversation.introduction.length > 30 ? '...' : '') :
-      '新会话')
-
-  // 格式化时间显示（这里假设有更新时间字段，如果没有可以使用其他逻辑）
-  const formatTime = () => {
-    // 由于原始类型中没有时间字段，这里使用一个默认显示
-    // 实际项目中可能需要从conversation中获取last_updated_at等字段
-    return '最近'
-  }
+  const displayName = conversation.name
+    || (conversation.introduction
+      ? conversation.introduction.substring(0, 30) + (conversation.introduction.length > 30 ? '...' : '')
+      : '新会话')
 
   const handleClick = () => {
     onClick?.()
@@ -63,38 +56,65 @@ const ConversationItem: FC<IConversationItemProps> = ({
   return (
     <div
       className={cn(
-        'group relative flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200',
+        'group relative flex cursor-pointer items-center gap-3 rounded-lg p-3 transition-all duration-200',
         'hover:bg-gray-50 active:bg-gray-100',
-        isActive && 'bg-blue-50 border border-blue-200',
-        className
+        isActive && 'border border-blue-200 bg-blue-50',
+        className,
       )}
       onClick={handleClick}
     >
       {/* 会话图标 */}
       <div className={cn(
-        'flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0',
-        isActive ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
+        'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+        isActive ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600',
       )}>
-        <ChatBubbleLeftRightIcon className="w-5 h-5" />
+        <ChatBubbleLeftRightIcon className="h-5 w-5" />
       </div>
 
       {/* 会话信息 */}
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <h3 className={cn(
-            'font-medium truncate text-sm',
-            isActive ? 'text-blue-900' : 'text-gray-900'
+            'truncate text-sm font-medium',
+            isActive ? 'text-blue-900' : 'text-gray-900',
           )}>
             {displayName}
           </h3>
-          <span className="text-xs text-gray-500 flex-shrink-0">
-            {formatTime()}
-          </span>
+
+          {/* 操作按钮组 */}
+          <div className="flex shrink-0 items-center gap-0.5">
+            <button
+              className={cn(
+                'flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90',
+                onRename
+                  ? 'text-blue-500 hover:bg-blue-50 active:bg-blue-500 active:text-white'
+                  : 'cursor-not-allowed text-gray-300',
+              )}
+              onClick={onRename ? handleRename : undefined}
+              title="重命名会话"
+              disabled={!onRename}
+            >
+              <PencilSquareIcon className="h-3.5 w-3.5" />
+            </button>
+            <button
+              className={cn(
+                'flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90',
+                onDelete
+                  ? 'text-red-500 hover:bg-red-50 active:bg-red-500 active:text-white'
+                  : 'cursor-not-allowed text-gray-300',
+              )}
+              onClick={onDelete ? handleDelete : undefined}
+              title="删除会话"
+              disabled={!onDelete}
+            >
+              <TrashIcon className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* 会话介绍或最后一条消息预览 */}
         {conversation.introduction && (
-          <p className="mt-1 text-xs text-gray-500 line-clamp-2">
+          <p className="mt-1 line-clamp-2 text-xs text-gray-500">
             {conversation.introduction}
           </p>
         )}
@@ -105,14 +125,14 @@ const ConversationItem: FC<IConversationItemProps> = ({
             {conversation.suggested_questions.slice(0, 2).map((question, index) => (
               <span
                 key={index}
-                className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded truncate"
+                className="inline-block truncate rounded bg-gray-100 px-2 py-1 text-xs text-gray-600"
                 style={{ maxWidth: '120px' }}
               >
                 {question}
               </span>
             ))}
             {conversation.suggested_questions.length > 2 && (
-              <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+              <span className="inline-block rounded bg-gray-100 px-2 py-1 text-xs text-gray-600">
                 +{conversation.suggested_questions.length - 2}
               </span>
             )}
@@ -120,24 +140,9 @@ const ConversationItem: FC<IConversationItemProps> = ({
         )}
       </div>
 
-      {/* 操作按钮 */}
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        {(onDelete || onRename) && (
-          <button
-            className="p-1.5 hover:bg-gray-200 rounded transition-colors"
-            onClick={(e) => {
-              e.stopPropagation()
-              // 这里可以添加下拉菜单逻辑
-            }}
-          >
-            <EllipsisHorizontalIcon className="w-4 h-4 text-gray-500" />
-          </button>
-        )}
-      </div>
-
       {/* 激活状态指示器 */}
       {isActive && (
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-l-lg" />
+        <div className="absolute bottom-0 left-0 top-0 w-1 rounded-l-lg bg-blue-600" />
       )}
     </div>
   )
