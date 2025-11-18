@@ -104,7 +104,7 @@ export type ChatItem = IChatItem & {
 
 export type ResponseHolder = {}
 
-export type ConversationItem = {
+export type IConversationItem = {
   id: string
   name: string
   inputs: Record<string, any> | null

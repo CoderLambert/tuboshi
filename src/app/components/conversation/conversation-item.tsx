@@ -1,15 +1,10 @@
 'use client'
 import type { FC } from 'react'
 import React, { memo } from 'react'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/zh-cn'
 import type { ConversationItem as ConversationItemType } from '@/types/app'
 import { ChatBubbleLeftRightIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 import cn from 'clsx'
-
-dayjs.extend(relativeTime)
-dayjs.locale('zh-cn')
 
 export type IConversationItemProps = {
   conversation: ConversationItemType

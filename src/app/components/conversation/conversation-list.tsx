@@ -103,6 +103,12 @@ const ConversationList: FC<IConversationListProps> = ({
                     conversation={conversation}
                     isActive={conversation.id === currentConversationId}
                     onClick={() => handleConversationClick(conversation.id)}
+                    onDelete={() => {
+                      console.log('delete')
+                    }}
+                    onRename={() => {
+                      console.log('onRename')
+                    }}
                   />
                 ))}
               </div>

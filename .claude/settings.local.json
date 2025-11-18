@@ -10,7 +10,8 @@
       "Bash(node verify-refactor.js:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(pnpm install:*)"
+      "Bash(pnpm install:*)",
+      "Bash(npm run type-check:*)"
     ],
     "deny": [],
     "ask": []
