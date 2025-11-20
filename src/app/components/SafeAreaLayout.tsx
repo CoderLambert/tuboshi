@@ -1,8 +1,9 @@
 'use client'
 import type { ReactNode } from 'react'
 import { useNativeBridge } from '@/hooks/useNativeBridge'
-import { ChevronLeft, Clock, MessageSquarePlus } from 'lucide-react'
-import { useSending } from '@/app/contexts/SendingContext'
+import { memo, useCallback } from 'react'
+import HeaderMenu from './HeaderMenu'
+import { ChevronLeft } from 'lucide-react'
 
 type SafeAreaLayoutProps = {
   title?: string
@@ -13,18 +14,22 @@ type SafeAreaLayoutProps = {
   onShowHistory?: () => void // 显示历史记录回调
 }
 
-export default function SafeAreaLayout({
+const SafeAreaLayout = memo(({
   title = '',
   children,
   headerHeight = 44,
   showMenu = true,
   onNewConversation,
   onShowHistory,
-}: SafeAreaLayoutProps) {
-  const { closeWebview, useStatusBarHeight } = useNativeBridge()
+}: SafeAreaLayoutProps) => {
+  const { useStatusBarHeight, closeWebview } = useNativeBridge()
   const { top } = useStatusBarHeight()
-  const { isSendingMessage } = useSending()
   // const top = 40
+
+  // 使用 useCallback 避免函数重新创建，配合 memo 优化
+  const handleBackClick = useCallback(() => {
+    closeWebview()
+  }, [closeWebview])
   return (
     <div className="relative h-full w-full" >
       {/* 顶部安全区 + Header */}
@@ -42,7 +47,7 @@ export default function SafeAreaLayout({
           {/* 左侧返回按钮 */}
           <ChevronLeft
             className='h-6 w-6 font-bold text-gray-700 transition-colors active:text-gray-900'
-            onClick={closeWebview}
+            onClick={handleBackClick}
           />
 
           {/* 中间标题区域 */}
@@ -50,29 +55,11 @@ export default function SafeAreaLayout({
 
           {/* 右侧菜单按钮区域 */}
           {showMenu && (
-            <div className="flex items-center gap-2">
-              {/* 新建会话按钮 */}
-              <button
-                onClick={onNewConversation}
-                disabled={isSendingMessage}
-                className={`flex h-8 w-8 items-center justify-center transition-transform active:scale-90 ${
-                  isSendingMessage ? 'cursor-not-allowed opacity-50' : ''
-                }`}
-              >
-                <MessageSquarePlus className="h-5 w-5 text-gray-700 transition-colors hover:text-gray-900" />
-              </button>
-
-              {/* 历史记录按钮 */}
-              <button
-                onClick={onShowHistory}
-                disabled={isSendingMessage}
-                className={`flex h-8 w-8 items-center justify-center transition-transform active:scale-90 ${
-                  isSendingMessage ? 'cursor-not-allowed opacity-50' : ''
-                }`}
-              >
-                <Clock className="h-5 w-5 text-gray-700 transition-colors hover:text-gray-900" />
-              </button>
-            </div>
+            <HeaderMenu
+              onNewConversation={onNewConversation}
+              onShowHistory={onShowHistory}
+              showMenu={true}
+            />
           )}
         </div>
       </div>
@@ -86,4 +73,8 @@ export default function SafeAreaLayout({
       </div>
     </div>
   )
-}
+})
+
+SafeAreaLayout.displayName = 'SafeAreaLayout'
+
+export default SafeAreaLayout
