@@ -130,14 +130,15 @@ const ConversationItem: FC<IConversationItemProps> = ({
         'group relative flex w-[710px] cursor-pointer items-center gap-3 rounded-[16px] border px-2 py-2 transition-all duration-200',
         'mt-2 hover:bg-gray-50 active:bg-gray-100',
         isActive && 'border-blue-200 bg-blue-50',
+        isEditing && !isActive && 'border-blue-200 bg-blue-50', // 编辑状态但非选中时也显示蓝色背景
         className,
       )}
       onClick={handleClick}
     >
       {/* 会话图标 */}
       <div className={cn(
-        'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
-        isActive ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600',
+        'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors duration-200',
+        isActive || (isEditing && !isActive) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600',
       )}>
         <ChatBubbleLeftRightIcon className="h-5 w-5" />
       </div>
@@ -152,7 +153,11 @@ const ConversationItem: FC<IConversationItemProps> = ({
                 value={editingName}
                 onChange={e => setEditingName(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="min-h-0 w-full resize-none appearance-none rounded-sm px-2 py-1 text-sm font-medium text-gray-700 outline-none"
+                className={cn(
+                  'min-h-0 w-full resize-none appearance-none rounded-sm px-2 py-1 text-sm font-medium outline-none transition-all duration-200',
+                  'border border-blue-300 bg-white text-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-200',
+                  !isActive && 'shadow-sm' // 非选中时添加轻微阴影增强视觉效果
+                )}
                 placeholder={t('app.conversation.renamePlaceholder')}
                 onClick={e => e.stopPropagation()}
                 autoSize={{ minRows: 1, maxRows: 4 }}
@@ -161,7 +166,7 @@ const ConversationItem: FC<IConversationItemProps> = ({
               <div className="flex justify-end gap-1">
                 <button
                   className={cn(
-                    'flex h-6 w-6 items-center justify-center rounded-full text-xs transition-all active:scale-90',
+                    'flex h-8 w-8 items-center justify-center rounded-full text-sm transition-all active:scale-90',
                     editingName.trim()
                       ? 'text-green-500 hover:bg-green-50 active:bg-green-500 active:text-white'
                       : 'cursor-not-allowed text-gray-300',
@@ -170,14 +175,14 @@ const ConversationItem: FC<IConversationItemProps> = ({
                   title={t('app.conversation.save')}
                   disabled={!editingName.trim()}
                 >
-                  <CheckIcon className="h-3 w-3" />
+                  <CheckIcon className="h-4 w-4" />
                 </button>
                 <button
-                  className="flex h-6 w-6 items-center justify-center rounded-full text-xs text-gray-500 transition-all hover:bg-gray-50 active:scale-90 active:bg-gray-500 active:text-white"
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-sm text-gray-500 transition-all hover:bg-gray-50 active:scale-90 active:bg-gray-500 active:text-white"
                   onClick={handleCancel}
                   title={t('app.conversation.cancel')}
                 >
-                  <XMarkIcon className="h-3 w-3" />
+                  <XMarkIcon className="h-4 w-4" />
                 </button>
               </div>
             </div>
@@ -194,7 +199,7 @@ const ConversationItem: FC<IConversationItemProps> = ({
               <div className="flex shrink-0 items-center gap-0.5">
                 <button
                   className={cn(
-                    'flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90',
+                    'flex h-9 w-9 items-center justify-center rounded-full transition-all active:scale-90',
                     isRenaming
                       ? 'cursor-not-allowed text-gray-400'
                       : onRename
@@ -206,16 +211,16 @@ const ConversationItem: FC<IConversationItemProps> = ({
                   disabled={!onRename || isRenaming}
                 >
                   {isRenaming ? (
-                    <div className="h-3.5 w-3.5 animate-spin rounded-full border border-gray-400 border-t-transparent" />
+                    <div className="h-4.5 w-4.5 animate-spin rounded-full border border-gray-400 border-t-transparent" />
                   ) : (
-                    <PencilSquareIcon className="h-3.5 w-3.5" />
+                    <PencilSquareIcon className="h-4.5 w-4.5" />
                   )}
                 </button>
                 <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                   <AlertDialogTrigger asChild>
                     <button
                       className={cn(
-                        'flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90',
+                        'flex h-9 w-9 items-center justify-center rounded-full transition-all active:scale-90',
                         onDelete
                           ? 'text-red-500 hover:bg-red-50 active:bg-red-500 active:text-white'
                           : 'cursor-not-allowed text-gray-300',
@@ -224,7 +229,7 @@ const ConversationItem: FC<IConversationItemProps> = ({
                       title={t('app.conversation.deleteConfirm')}
                       disabled={!onDelete}
                     >
-                      <TrashIcon className="h-3.5 w-3.5" />
+                      <TrashIcon className="h-4.5 w-4.5" />
                     </button>
                   </AlertDialogTrigger>
                   <AlertDialogContent onClick={e => e.stopPropagation()}>
