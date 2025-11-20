@@ -15,7 +15,7 @@ import OptimizedInput from '@/app/components/chat/optimized-input'
 import { EVENTS, eventBus } from '@/app/utils/event-bus'
 import { userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from './chat/app-unavailable'
-import { APP_INFO, USERID_COOKIE_NAME, promptTemplate } from '@/config'
+import { APP_INFO, USERID_COOKIE_NAME, getApiUrl, getAppId, getAppKey, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import TryToAsk from './chat/try-to-ask'
@@ -114,9 +114,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const [showLoadHistoryButton, setShowLoadHistoryButton] = useState(false)
   const [isResponding, setIsResponding] = useState(false)
   const [isSuggestQuestionsLoading, setIsSuggestQuestionsLoading] = useState(false)
-  const { useGPTConfig } = useNativeBridge()
-  const gptConfig = useGPTConfig()
-  console.log('**********   useGPTConfig   gptConfig', gptConfig)
 
   // 使用全局发送状态
   const { isSendingMessage, setIsSendingMessage } = useSending()
@@ -133,13 +130,17 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        setApiKey(gptConfig.app_key)
-        setAppId(gptConfig.app_id)
-        setApiUrl(gptConfig.api_url)
+        const key = await getAppKey()
+        const id = await getAppId()
+        const url = await getApiUrl()
+
+        setApiKey(key)
+        setAppId(id)
+        setApiUrl(url)
         console.log('=========== loadConfig start========')
-        console.log('apiKey', gptConfig.app_key)
-        console.log('appId', gptConfig.app_id)
-        console.log('apiUrl', gptConfig.api_url)
+        console.log('apiKey', key)
+        console.log('appId', id)
+        console.log('apiUrl', url)
         console.log('=========== loadConfig end ========')
       }
       catch (error) {
@@ -154,6 +155,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   useEffect(() => {
     if (apiKey && appId && apiUrl) {
       console.log('=========== loadConfig  finish ========')
+
       console.log('apiKey', apiKey)
       console.log('appId', appId)
       console.log('apiUrl', apiUrl)
@@ -173,7 +175,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     const handleResize = () => {
       updateInputBoxHeight()
     }
-
     window.addEventListener('resize', handleResize)
 
     return () => {
@@ -225,9 +226,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
       // 返回清理函数
       return () => {
-        if (resizeObserver) resizeObserver.disconnect()
+        if (resizeObserver) { resizeObserver.disconnect() }
 
-        if (mutationObserver) mutationObserver.disconnect()
+        if (mutationObserver) { mutationObserver.disconnect() }
       }
     }
 
@@ -269,9 +270,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const [hasExtremeError, setHasExtremeError] = useState(false) // ✅ 极端异常状态
   const suggestedQuestions = currConversationInfo?.suggested_questions || []
 
-  const handleConversationSwitch = () => {
-    console.log('handleConversationSwitch')
-    if (!inited) return
   // 会话切换处理
   const handleConversationSelect = useCallback((conversationId: string) => {
     if (!appId) {
@@ -434,8 +432,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
               console.log('Loaded messages:', data.length, 'has_more:', has_more)
 
               const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(
-                conversation.introduction || '',
-                conversationInputs,
+                  conversation.introduction || '',
+                  conversationInputs,
               )
 
               data.forEach((item: any) => {
@@ -449,8 +447,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
                   id: item.id,
                   content: item.answer,
                   agent_thoughts: addFileInfos(
-                    item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts,
-                    item.message_files,
+                      item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts,
+                      item.message_files,
                   ),
                   feedback: item.feedback,
                   isAnswer: true,
@@ -483,8 +481,6 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           // 处理新会话
           console.log('Creating new conversation')
 
-    if (isNewConversation && isChatStarted) setChatList(generateNewChatListWithOpenStatement())
-  }
           // 重置新会话输入参数
           if (newConversationInputs) {
             setCurrInputs(newConversationInputs)
@@ -636,7 +632,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
         // 更新状态
         setHasMoreHistory(has_more)
-        if (!has_more) setShowLoadHistoryButton(false)
+        if (!has_more) { setShowLoadHistoryButton(false) }
       }
       else {
         setHasMoreHistory(false)
@@ -662,14 +658,12 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   // init
   useEffect(() => {
-    if(!appId) return
     if (!appId) { return }
     if (!hasSetAppConfig.current) {
       setAppUnavailable(true)
       return
     }
 
-    if(!userID['user-id']) return
     if (!userID['user-id']) { return }
 
     let isMounted = true // 防止组件卸载后的状态更新
@@ -798,9 +792,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   }
 
   const checkCanSend = () => {
-    if (getCurrConversationId() !== '-1') return true
+    if (getCurrConversationId() !== '-1') { return true }
 
-    if (!currInputs || !promptConfig?.prompt_variables) return true
+    if (!currInputs || !promptConfig?.prompt_variables) { return true }
 
     const inputLens = Object.values(currInputs).length
     const promptVariablesLens = promptConfig.prompt_variables.length
@@ -814,11 +808,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   }
 
   const updateCurrentQA = ({
-    responseItem,
-    questionId,
-    placeholderAnswerId,
-    questionItem,
-  }: {
+                             responseItem,
+                             questionId,
+                             placeholderAnswerId,
+                             questionItem,
+                           }: {
     responseItem: ChatItem
     questionId: string
     placeholderAnswerId: string
@@ -835,12 +829,12 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
     // closesure new list is outdated.
     const newListWithAnswer = produce(
-      getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
-      (draft) => {
-        if (!draft.find(item => item.id === questionId)) draft.push({ ...questionItem })
+        getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
+        (draft) => {
+          if (!draft.find(item => item.id === questionId)) { draft.push({ ...questionItem }) }
 
-        draft.push({ ...responseItem })
-      })
+          draft.push({ ...responseItem })
+        })
     setChatList(newListWithAnswer)
   }
 
@@ -861,9 +855,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     if (files && files.length > 0) {
       // 过滤出有效的文件
       const validFiles = files.filter(file =>
-        file.transfer_method === TransferMethod.local_file
-          ? file.upload_file_id && file.upload_file_id !== ''
-          : true,
+          file.transfer_method === TransferMethod.local_file
+              ? file.upload_file_id && file.upload_file_id !== ''
+              : true,
       )
 
       // 如果过滤后文件数量减少，说明有无效文件
@@ -876,8 +870,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
       // 确保所有本地文件都有 upload_file_id
       const hasInvalidLocalFiles = validFiles.some(file =>
-        file.transfer_method === TransferMethod.local_file
-        && (!file.upload_file_id || file.upload_file_id === ''),
+          file.transfer_method === TransferMethod.local_file
+          && (!file.upload_file_id || file.upload_file_id === ''),
       )
 
       if (hasInvalidLocalFiles) {
@@ -909,11 +903,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     if (currInputs) {
       Object.keys(currInputs).forEach((key) => {
         const value = currInputs[key]
-        if (value.supportFileType) toServerInputs[key] = transformToServerFile(value)
+        if (value.supportFileType) { toServerInputs[key] = transformToServerFile(value) }
 
-        else if (value[0]?.supportFileType) toServerInputs[key] = value.map((item: any) => transformToServerFile(item))
+        else if (value[0]?.supportFileType) { toServerInputs[key] = value.map((item: any) => transformToServerFile(item)) }
 
-        else toServerInputs[key] = value
+        else { toServerInputs[key] = value }
       })
     }
     console.log(`toServerInputs ---> ${JSON.stringify(toServerInputs)}`)
@@ -996,7 +990,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         }
         else {
           const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
-          if (lastThought) lastThought.thought = lastThought.thought + message // need immer setAutoFreeze
+          if (lastThought) { lastThought.thought = lastThought.thought + message } // need immer setAutoFreeze
         }
         if (messageId && !hasSetResponseId) {
           // 如果chat-message 响应异常，将会导致id 使用的是 前端生成的 假id
@@ -1182,7 +1176,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
               setIsSuggestQuestionsLoading(true)
               console.log(`responseItem.id ---> ${responseItem.id}`)
               const { data } = await fetchSuggestedQuestions(
-                responseItem.id,
+                  responseItem.id,
               )
               setSuggestQuestionsAfterAnswer(data)
             }
@@ -1193,7 +1187,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
               })
             }
           }
-          // eslint-disable-next-line unused-imports/no-unused-vars
+              // eslint-disable-next-line unused-imports/no-unused-vars
           catch (e) {
             setSuggestQuestionsAfterAnswer([])
           }
@@ -1204,7 +1198,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       },
       onFile(file) {
         const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
-        if (lastThought) lastThought.message_files = [...(lastThought as any).message_files, { ...file }]
+        if (lastThought) { lastThought.message_files = [...(lastThought as any).message_files, { ...file }] }
 
         updateCurrentQA({
           responseItem,
@@ -1257,36 +1251,36 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
             authorName: messageEnd.metadata.annotation_reply.account.name,
           } as AnnotationType)
           const newListWithAnswer = produce(
-            getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
-            (draft) => {
-              if (!draft.find(item => item.id === questionId)) draft.push({ ...questionItem })
+              getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
+              (draft) => {
+                if (!draft.find(item => item.id === questionId)) { draft.push({ ...questionItem }) }
 
-              draft.push({
-                ...responseItem,
+                draft.push({
+                  ...responseItem,
+                })
               })
-            })
           setChatList(newListWithAnswer)
           return
         }
         // not support show citation
         // responseItem.citation = messageEnd.retriever_resources
         const newListWithAnswer = produce(
-          getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
-          (draft) => {
-            if (!draft.find(item => item.id === questionId)) draft.push({ ...questionItem })
+            getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
+            (draft) => {
+              if (!draft.find(item => item.id === questionId)) { draft.push({ ...questionItem }) }
 
-            draft.push({ ...responseItem })
-          })
+              draft.push({ ...responseItem })
+            })
         setChatList(newListWithAnswer)
       },
       onMessageReplace: (messageReplace) => {
         setChatList(produce(
-          getChatList(),
-          (draft) => {
-            const current = draft.find(item => item.id === messageReplace.id)
+            getChatList(),
+            (draft) => {
+              const current = draft.find(item => item.id === messageReplace.id)
 
-            if (current) current.content = messageReplace.answer
-          },
+              if (current) { current.content = messageReplace.answer }
+            },
         ))
       },
       onError() {
@@ -1406,121 +1400,121 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     if (suggestedQuestionsAbortControllerRef.current) { suggestedQuestionsAbortControllerRef.current.abort() }
   }, [handleResponding])
 
-  if (appUnavailable) return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set appId and apiKey in config/index.tsx' : ''} />
+  if (appUnavailable) { return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set appId and apiKey in config/index.tsx' : ''} /> }
 
-  if (!appId || !APP_INFO || !promptConfig) return <Loading className='mt-16' type='app' />
+  if (!appId || !APP_INFO || !promptConfig) { return <Loading className='mt-16' type='app' /> }
 
   return (
-    <div className='flex min-h-screen max-w-full flex-col bg-white' style={{ paddingBottom: `${inputBoxHeight}px` }}>
-      {/* 会话列表 */}
-      <ConversationList
-        conversationList={conversationList}
-        currentConversationId={currConversationId}
-        onConversationSelect={handleConversationSelect}
-        onNewConversation={handleNewConversation}
-        onConversationDeleted={handleDeleteConversation}
-        onConversationRenamed={handleRenameConversation}
-        isVisible={showConversationList}
-        onClose={() => setShowConversationList(false)}
-      />
-      <MobilePullToRefresh
-        onLoadMore={loadHistoryMessages}
-        loadingMore={isLoadingHistory}
-        hasMoreData={hasMoreHistory}
-        noMoreDataText={t('app.chat.noMoreMessages')}
-      >
-        {/* 页面内容区域 - 包含所有内容的页面级滚动 */}
-        <div className='flex flex-col bg-white'>
-          {/* FAQ内容 */}
-          {faqContent && (
-            <div className='shrink-0'>
-              {faqContent}
+      <div className='flex min-h-screen max-w-full flex-col bg-white' style={{ paddingBottom: `${inputBoxHeight}px` }}>
+        {/* 会话列表 */}
+        <ConversationList
+            conversationList={conversationList}
+            currentConversationId={currConversationId}
+            onConversationSelect={handleConversationSelect}
+            onNewConversation={handleNewConversation}
+            onConversationDeleted={handleDeleteConversation}
+            onConversationRenamed={handleRenameConversation}
+            isVisible={showConversationList}
+            onClose={() => setShowConversationList(false)}
+        />
+        <MobilePullToRefresh
+            onLoadMore={loadHistoryMessages}
+            loadingMore={isLoadingHistory}
+            hasMoreData={hasMoreHistory}
+            noMoreDataText={t('app.chat.noMoreMessages')}
+        >
+          {/* 页面内容区域 - 包含所有内容的页面级滚动 */}
+          <div className='flex flex-col bg-white'>
+            {/* FAQ内容 */}
+            {faqContent && (
+                <div className='shrink-0'>
+                  {faqContent}
+                </div>
+            )}
+
+            {/* 聊天消息区域 - 占据剩余空间 */}
+            <div className='flex-1 p-4'>
+              <div className='h-full'>
+                {/* 会话切换加载指示器 */}
+                {isSwitchingConversation && (
+                    <div className='flex h-full items-center justify-center'>
+                      <div className='flex flex-col items-center gap-4'>
+                        <Loading type='area' />
+                        <p className='text-sm text-gray-500'>
+                          {t('app.conversation.switching') || '切换会话中...'}
+                        </p>
+                      </div>
+                    </div>
+                )}
+
+                {/* 正常聊天内容 */}
+                {!isSwitchingConversation && (
+                    <SimpleChat
+                        chatList={chatList}
+                        onSend={handleSend}
+                        onFeedback={handleFeedback}
+                        isResponding={isResponding}
+                        checkCanSend={checkCanSend}
+                        visionConfig={visionConfig}
+                        isHideSendInput={true}
+                        showLoadHistoryButton={showLoadHistoryButton}
+                        isLoadingHistory={isLoadingHistory}
+                        onLoadHistory={loadHistoryMessages}
+                        historyMessages={historyMessages}
+                    />
+                )}
+              </div>
             </div>
+          </div>
+        </MobilePullToRefresh>
+
+        {/* 固定在窗口底部的输入框 */}
+        <div
+            ref={inputBoxRef}
+            className='fixed bottom-0 left-0 right-0 z-50 p-4'
+        >
+          {
+              chatConfig?.suggested_questions_after_answer?.enabled && !!suggestQuestionsAfterAnswer?.length && (
+                  <TryToAsk
+                      suggestedQuestions={suggestQuestionsAfterAnswer}
+                      onSend={handleSend}
+                      isMobile={true}
+                      isLoading={isSuggestQuestionsLoading}
+                  />
+              )
+          }
+
+          {/* ✅ 方案2：极端异常时显示刷新提示 */}
+          {hasExtremeError && (
+              <div className='mb-3 rounded-lg bg-red-50 p-3 text-center'>
+                <div className='mb-2 text-sm text-red-600'>
+                  检测到会话异常，建议刷新页面重新开始
+                </div>
+                <button
+                    onClick={() => {
+                      // 清除相关状态
+                      setChatList([])
+                      setHasExtremeError(false)
+                      // 刷新页面
+                      window.location.reload()
+                    }}
+                    className='rounded bg-red-500 px-3 py-1 text-xs text-white hover:bg-red-600'
+                >
+                  刷新页面
+                </button>
+              </div>
           )}
 
-          {/* 聊天消息区域 - 占据剩余空间 */}
-          <div className='flex-1 p-4'>
-            <div className='h-full'>
-              {/* 会话切换加载指示器 */}
-              {isSwitchingConversation && (
-                <div className='flex h-full items-center justify-center'>
-                  <div className='flex flex-col items-center gap-4'>
-                    <Loading type='area' />
-                    <p className='text-sm text-gray-500'>
-                      {t('app.conversation.switching') || '切换会话中...'}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* 正常聊天内容 */}
-              {!isSwitchingConversation && (
-                <SimpleChat
-                  chatList={chatList}
-                  onSend={handleSend}
-                  onFeedback={handleFeedback}
-                  isResponding={isResponding}
-                  checkCanSend={checkCanSend}
-                  visionConfig={visionConfig}
-                  isHideSendInput={true}
-                  showLoadHistoryButton={showLoadHistoryButton}
-                  isLoadingHistory={isLoadingHistory}
-                  onLoadHistory={loadHistoryMessages}
-                  historyMessages={historyMessages}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      </MobilePullToRefresh>
-
-      {/* 固定在窗口底部的输入框 */}
-      <div
-        ref={inputBoxRef}
-        className='fixed bottom-0 left-0 right-0 z-50 p-4'
-      >
-        {
-          chatConfig?.suggested_questions_after_answer?.enabled && !!suggestQuestionsAfterAnswer?.length && (
-            <TryToAsk
-              suggestedQuestions={suggestQuestionsAfterAnswer}
+          <OptimizedInput
               onSend={handleSend}
-              isMobile={true}
-              isLoading={isSuggestQuestionsLoading}
-            />
-          )
-        }
-
-        {/* ✅ 方案2：极端异常时显示刷新提示 */}
-        {hasExtremeError && (
-          <div className='mb-3 rounded-lg bg-red-50 p-3 text-center'>
-            <div className='mb-2 text-sm text-red-600'>
-              检测到会话异常，建议刷新页面重新开始
-            </div>
-            <button
-              onClick={() => {
-                // 清除相关状态
-                setChatList([])
-                setHasExtremeError(false)
-                // 刷新页面
-                window.location.reload()
-              }}
-              className='rounded bg-red-500 px-3 py-1 text-xs text-white hover:bg-red-600'
-            >
-              刷新页面
-            </button>
-          </div>
-        )}
-
-        <OptimizedInput
-          onSend={handleSend}
-          onStop={handleStop}
-          checkCanSend={checkCanSend}
-          visionConfig={visionConfig}
-          chatConfig={chatConfig}
-          isResponding={isResponding}
-        />
+              onStop={handleStop}
+              checkCanSend={checkCanSend}
+              visionConfig={visionConfig}
+              chatConfig={chatConfig}
+              isResponding={isResponding}
+          />
+        </div>
       </div>
-    </div>
   )
 }
 
