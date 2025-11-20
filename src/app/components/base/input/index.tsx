@@ -70,7 +70,7 @@ const Input = ({
         placeholder={placeholder ?? (showLeftIcon
           ? (t('common.operation.search') || '')
           : (t('common.placeholder.input') || ''))}
-        value={value}
+        value={value || ''}
         onChange={onChange}
         disabled={disabled}
         {...props}

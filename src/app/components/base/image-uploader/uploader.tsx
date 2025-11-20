@@ -11,12 +11,18 @@ import Toast from '@/app/components/base/toast'
 type UploaderProps = {
   children: (hovering: boolean) => JSX.Element
   onUpload: (imageFile: ImageFile) => void
-  limit?: number
+  limit?: number // 限制文件大小，单位 MB
   disabled?: boolean
 }
 
+// --- 常量定义 ---
 const MAX_CANVAS_SIZE = 1080
 const COMPRESS_THRESHOLD = 2 * 1024 * 1024 // >2MB 压缩
+
+// ✅ 前端验证常量
+const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
+const ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.gif']
+const MAX_FILE_SIZE_MB = 10 // 设置一个硬性的最大文件大小限制，例如 10MB
 
 const Uploader: FC<UploaderProps> = ({
   children,
@@ -32,7 +38,6 @@ const Uploader: FC<UploaderProps> = ({
     if (window.URL && URL.createObjectURL) {
       try {
         const blobUrl = URL.createObjectURL(file)
-        console.log('blobUrl', blobUrl)
         const testImg = new Image()
         testImg.onload = () => cb(blobUrl)
         testImg.onerror = () => {
@@ -82,7 +87,6 @@ const Uploader: FC<UploaderProps> = ({
         const ctx = canvas.getContext('2d')!
         ctx.drawImage(img, 0, 0, width, height)
 
-        // 转 blob
         canvas.toBlob(
           (blob) => {
             if (blob) {
@@ -107,20 +111,52 @@ const Uploader: FC<UploaderProps> = ({
     reader.readAsDataURL(file)
   }
 
+  /**
+   * ✅ 完整的前端文件验证函数
+   * @param file - 待验证的文件对象
+   * @returns {string | null} - 如果验证通过返回 null，否则返回错误信息
+   */
+  const validateFile = (file: File): string | null => {
+    // 1. 检查文件大小 (硬性限制)
+    const maxSizeInBytes = MAX_FILE_SIZE_MB * 1024 * 1024
+    if (file.size > maxSizeInBytes) {
+      return t('common.imageUploader.sizeExceeded', { size: MAX_FILE_SIZE_MB }) // 建议在 i18n 中添加此 key
+    }
+
+    // 2. 检查 MIME Type (主要验证方式)
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      return t('common.imageUploader.invalidFileType') // 建议在 i18n 中添加此 key
+    }
+
+    // 3. 检查文件扩展名 (辅助验证，防止用户修改 MIME)
+    const fileName = file.name.toLowerCase()
+    const isValidExtension = ALLOWED_EXTENSIONS.some(ext => fileName.endsWith(ext))
+    if (!isValidExtension) {
+      return t('common.imageUploader.invalidFileExtension') // 建议在 i18n 中添加此 key
+    }
+
+    // 4. 检查通过 props 传入的动态大小限制
+    if (limit && file.size > limit * 1024 * 1024) {
+      return t('common.imageUploader.uploadFromComputerLimit', { size: limit })
+    }
+
+    return null // 验证通过
+  }
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    console.log('==== file =====')
-    console.log(file)
     if (!file) { return }
 
-    if (limit && file.size > limit * 1024 * 1024) {
-      notify({
-        type: 'error',
-        message: t('common.imageUploader.uploadFromComputerLimit', { size: limit }),
-      })
+    // ✅ 1. 执行前端验证
+    const errorMessage = validateFile(file)
+    if (errorMessage) {
+      notify({ type: 'error', message: errorMessage })
+      // 清空 input value，允许用户再次选择同一个（错误的）文件
+      e.target.value = ''
       return
     }
 
+    // ✅ 2. 验证通过，继续处理文件
     const previewHandler = file.size > COMPRESS_THRESHOLD
       ? compressWithCanvas
       : getSafePreviewUrl
@@ -151,13 +187,13 @@ const Uploader: FC<UploaderProps> = ({
         onProgressCallback: progress => onUpload({ ...imageFile, progress }),
         onSuccessCallback: res => onUpload({ ...imageFile, fileId: res.id, url: res.preview_url, progress: 100 }),
         onErrorCallback: (err) => {
-          console.log('++++++++  imageUpload error +++++++++')
-          console.error(err)
+          console.error('++++++++ imageUpload error +++++++++', err)
           notify({
             type: 'error',
             message: t('common.imageUploader.uploadFromComputerUploadError'),
           })
           onUpload({ ...imageFile, progress: -1 })
+          // 清理 blob URL 以释放内存
           if (previewUrl.startsWith('blob:')) {
             URL.revokeObjectURL(previewUrl)
           }

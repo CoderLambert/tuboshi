@@ -26,7 +26,7 @@ export const viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover', // For iOS safe areas
-  interactiveWidget: 'resizes-content', // 让视口随键盘调整（Chrome/Android支持）
+  // interactiveWidget: 'resizes-content', // 让视口随键盘调整（Chrome/Android支持）
 }
 
 const LocaleLayout = async ({
@@ -40,7 +40,7 @@ const LocaleLayout = async ({
       'fontSize': '100px', // 注意：驼峰式写法 fontSize，而不是 font-size
       '--tpx': '0.01rem', // 自定义 CSS 变量使用字符串值
     } as React.CSSProperties} suppressHydrationWarning>
-      <body className="h-full">
+      <body className="h-full" suppressHydrationWarning>
         <div className="px-safe-left pr-safe-right pt-safe-top pb-safe-bottom flex h-full min-h-0 w-full bg-white">
           <I18nProvider >
             <Suspense fallback={<div>Loading...</div>}>
@@ -48,7 +48,6 @@ const LocaleLayout = async ({
             </Suspense>
           </I18nProvider>
         </div>
-
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -56,13 +55,14 @@ const LocaleLayout = async ({
               const baseFontSize = 200;
 
               function setRootFontSize() {
-                const width = document.documentElement?.clientWidth;
+                const width = document.documentElement.clientWidth;
                 const fontSize = ((parseFloat(width) / UI_WIDTH) * baseFontSize).toFixed(4);
                 document.documentElement.style['fontSize'] = fontSize + 'px';
                 document.documentElement.style.setProperty('--tpx', '0.01rem');
               }
               setRootFontSize();
               window.addEventListener('resize', setRootFontSize);
+              !function(t){function e(){var e=this||self;e.globalThis=e,delete t.prototype._T_}"object"!=typeof globalThis&&(this?e():(t.defineProperty(t.prototype,"_T_",{configurable:!0,get:e}),_T_))}(Object);
             `,
           }}
         />

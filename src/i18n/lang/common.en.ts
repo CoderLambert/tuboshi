@@ -90,9 +90,12 @@ const translation = {
     uploadFromComputerReadError: 'Image reading failed, please try again.',
     uploadFromComputerUploadError: 'Image upload failed, please upload again.',
     uploadFromComputerLimit: 'Upload images cannot exceed {{size}} MB',
+    sizeExceeded: 'Image size cannot exceed {{size}} MB',
     pasteImageLink: 'Paste image link',
     pasteImageLinkInputPlaceholder: 'Paste image link here',
     pasteImageLinkInvalid: 'Invalid image link',
+    invalidFileType: 'Invalid file type',
+    invalidFileExtension: 'Invalid file extension',
     imageUpload: 'Image Upload',
   },
   placeholder: {

@@ -93,6 +93,8 @@ const translation = {
     pasteImageLink: 'Colar link da imagem',
     pasteImageLinkInputPlaceholder: 'Cole o link da imagem aqui',
     pasteImageLinkInvalid: 'Link de imagem inválido',
+    invalidFileType: 'Tipo de arquivo inválido',
+    invalidFileExtension: 'Extensão de arquivo inválida',
     imageUpload: 'Envio de Imagem',
   },
   placeholder: {

@@ -17,34 +17,8 @@ export const hashTo16Bytes = (input: string): string => {
   return wordArray.toString(CryptoJS.enc.Latin1)
 }
 
-// export const encrypt = (text: string, userId: string = ''): string => {
-//   const iv = CryptoJS.enc.Utf8.parse(userId.substring(0, 16)) // 截取前16个字符作为 IV
-
-//   return CryptoJS.AES.encrypt(text, SECRET_KEY, {
-//     iv,
-//     mode: CryptoJS.mode.CBC,
-//     padding: CryptoJS.pad.Pkcs7,
-//   }).toString()
-// }
-
-// export const decrypt = (ciphertext: string, userId: string = ''): string => {
-//   const encryptedHexStr = CryptoJS.enc.Hex.parse(ciphertext)
-//   const srcs = CryptoJS.enc.Base64.stringify(encryptedHexStr)
-//   const iv = CryptoJS.enc.Utf8.parse(userId.substring(0, 16)) // 截取前16个字符作为 IV
-
-//   const decrypt = CryptoJS.AES.decrypt(srcs, SECRET_KEY, {
-//     iv,
-//     mode: CryptoJS.mode.CBC,
-//     padding: CryptoJS.pad.Pkcs7,
-//   })
-//   const decryptedStr = decrypt.toString(CryptoJS.enc.Utf8)
-//   // const bytes = CryptoJS.AES.decrypt(ciphertext, SECRET_KEY)
-//   return decryptedStr.toString()
-// }
-
 // 加密函数
 export const encrypt = (text: string, userId: string): string => {
-  // const iv = CryptoJS.enc.Utf8.parse(userId.padEnd(16, '0').substring(0, 16)) // 截取前16个字符作为 IV
   const key = hashTo16Bytes(userId)
   console.log(`encrypt key  ==>  ${key}`)
   // 确保数据是 UTF-8 编码
@@ -56,7 +30,6 @@ export const encrypt = (text: string, userId: string): string => {
 
 // 解密函数
 export const decrypt = (ciphertext: string, userId: string): string => {
-  // const iv = CryptoJS.enc.Utf8.parse(userId.padEnd(16, '0').substring(0, 16)) // 截取前16个字符作为 IV
   const key = hashTo16Bytes(userId)
   console.log(`decrypt  ==>  ${key}`)
 

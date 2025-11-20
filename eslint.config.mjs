@@ -3,76 +3,65 @@ import {
   stylistic, typescript, unicorn,
 } from '@antfu/eslint-config'
 import globals from 'globals'
-// import { fixupConfigRules } from '@eslint/compat'
 import tailwind from 'eslint-plugin-tailwindcss'
 import reactHooks from 'eslint-plugin-react-hooks'
 import sonar from 'eslint-plugin-sonarjs'
 
-// import reactRefresh from 'eslint-plugin-react-refresh'
-
 export default combine(
+  // 基础样式配置
   stylistic({
     lessOpinionated: true,
-    // original @antfu/eslint-config does not support jsx
-    jsx: false,
+    jsx: false, // @antfu/eslint-config 不支持 jsx
     semi: false,
     quotes: 'single',
     overrides: {
-      // original config
+      // 基础样式规则
       'style/indent': ['error', 2],
       'style/quotes': ['error', 'single'],
-      'curly': ['error', 'multi-or-nest', 'consistent'],
       'style/comma-spacing': ['error', { before: false, after: true }],
       'style/quote-props': ['warn', 'consistent-as-needed'],
-
-      // these options does not exist in old version
-      // maybe useless
-      'style/indent-binary-ops': 'off',
-      'style/multiline-ternary': 'off',
-      'antfu/top-level-function': 'off',
-      'antfu/curly': 'off',
-      'antfu/consistent-chaining': 'off',
-
-      // copy from eslint-config-antfu 0.36.0
       'style/brace-style': ['error', 'stroustrup', { allowSingleLine: true }],
       'style/dot-location': ['error', 'property'],
       'style/object-curly-newline': ['error', { consistent: true, multiline: true }],
       'style/object-property-newline': ['error', { allowAllPropertiesOnSameLine: true }],
       'style/template-curly-spacing': ['error', 'never'],
-      'style/keyword-spacing': 'off',
 
-      // not exist in old version, and big change
+      // 关闭可能冲突或不需要的规则
+      'style/indent-binary-ops': 'off',
+      'style/multiline-ternary': 'off',
+      'style/keyword-spacing': 'off',
       'style/member-delimiter-style': 'off',
+      'style/max-statements-per-line': 'off',
+
+      // 关闭 antfu 特定规则
+      'antfu/top-level-function': 'off',
+      'antfu/curly': 'off',
+      'antfu/consistent-chaining': 'off',
+      'antfu/consistent-list-newline': 'off',
     },
   }),
+  // JavaScript 基础配置
   javascript({
     overrides: {
-      // handled by unused-imports/no-unused-vars
-      'no-unused-vars': 'off',
+      'no-unused-vars': 'off', // 由 unused-imports 处理
     },
   }),
+
+  // TypeScript 配置
   typescript({
     overrides: {
-      // original config
       'ts/consistent-type-definitions': ['warn', 'type'],
-
-      // useful, but big change
       'ts/no-empty-object-type': 'off',
-      'ts/ban-ts-comment': 'off', // Allow @ts-expect-error without description
+      'ts/ban-ts-comment': 'off', // 允许 @ts-expect-error 不带描述
+      'ts/no-require-imports': 'off',
+      'ts/no-use-before-define': 'off', // 允许函数声明提升
     },
   }),
+
+  // Unicorn 和 Node.js 规则
   unicorn(),
   node(),
-  // use nextjs config will break @eslint/config-inspector
-  // use `ESLINT_CONFIG_INSPECTOR=true pnpx @eslint/config-inspector` to check the config
-  // ...process.env.ESLINT_CONFIG_INSPECTOR
-  //   ? []
-  {
-    rules: {
-      // performance issue, and not used.
-      '@next/next/no-html-link-for-pages': 'off',
-    },
-  },
+  // 忽略文件配置
   {
     ignores: [
       '**/node_modules/*',
@@ -84,47 +73,56 @@ export default combine(
       '**/*.json',
     ],
   },
+
+  // Next.js 性能优化
   {
-    // orignal config
     rules: {
-      // orignal ts/no-var-requires
-      'ts/no-require-imports': 'off',
+      '@next/next/no-html-link-for-pages': 'off', // 性能问题，且未使用
+    },
+  },
+
+  // 主要规则配置
+  {
+    rules: {
+      // 基础规则
       'no-console': 'off',
-      'react-hooks/exhaustive-deps': 'warn',
-      'react/display-name': 'off',
+      'camelcase': 'off',
+      'default-case-last': 'error',
+      'no-cond-assign': 'off', // 允许在条件中赋值
+      'no-new': 'off', // 允许 new 用于副作用
+      'no-empty-function': 'off', // 允许空函数作为占位符
+
+      // 数组回调规则
       'array-callback-return': ['error', {
         allowImplicit: false,
         checkForEach: false,
       }],
 
-      // copy from eslint-config-antfu 0.36.0
-      'camelcase': 'off',
-      'default-case-last': 'error',
+      // 导入排序 - 保持原有配置避免大量变更
+      'sort-imports': ['error', {
+        ignoreCase: false,
+        ignoreDeclarationSort: true,
+        ignoreMemberSort: false,
+        memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
+        allowSeparatedGroups: false,
+      }],
 
-      // antfu use eslint-plugin-perfectionist to replace this
-      // will cause big change, so keep the original sort-imports
-      'sort-imports': [
-        'error',
-        {
-          ignoreCase: false,
-          ignoreDeclarationSort: true,
-          ignoreMemberSort: false,
-          memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
-          allowSeparatedGroups: false,
-        },
-      ],
-
-      // antfu migrate to eslint-plugin-unused-imports
+      // 未使用变量和导入
       'unused-imports/no-unused-vars': 'warn',
       'unused-imports/no-unused-imports': 'warn',
 
-      // TypeScript and code quality rules
-      'ts/no-use-before-define': 'off', // Allow hoisting for function declarations
-      'no-cond-assign': 'off', // Allow assignment in conditions when intentional
-      'no-new': 'off', // Allow new for side effects when needed
+      // React 相关
+      'react/display-name': 'off',
+      'react-hooks/exhaustive-deps': 'warn',
 
-      // We use `import { noop } from 'lodash-es'` across `web` project
-      'no-empty-function': 'off', // Allow empty functions for placeholder/callback purposes
+      // Node.js 相关
+      'node/prefer-global/process': 'off',
+      'node/prefer-global/buffer': 'off',
+      'node/no-callback-literal': 'off',
+
+      // Unicorn 规则调整
+      'unicorn/prefer-number-properties': 'warn',
+      'unicorn/no-new-array': 'warn',
     },
 
     languageOptions: {
@@ -137,73 +135,63 @@ export default combine(
       },
     },
   },
-  // reactRefresh.configs.recommended,
+  // React Hooks 配置
   {
     rules: reactHooks.configs.recommended.rules,
     plugins: {
       'react-hooks': reactHooks,
     },
   },
-  // sonar
+
+  // SonarJS 代码质量规则
   {
     rules: {
       ...sonar.configs.recommended.rules,
-      // code complexity
-      'sonarjs/cognitive-complexity': 'off',
+
+      // 代码复杂度控制
+      'sonarjs/cognitive-complexity': 'off', // 认知复杂度检查
       'sonarjs/no-nested-functions': 'warn',
       'sonarjs/no-nested-conditional': 'warn',
-      'sonarjs/nested-control-flow': 'warn', // 3 levels of nesting
+      'sonarjs/nested-control-flow': 'warn', // 最多3层嵌套
       'sonarjs/no-small-switch': 'off',
-      'sonarjs/no-nested-template-literals': 'warn',
-      'sonarjs/redundant-type-aliases': 'off',
       'sonarjs/regex-complexity': 'warn',
-      // maintainability
+
+      // 可维护性
       'sonarjs/no-ignored-exceptions': 'off',
       'sonarjs/no-commented-code': 'warn',
       'sonarjs/no-unused-vars': 'warn',
       'sonarjs/prefer-single-boolean-return': 'warn',
+      'sonarjs/no-nested-template-literals': 'warn',
+      'sonarjs/no-dead-store': 'warn',
+      'sonarjs/no-duplicated-branches': 'warn',
+      'sonarjs/max-lines': 'warn', // 最大1000行
+      'sonarjs/no-variable-usage-before-declaration': 'error',
+      'sonarjs/todo-tag': 'warn',
+
+      // 安全相关 - 开发环境放宽
+      'sonarjs/no-clear-text-protocols': 'off', // 允许 http 用于开发
+      'sonarjs/no-hardcoded-passwords': 'off',
+      'sonarjs/no-hardcoded-secrets': 'off',
+      'sonarjs/pseudo-random': 'off',
+
+      // 性能相关
+      'sonarjs/slow-regex': 'warn',
+
+      // 其他规则关闭
+      'sonarjs/redundant-type-aliases': 'off',
       'sonarjs/duplicates-in-character-class': 'off',
       'sonarjs/single-char-in-character-classes': 'off',
       'sonarjs/anchor-precedence': 'warn',
       'sonarjs/updated-loop-counter': 'off',
-      'sonarjs/no-dead-store': 'warn',
-      'sonarjs/no-duplicated-branches': 'warn',
-      'sonarjs/max-lines': 'warn', // max 1000 lines
-      'sonarjs/no-variable-usage-before-declaration': 'error',
-      // security
-      'sonarjs/no-clear-text-protocols': 'off', // Allow http for development/config
-      'sonarjs/no-hardcoded-passwords': 'off', // detect the wrong code that is not password.
-      'sonarjs/no-hardcoded-secrets': 'off',
-      'sonarjs/pseudo-random': 'off',
-      // performance
-      'sonarjs/slow-regex': 'warn',
-      // others
-      'sonarjs/todo-tag': 'warn',
       'sonarjs/table-header': 'off',
-      'sonarjs/single-character-alternation': 'off', // Allow single character alternation in regex
-      'sonarjs/constructor-for-side-effects': 'off', // Allow constructor for side effects
+      'sonarjs/single-character-alternation': 'off',
+      'sonarjs/constructor-for-side-effects': 'off',
     },
     plugins: {
       sonarjs: sonar,
     },
   },
-  // need further research
-  {
-    rules: {
-      // not exist in old version
-      'antfu/consistent-list-newline': 'off',
-      'node/prefer-global/process': 'off',
-      'node/prefer-global/buffer': 'off',
-      'node/no-callback-literal': 'off',
-
-      // useful, but big change
-      'unicorn/prefer-number-properties': 'warn',
-      'unicorn/no-new-array': 'warn',
-      'style/indent': 'off',
-      'style/max-statements-per-line': 'off', // Allow multiple statements per line
-    },
-  },
-  // suppress error for `no-undef` rule
+  // 测试文件配置
   {
     files: GLOB_TESTS,
     languageOptions: {
@@ -215,13 +203,14 @@ export default combine(
       },
     },
   },
+
+  // Tailwind CSS 配置
   tailwind.configs['flat/recommended'],
   {
     settings: {
       tailwindcss: {
-        // These are the default values but feel free to customize
         callees: ['classnames', 'clsx', 'ctl', 'cn'],
-        config: 'tailwind.config.js', // returned from `loadConfig()` utility if not provided
+        config: 'tailwind.config.js',
         cssFiles: [
           '**/*.css',
           '!**/node_modules',
@@ -235,18 +224,19 @@ export default combine(
         removeDuplicates: true,
         skipClassAttribute: false,
         whitelist: [],
-        tags: [], // can be set to e.g. ['tw'] for use in tw`bg-blue`
-        classRegex: '^class(Name)?$', // can be modified to support custom attributes. E.g. "^tw$" for `twin.macro`
+        tags: [],
+        classRegex: '^class(Name)?$',
       },
     },
     rules: {
-      // due to 1k lines of tailwind config, these rule have performance issue
+      // 性能优化 - 关闭耗时规则
       'tailwindcss/no-contradicting-classname': 'off',
       'tailwindcss/enforces-shorthand': 'off',
       'tailwindcss/no-custom-classname': 'off',
       'tailwindcss/no-unnecessary-arbitrary-value': 'off',
-
       'tailwindcss/no-arbitrary-value': 'off',
+
+      // 保留有用的规则
       'tailwindcss/classnames-order': 'warn',
       'tailwindcss/enforces-negative-arbitrary-values': 'warn',
       'tailwindcss/migration-from-tailwind-2': 'warn',

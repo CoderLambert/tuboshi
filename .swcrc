@@ -1,0 +1,60 @@
+{
+  "jsc": {
+    "target": "es5",
+    "loose": true,
+    "parser": {
+      "syntax": "typescript",
+      "tsx": true,
+      "decorators": true,
+      "dynamicImport": true,
+      "nullishCoalescing": true,
+      "optionalChaining": true,
+      "privateMethod": true,
+      "functionBind": true,
+      "exportDefaultFrom": true,
+      "exportNamespaceFrom": true,
+      "importMeta": true
+    },
+    "transform": {
+      "react": {
+        "runtime": "automatic"
+      },
+      "optimizer": {
+        "globals": {
+          "vars": {
+            "__DEBUG__": "false"
+          }
+        }
+      }
+    },
+    "externalHelpers": false,
+    "keepClassNames": true
+  },
+  "module": {
+    "type": "es6"
+  },
+  "minify": false,
+  "env": {
+    "targets": {
+      "chrome": "58",
+      "firefox": "54",
+      "safari": "10",
+      "edge": "15"
+    },
+    "mode": "entry",
+    "coreJs": "3",
+    "forceAllTransforms": true,
+    "include": [
+      "transform-nullish-coalescing-operator",
+      "transform-optional-chaining",
+      "transform-logical-assignment-operators",
+      "transform-numeric-separator",
+      "transform-class-properties",
+      "transform-private-methods",
+      "transform-private-property-in-object",
+      "transform-class-static-block",
+      "transform-export-namespace-from",
+      "transform-dynamic-import"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+    "presets": [
+        [
+            "next/babel",
+            {
+                "preset-env": {
+                    "targets": {
+                        "chrome": "70",
+                        "firefox": "67",
+                        "safari": "12",
+                        "edge": "79"
+                    },
+                    "useBuiltIns": "usage",
+                    "corejs": 3
+                }
+            }
+        ]
+    ],
+    "plugins": [
+        [
+            "styled-components",
+            {
+                "ssr": true,
+                "pure": true
+            }
+        ],
+        "@babel/plugin-transform-optional-chaining",
+        "@babel/plugin-transform-nullish-coalescing-operator"
+    ],
+    "ignore": [
+        "**/api/**",
+        "src/app/api/**",
+        "pages/api/**",
+        "app/api/**"
+    ]
+}

@@ -98,7 +98,7 @@ const DatePicker = ({
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation()
     setSelectedDate(undefined)
-    if (!isOpen) onClear()
+    if (!isOpen) { onClear() }
   }
 
   const days = useMemo(() => {
@@ -138,6 +138,7 @@ const DatePicker = ({
       setView(ViewType.time)
       return
     }
+    if (view === ViewType.time) { setView(ViewType.date) }
   }
 
   const handleTimeSelect = (hour: string, minute: string, period: Period) => {

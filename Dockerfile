@@ -1,9 +1,9 @@
 ### 基础构建镜像
 ARG BASE_IMAGE
+# BASE_IMAGE  需要配置为 reg.yl.com/basic/node:22-bookworm-slim-tools
 FROM reg.yl.com/${BASE_IMAGE} AS builder
 MAINTAINER ylops
 ENV  NODE_ENV dev
-
 WORKDIR /app
 
 #COPY package.json .

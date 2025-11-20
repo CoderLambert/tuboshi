@@ -2,7 +2,6 @@ declare module 'lamejs' {
     const lamejs: any
     export default lamejs
 }
-
 declare module 'lamejs/src/js/MPEGMode' {
     const MPEGMode: any
     export default MPEGMode

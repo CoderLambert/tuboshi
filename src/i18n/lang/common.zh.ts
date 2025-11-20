@@ -94,9 +94,12 @@ const translation = {
     uploadFromComputerReadError: '图片读取失败，请重新选择。',
     uploadFromComputerUploadError: '图片上传失败，请重新上传。',
     uploadFromComputerLimit: '上传图片不能超过 {{size}} MB',
+    sizeExceeded: '图片大小不能超过 {{size}} MB',
     pasteImageLink: '粘贴图片链接',
     pasteImageLinkInputPlaceholder: '将图像链接粘贴到此处',
     pasteImageLinkInvalid: '图片链接无效',
+    invalidFileType: '无效的文件类型',
+    invalidFileExtension: '无效的文件扩展名',
     imageUpload: '图片上传',
   },
   fileUploader: {

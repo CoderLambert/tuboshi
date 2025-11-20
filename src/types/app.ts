@@ -104,7 +104,7 @@ export type ChatItem = IChatItem & {
 
 export type ResponseHolder = {}
 
-export type ConversationItem = {
+export type IConversationItem = {
   id: string
   name: string
   inputs: Record<string, any> | null
@@ -118,6 +118,7 @@ export type AppInfo = {
   default_language: Locale
   copyright?: string
   privacy_policy?: string
+  max_conversations?: number
 }
 
 export enum Resolution {

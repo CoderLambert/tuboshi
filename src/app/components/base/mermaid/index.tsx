@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import mermaid from 'mermaid'
+// 显式导入
+import 'cytoscape'
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import LoadingAnim from '@/app/components/base/chat/chat/loading-anim'
 import cn from '@/utils/classnames'
@@ -57,7 +59,7 @@ const initMermaid = () => {
   if (typeof window !== 'undefined' && !isMermaidInitialized) {
     try {
       mermaid.initialize({
-        startOnLoad: false,
+        startOnLoad: true,
         theme: 'neutral',
         fontFamily: 'sans-serif',
         securityLevel: 'loose',
