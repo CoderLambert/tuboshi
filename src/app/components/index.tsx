@@ -7,7 +7,7 @@ import { useBoolean, useGetState } from 'ahooks'
 import useConversation from '@/hooks/use-conversation'
 import Toast from '@/app/components/base/toast'
 import { fetchAppParams, fetchChatList, fetchConversations, fetchSuggestedQuestions, generationConversationName, sendChatMessage, stopChatMessage, updateFeedback } from '@/services'
-import type { ChatConfig, ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
+import type { ChatConfig, ChatItem, Feedbacktype, IConversationItem, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
 import SimpleChat from '@/app/components/chat/simple-chat'
 import MobilePullToRefresh from '@/app/components/base/mobile-pull-to-refresh'
@@ -295,6 +295,17 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       return
     }
 
+    // 检查是否已达到最大会话数限制
+    const MAX_CONVERSATIONS = APP_INFO.max_conversations || 10
+    if (conversationList.length >= MAX_CONVERSATIONS) {
+      Toast.notify({
+        type: 'warning',
+        message: t('app.conversation.maxConversationLimit', { max: MAX_CONVERSATIONS }),
+        duration: 4000,
+      })
+      return
+    }
+
     console.log('Creating new conversation')
     createNewConversation(appId)
     setShowConversationList(false)
@@ -306,7 +317,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         message: t('app.conversation.newChatCreated') || '已创建新会话',
       })
     }, 500)
-  }, [appId, createNewConversation, notify, t])
+  }, [appId, conversationList.length, createNewConversation, notify, t])
 
   // 删除会话处理
   const handleDeleteConversation = useCallback(async (conversationId: string) => {
@@ -321,20 +332,22 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         const remainingConversations = conversationList.filter(conv => conv.id !== conversationId)
         if (remainingConversations.length > 0) {
           handleConversationSelect(remainingConversations[0].id)
-        } else {
+        }
+        else {
           handleNewConversation()
         }
       }
 
       Toast.notify({
         type: 'success',
-        message: t('app.conversation.deleteSuccess') || '会话删除成功'
+        message: t('app.conversation.deleteSuccess') || '会话删除成功',
       })
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Failed to delete conversation:', error)
       Toast.notify({
         type: 'error',
-        message: t('app.conversation.deleteFailed') || '删除会话失败'
+        message: t('app.conversation.deleteFailed') || '删除会话失败',
       })
     }
   }, [getCurrConversationId, conversationList, deleteConversationFromList, handleConversationSelect, handleNewConversation, t])
@@ -349,13 +362,14 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
       Toast.notify({
         type: 'success',
-        message: t('app.conversation.renameSuccess') || '会话重命名成功'
+        message: t('app.conversation.renameSuccess') || '会话重命名成功',
       })
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Failed to rename conversation:', error)
       Toast.notify({
         type: 'error',
-        message: t('app.conversation.renameFailed') || '重命名会话失败'
+        message: t('app.conversation.renameFailed') || '重命名会话失败',
       })
     }
   }, [renameConversationInList, t])
@@ -496,8 +510,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
     // 调用异步函数
     switchConversation()
-  }, [inited, isNewConversation, conversationList, getCurrConversationId, isResponding,
-    newConversationInputs, setCurrInputs, setExistConversationInfo, setNewConversationInfo, t])
+  }, [getCurrConversationId, isNewConversation, inited, setChatList, conversationList, setCurrInputs, setExistConversationInfo, t, isResponding, newConversationInputs, setNewConversationInfo])
   useEffect(handleConversationSwitch, [currConversationId, inited])
 
   useEffect(() => {
@@ -659,7 +672,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         setChatConfig(appParams)
 
         // handle current conversation id
-        const { data: conversations, error } = conversationData as { data: ConversationItem[]; error: string }
+        const { data: conversations, error } = conversationData as { data: IConversationItem[]; error: string }
         // const conversations = []
         if (error) {
           Toast.notify({ type: 'error', message: error })
@@ -699,7 +712,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           transfer_methods: file_upload?.allowed_file_upload_methods || [TransferMethod.local_file],
           image_file_size_limit: system_parameters?.image_file_size_limit || 0,
         })
-        setConversationList(conversations as ConversationItem[])
+        setConversationList(conversations as IConversationItem[])
 
         if (isNewConversation) {
           setCurrConversationId('-1', appId!, false)
@@ -1016,7 +1029,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
               setTimeout(async () => {
                 try {
                   const { data: refreshedConversations }: any = await fetchConversations()
-                  setConversationList(refreshedConversations as ConversationItem[])
+                  setConversationList(refreshedConversations as IConversationItem[])
                   console.log('刷新会话列表完成')
 
                   // ✅ 延迟后尝试生成会话名称
@@ -1071,7 +1084,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
             }
             else {
               // 直接更新会话列表
-              setConversationList(allConversations as ConversationItem[])
+              setConversationList(allConversations as IConversationItem[])
               console.log('直接更新会话列表完成')
             }
 
@@ -1377,7 +1390,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   return (
     <div className='flex min-h-screen max-w-full flex-col bg-white' style={{ paddingBottom: `${inputBoxHeight}px` }}>
-    {/* 会话列表 */}
+      {/* 会话列表 */}
       <ConversationList
         conversationList={conversationList}
         currentConversationId={currConversationId}

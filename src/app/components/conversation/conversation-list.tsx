@@ -8,6 +8,8 @@ import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 import cn from 'clsx'
 import { useNativeBridge } from '@/hooks/useNativeBridge'
 import { deleteConversationApi, renameConversationApi } from '@/services/conversation-api'
+import Toast from '@/app/components/base/toast'
+import { APP_INFO } from '@/config'
 export type IConversationListProps = {
   conversationList: IConversationItem[]
   currentConversationId: string
@@ -45,7 +47,7 @@ const ConversationList: FC<IConversationListProps> = ({
   }, [conversationList])
 
   // 过滤会话列表
-  const filteredConversations = conversationListState.filter(conversation => {
+  const filteredConversations = conversationListState.filter((conversation) => {
     const conversationName = conversation.name || t('app.conversation.newConversation')
     return conversationName.toLowerCase().includes(searchQuery.toLowerCase())
   })
@@ -68,9 +70,21 @@ const ConversationList: FC<IConversationListProps> = ({
   }, [onConversationSelect, onClose])
 
   const handleNewConversation = useCallback(() => {
+    // 检查是否已达到最大会话数限制
+    const MAX_CONVERSATIONS = APP_INFO.max_conversations || 10
+    if (conversationListState.length >= MAX_CONVERSATIONS) {
+      // 显示警告提示，不关闭列表
+      Toast.notify({
+        type: 'warning',
+        message: t('app.conversation.maxConversationLimit', { max: MAX_CONVERSATIONS }),
+        duration: 4000,
+      })
+      return
+    }
+
     onNewConversation()
     onClose() // 新建后关闭列表
-  }, [onNewConversation, onClose])
+  }, [conversationListState.length, onNewConversation, onClose, t])
 
   // 删除会话处理
   const handleDeleteConversation = useCallback(async (conversationId: string, isActiveConversation: boolean = false) => {
@@ -128,7 +142,7 @@ const ConversationList: FC<IConversationListProps> = ({
   if (!isVisible) { return null }
 
   return (
-    <div className={cn('fixed inset-0 z-[100] bg-black bg-opacity-50', className)}
+    <div className={cn('bg-opacity/50 fixed inset-0 z-[100] bg-black', className)}
       style={{
         top: `calc((${top} + ${headerHight}) * var(--tpx))`,
       }}

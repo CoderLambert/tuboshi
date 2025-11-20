@@ -118,6 +118,7 @@ export type AppInfo = {
   default_language: Locale
   copyright?: string
   privacy_policy?: string
+  max_conversations?: number
 }
 
 export enum Resolution {

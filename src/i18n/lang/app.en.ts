@@ -106,6 +106,8 @@ const translation = {
     save: 'Save changes',
     cancel: 'Cancel editing',
     confirmDelete: 'Confirm delete',
+    maxConversationLimit: 'Maximum conversation limit ({{max}}) reached. Please delete some conversations before creating new ones.',
+    maxConversationTitle: 'Conversation limit reached',
   },
 }
 
