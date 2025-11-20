@@ -17,15 +17,30 @@ export const ConversationIdSchema = z.string()
 
 /**
  * 验证应用ID的Schema
- * 必须是非空字符串
+ * 允许空字符串，用于某些不需要appId的场景
  */
 export const AppIdSchema = z.string()
-  .min(1, 'App ID cannot be empty')
   .refine((appId) => {
-    const invalidValues = ['undefined', 'null', '', 'NaN']
-    return !invalidValues.includes(appId.trim())
+    const trimmedId = appId.trim()
+    const invalidValues = ['undefined', 'null', 'NaN']
+    return !invalidValues.includes(trimmedId)
   }, {
     message: 'Invalid app ID value',
+  })
+  .transform(appId => appId.trim())
+
+/**
+ * 验证应用ID的Schema（严格模式，要求非空）
+ * 用于需要有效appId的场景
+ */
+export const AppIdStrictSchema = z.string()
+  .min(1, 'App ID cannot be empty')
+  .refine((appId) => {
+    const trimmedId = appId.trim()
+    const invalidValues = ['undefined', 'null', '', 'NaN']
+    return !invalidValues.includes(trimmedId)
+  }, {
+    message: 'App ID cannot be empty',
   })
   .transform(appId => appId.trim())
 
@@ -58,7 +73,7 @@ export const ConversationInfoSchema = z.object({
  * 新会话创建参数Schema
  */
 export const NewConversationParamsSchema = z.object({
-  appId: AppIdSchema,
+  appId: AppIdSchema, // 允许空appId
   name: z.string().optional().default('新会话'),
   introduction: z.string().optional().default(''),
   suggested_questions: z.array(z.string()).optional().default([]),
@@ -69,7 +84,7 @@ export const NewConversationParamsSchema = z.object({
  */
 export const SwitchConversationParamsSchema = z.object({
   conversationId: ConversationIdSchema,
-  appId: AppIdSchema,
+  appId: AppIdSchema, // 允许空appId
 })
 
 /**
@@ -83,6 +98,7 @@ export const RenameConversationParamsSchema = z.object({
 // 类型导出
 export type ConversationIdType = z.infer<typeof ConversationIdSchema>
 export type AppIdType = z.infer<typeof AppIdSchema>
+export type AppIdStrictType = z.infer<typeof AppIdStrictSchema>
 export type ConversationIdInfoType = z.infer<typeof ConversationIdInfoSchema>
 export type ConversationItemType = z.infer<typeof ConversationItemSchema>
 export type ConversationInfoType = z.infer<typeof ConversationInfoSchema>

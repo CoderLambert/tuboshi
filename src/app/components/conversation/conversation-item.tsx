@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import type { IConversationItem as ConversationItemType } from '@/types/app'
 import { ChatBubbleLeftRightIcon, CheckIcon, PencilSquareIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import cn from 'clsx'
-import { Input } from '@/components/ui/input'
+import Textarea from 'rc-textarea'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,7 +41,8 @@ const ConversationItem: FC<IConversationItemProps> = ({
   const { t } = useTranslation()
   const [isEditing, setIsEditing] = useState(false)
   const [editingName, setEditingName] = useState('')
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<any>(null)
+  const [isTextSelected, setIsTextSelected] = useState(false)
 
   // 处理会话名称显示
   const displayName = conversation.name
@@ -53,9 +54,22 @@ const ConversationItem: FC<IConversationItemProps> = ({
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus()
-      inputRef.current.select()
+      setIsTextSelected(false)
     }
   }, [isEditing])
+
+  // 处理文本域点击，实现全选功能
+  const handleTextareaClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!isTextSelected && inputRef.current) {
+      // 尝试全选文本
+      const textarea = inputRef.current.textAreaRef
+      if (textarea) {
+        textarea.select()
+        setIsTextSelected(true)
+      }
+    }
+  }
 
   const handleClick = () => {
     onClick?.()
@@ -81,9 +95,16 @@ const ConversationItem: FC<IConversationItemProps> = ({
 
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation()
-    const trimmedName = editingName.trim()
-    if (trimmedName && trimmedName !== conversation.name) {
-      onRename?.(conversation.id, trimmedName)
+    // 清理多行文本：移除多余空行，保留单行显示
+    const cleanedName = editingName
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .join(' ') // 用空格连接多行内容
+      .trim()
+
+    if (cleanedName && cleanedName !== conversation.name) {
+      onRename?.(conversation.id, cleanedName)
     }
     setIsEditing(false)
   }
@@ -106,9 +127,9 @@ const ConversationItem: FC<IConversationItemProps> = ({
   return (
     <div
       className={cn(
-        'group relative flex cursor-pointer items-center gap-3 rounded-lg p-3 transition-all duration-200',
-        'hover:bg-gray-50 active:bg-gray-100',
-        isActive && 'border border-blue-200 bg-blue-50',
+        'group relative flex w-[710px] cursor-pointer items-center gap-3 rounded-[16px] border px-2 py-2 transition-all duration-200',
+        'mt-2 hover:bg-gray-50 active:bg-gray-100',
+        isActive && 'border-blue-200 bg-blue-50',
         className,
       )}
       onClick={handleClick}
@@ -125,36 +146,40 @@ const ConversationItem: FC<IConversationItemProps> = ({
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           {isEditing ? (
-            <div className="flex min-w-0 flex-1 items-center gap-1">
-              <Input
+            <div className="flex min-w-0  flex-1 flex-row gap-1">
+              <Textarea
                 ref={inputRef}
                 value={editingName}
                 onChange={e => setEditingName(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="h-7 px-2 py-1 text-sm font-medium"
+                className="min-h-0 w-full resize-none appearance-none rounded-sm px-2 py-1 text-sm font-medium text-gray-700 outline-none"
                 placeholder={t('app.conversation.renamePlaceholder')}
                 onClick={e => e.stopPropagation()}
+                autoSize={{ minRows: 1, maxRows: 4 }}
+                rows={1}
               />
-              <button
-                className={cn(
-                  'flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90',
-                  editingName.trim()
-                    ? 'text-green-500 hover:bg-green-50 active:bg-green-500 active:text-white'
-                    : 'cursor-not-allowed text-gray-300',
-                )}
-                onClick={editingName.trim() ? handleSave : undefined}
-                title={t('app.conversation.save')}
-                disabled={!editingName.trim()}
-              >
-                <CheckIcon className="h-3.5 w-3.5" />
-              </button>
-              <button
-                className="flex h-7 w-7 items-center justify-center rounded-full text-gray-500 transition-all hover:bg-gray-50 active:scale-90 active:bg-gray-500 active:text-white"
-                onClick={handleCancel}
-                title={t('app.conversation.cancel')}
-              >
-                <XMarkIcon className="h-3.5 w-3.5" />
-              </button>
+              <div className="flex justify-end gap-1">
+                <button
+                  className={cn(
+                    'flex h-6 w-6 items-center justify-center rounded-full text-xs transition-all active:scale-90',
+                    editingName.trim()
+                      ? 'text-green-500 hover:bg-green-50 active:bg-green-500 active:text-white'
+                      : 'cursor-not-allowed text-gray-300',
+                  )}
+                  onClick={editingName.trim() ? handleSave : undefined}
+                  title={t('app.conversation.save')}
+                  disabled={!editingName.trim()}
+                >
+                  <CheckIcon className="h-3 w-3" />
+                </button>
+                <button
+                  className="flex h-6 w-6 items-center justify-center rounded-full text-xs text-gray-500 transition-all hover:bg-gray-50 active:scale-90 active:bg-gray-500 active:text-white"
+                  onClick={handleCancel}
+                  title={t('app.conversation.cancel')}
+                >
+                  <XMarkIcon className="h-3 w-3" />
+                </button>
+              </div>
             </div>
           ) : (
             <>
@@ -202,7 +227,7 @@ const ConversationItem: FC<IConversationItemProps> = ({
                       <TrashIcon className="h-3.5 w-3.5" />
                     </button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                  <AlertDialogContent onClick={e => e.stopPropagation()}>
                     <AlertDialogHeader>
                       <AlertDialogTitle>{t('app.conversation.deleteConfirm')}</AlertDialogTitle>
                       <AlertDialogDescription>
@@ -215,7 +240,7 @@ const ConversationItem: FC<IConversationItemProps> = ({
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+                      <AlertDialogCancel onClick={e => e.stopPropagation()}>
                         {t('app.conversation.cancel')}
                       </AlertDialogCancel>
                       <AlertDialogAction

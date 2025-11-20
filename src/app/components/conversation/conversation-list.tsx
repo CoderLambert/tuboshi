@@ -137,7 +137,7 @@ const ConversationList: FC<IConversationListProps> = ({
         {/* 侧边栏 */}
         <div className="flex w-80 flex-col bg-white shadow-xl">
           {/* 搜索框 */}
-          <div className="border-b border-gray-100 p-4">
+          <div className="px-4 pt-4">
             <div className="relative flex">
               <input
                 type="text"
