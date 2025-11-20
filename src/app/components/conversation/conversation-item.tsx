@@ -2,16 +2,28 @@
 import type { FC } from 'react'
 import React, { memo, useEffect, useRef, useState } from 'react'
 import 'dayjs/locale/zh-cn'
+import { useTranslation } from 'react-i18next'
 import type { IConversationItem as ConversationItemType } from '@/types/app'
 import { ChatBubbleLeftRightIcon, CheckIcon, PencilSquareIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import cn from 'clsx'
 import { Input } from '@/components/ui/input'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 
 export type IConversationItemProps = {
   conversation: ConversationItemType
   isActive?: boolean
   onClick?: () => void
-  onDelete?: (conversationId: string) => void
+  onDelete?: (conversationId: string, isActive?: boolean) => void // 修改：传递是否为当前会话
   onRename?: (conversationId: string, newName: string) => void
   isRenaming?: boolean // 新增：是否正在重命名
   className?: string
@@ -26,6 +38,7 @@ const ConversationItem: FC<IConversationItemProps> = ({
   isRenaming = false,
   className,
 }) => {
+  const { t } = useTranslation()
   const [isEditing, setIsEditing] = useState(false)
   const [editingName, setEditingName] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -34,7 +47,7 @@ const ConversationItem: FC<IConversationItemProps> = ({
   const displayName = conversation.name
     || (conversation.introduction
       ? conversation.introduction.substring(0, 30) + (conversation.introduction.length > 30 ? '...' : '')
-      : '新会话')
+      : t('app.conversation.newConversation'))
 
   // 当开始编辑时，设置当前名称并聚焦输入框
   useEffect(() => {
@@ -48,11 +61,16 @@ const ConversationItem: FC<IConversationItemProps> = ({
     onClick?.()
   }
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (window.confirm('确定要删除这个会话吗？')) {
-      onDelete?.(conversation.id)
-    }
+    setIsDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = () => {
+    onDelete?.(conversation.id, isActive)
+    setIsDeleteDialogOpen(false)
   }
 
   const handleRename = (e: React.MouseEvent) => {
@@ -114,7 +132,7 @@ const ConversationItem: FC<IConversationItemProps> = ({
                 onChange={e => setEditingName(e.target.value)}
                 onKeyDown={handleKeyDown}
                 className="h-7 px-2 py-1 text-sm font-medium"
-                placeholder="请输入会话名称"
+                placeholder={t('app.conversation.renamePlaceholder')}
                 onClick={e => e.stopPropagation()}
               />
               <button
@@ -125,7 +143,7 @@ const ConversationItem: FC<IConversationItemProps> = ({
                     : 'cursor-not-allowed text-gray-300',
                 )}
                 onClick={editingName.trim() ? handleSave : undefined}
-                title="保存修改"
+                title={t('app.conversation.save')}
                 disabled={!editingName.trim()}
               >
                 <CheckIcon className="h-3.5 w-3.5" />
@@ -133,7 +151,7 @@ const ConversationItem: FC<IConversationItemProps> = ({
               <button
                 className="flex h-7 w-7 items-center justify-center rounded-full text-gray-500 transition-all hover:bg-gray-50 active:scale-90 active:bg-gray-500 active:text-white"
                 onClick={handleCancel}
-                title="取消编辑"
+                title={t('app.conversation.cancel')}
               >
                 <XMarkIcon className="h-3.5 w-3.5" />
               </button>
@@ -153,13 +171,13 @@ const ConversationItem: FC<IConversationItemProps> = ({
                   className={cn(
                     'flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90',
                     isRenaming
-                      ? 'text-gray-400 cursor-not-allowed'
+                      ? 'cursor-not-allowed text-gray-400'
                       : onRename
                         ? 'text-blue-500 hover:bg-blue-50 active:bg-blue-500 active:text-white'
                         : 'cursor-not-allowed text-gray-300',
                   )}
                   onClick={onRename && !isRenaming ? handleRename : undefined}
-                  title={isRenaming ? '正在重命名...' : '重命名会话'}
+                  title={isRenaming ? t('app.conversation.renaming') : t('app.conversation.renameTitle')}
                   disabled={!onRename || isRenaming}
                 >
                   {isRenaming ? (
@@ -168,19 +186,50 @@ const ConversationItem: FC<IConversationItemProps> = ({
                     <PencilSquareIcon className="h-3.5 w-3.5" />
                   )}
                 </button>
-                <button
-                  className={cn(
-                    'flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90',
-                    onDelete
-                      ? 'text-red-500 hover:bg-red-50 active:bg-red-500 active:text-white'
-                      : 'cursor-not-allowed text-gray-300',
-                  )}
-                  onClick={onDelete ? handleDelete : undefined}
-                  title="删除会话"
-                  disabled={!onDelete}
-                >
-                  <TrashIcon className="h-3.5 w-3.5" />
-                </button>
+                <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                  <AlertDialogTrigger asChild>
+                    <button
+                      className={cn(
+                        'flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90',
+                        onDelete
+                          ? 'text-red-500 hover:bg-red-50 active:bg-red-500 active:text-white'
+                          : 'cursor-not-allowed text-gray-300',
+                      )}
+                      onClick={onDelete ? handleDeleteClick : undefined}
+                      title={t('app.conversation.deleteConfirm')}
+                      disabled={!onDelete}
+                    >
+                      <TrashIcon className="h-3.5 w-3.5" />
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t('app.conversation.deleteConfirm')}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t('app.conversation.deleteWarning', { name: displayName })}
+                        {isActive && (
+                          <span className="mt-2 block font-medium text-amber-600">
+                            {t('app.conversation.deleteActiveWarning')}
+                          </span>
+                        )}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+                        {t('app.conversation.cancel')}
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDeleteConfirm()
+                        }}
+                        className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+                      >
+                        {t('app.conversation.confirmDelete')}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </>
           )}

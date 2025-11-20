@@ -3,6 +3,7 @@
  */
 import { del, post } from './base'
 import Toast from '@/app/components/base/toast'
+import { t } from 'i18next'
 
 /**
  * 重命名会话（支持乐观更新）
@@ -33,7 +34,7 @@ export async function renameConversationApi(
 
     Toast.notify({
       type: 'success',
-      message: '会话重命名成功',
+      message: t('app.conversation.renameSuccess'),
     })
 
     return true
@@ -42,7 +43,7 @@ export async function renameConversationApi(
     console.error('Failed to rename conversation:', error)
     Toast.notify({
       type: 'error',
-      message: error instanceof Error ? error.message : '重命名会话失败',
+      message: error instanceof Error ? error.message : t('app.conversation.renameFailed'),
     })
 
     // 如果API调用失败，需要回滚乐观更新
@@ -63,7 +64,7 @@ export async function deleteConversationApi(conversationId: string): Promise<boo
 
     Toast.notify({
       type: 'success',
-      message: '会话删除成功',
+      message: t('app.conversation.deleteSuccess'),
     })
 
     return true
@@ -72,7 +73,7 @@ export async function deleteConversationApi(conversationId: string): Promise<boo
     console.error('Failed to delete conversation:', error)
     Toast.notify({
       type: 'error',
-      message: error instanceof Error ? error.message : '删除会话失败',
+      message: error instanceof Error ? error.message : t('app.conversation.deleteFailed'),
     })
     return false
   }

@@ -1,6 +1,6 @@
 'use client'
 import type { FC } from 'react'
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { IConversationItem } from '@/types/app'
 import ConversationItem from './conversation-item'
@@ -45,9 +45,10 @@ const ConversationList: FC<IConversationListProps> = ({
   }, [conversationList])
 
   // 过滤会话列表
-  const filteredConversations = conversationListState.filter(conversation =>
-    conversation.name.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+  const filteredConversations = conversationListState.filter(conversation => {
+    const conversationName = conversation.name || t('app.conversation.newConversation')
+    return conversationName.toLowerCase().includes(searchQuery.toLowerCase())
+  })
 
   // 乐观更新：立即更新本地状态
   const handleOptimisticRename = useCallback((conversationId: string, newName: string) => {
@@ -56,8 +57,8 @@ const ConversationList: FC<IConversationListProps> = ({
       prev.map(conv =>
         conv.id === conversationId
           ? { ...conv, name: newName }
-          : conv
-      )
+          : conv,
+      ),
     )
   }, [])
 
@@ -72,12 +73,29 @@ const ConversationList: FC<IConversationListProps> = ({
   }, [onNewConversation, onClose])
 
   // 删除会话处理
-  const handleDeleteConversation = useCallback(async (conversationId: string) => {
+  const handleDeleteConversation = useCallback(async (conversationId: string, isActiveConversation: boolean = false) => {
     const success = await deleteConversationApi(conversationId)
     if (success) {
+      // 如果删除的是当前会话，需要切换到其他会话
+      if (isActiveConversation) {
+        // 找到删除后剩余的最新会话（按时间排序的第一个）
+        const remainingConversations = conversationListState.filter(conv => conv.id !== conversationId)
+        if (remainingConversations.length > 0) {
+          // 切换到最新的会话
+          const newestConversation = remainingConversations[0]
+          onConversationSelect(newestConversation.id)
+        }
+        else {
+          // 如果没有其他会话了，触发新建会话
+          onNewConversation()
+        }
+        // 删除当前会话后关闭列表
+        onClose()
+      }
+
       onConversationDeleted?.(conversationId)
     }
-  }, [onConversationDeleted])
+  }, [conversationListState, onConversationDeleted, onConversationSelect, onNewConversation, onClose])
 
   // 重命名会话处理（支持乐观更新）
   const handleRenameConversation = useCallback(async (conversationId: string, newName: string) => {
@@ -92,15 +110,16 @@ const ConversationList: FC<IConversationListProps> = ({
 
     if (success) {
       onConversationRenamed?.(conversationId, newName)
-    } else {
+    }
+    else {
       // API调用失败，回滚到原始名称
       if (originalName !== undefined) {
         setConversationListState(prev =>
           prev.map(conv =>
             conv.id === conversationId
               ? { ...conv, name: originalName }
-              : conv
-          )
+              : conv,
+          ),
         )
       }
     }
