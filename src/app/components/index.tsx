@@ -24,6 +24,7 @@ import Cookies from 'js-cookie'
 import useAppStore from '@/hooks/useAppStore'
 import Loading from '@/app/components/base/loading'
 import { ConversationList } from '@/app/components/conversation'
+import { useSending } from '@/app/contexts/SendingContext'
 
 export type IMainProps = {
   params: any
@@ -113,6 +114,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const [showLoadHistoryButton, setShowLoadHistoryButton] = useState(false)
   const [isResponding, setIsResponding] = useState(false)
   const [isSuggestQuestionsLoading, setIsSuggestQuestionsLoading] = useState(false)
+
+  // 使用全局发送状态
+  const { isSendingMessage, setIsSendingMessage } = useSending()
 
   // onData change thought (the produce obj). https://github.com/immerjs/immer/issues/576
   useEffect(() => {
@@ -846,6 +850,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   const handleSend = useCallback(async (message: string, files?: VisionFile[]) => {
     // ✅ 发送新消息时重置异常状态
     setHasExtremeError(false)
+    // ✅ 设置发送消息状态为true
+    setIsSendingMessage(true)
     if (files && files.length > 0) {
       // 过滤出有效的文件
       const validFiles = files.filter(file =>
@@ -856,6 +862,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
       // 如果过滤后文件数量减少，说明有无效文件
       if (validFiles.length !== files.length) {
+        // ✅ 重置发送消息状态
+        setIsSendingMessage(false)
         notify({ type: 'error', message: t('app.chat.uploadImgWaitInfo') })
         return
       }
@@ -867,6 +875,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       )
 
       if (hasInvalidLocalFiles) {
+        // ✅ 重置发送消息状态
+        setIsSendingMessage(false)
         notify({ type: 'error', message: t('app.chat.uploadImgWaitInfo') })
         return
       }
@@ -875,6 +885,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       files = validFiles
     }
     if (isResponding) {
+      // ✅ 重置发送消息状态
+      setIsSendingMessage(false)
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
     }
@@ -1006,6 +1018,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         })
       },
       async onCompleted(hasError?: boolean) {
+        // ✅ 重置发送消息状态
+        setIsSendingMessage(false)
         if (hasError) {
           handleResponding(false)
           return
@@ -1270,6 +1284,8 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         ))
       },
       onError() {
+        // ✅ 重置发送消息状态
+        setIsSendingMessage(false)
         handleResponding(false)
         setHasExtremeError(true) // ✅ 标记极端异常
 

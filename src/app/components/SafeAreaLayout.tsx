@@ -2,6 +2,7 @@
 import type { ReactNode } from 'react'
 import { useNativeBridge } from '@/hooks/useNativeBridge'
 import { ChevronLeft, Clock, MessageSquarePlus } from 'lucide-react'
+import { useSending } from '@/app/contexts/SendingContext'
 
 type SafeAreaLayoutProps = {
   title?: string
@@ -22,6 +23,7 @@ export default function SafeAreaLayout({
 }: SafeAreaLayoutProps) {
   const { closeWebview, useStatusBarHeight } = useNativeBridge()
   const { top } = useStatusBarHeight()
+  const { isSendingMessage } = useSending()
   // const top = 40
   return (
     <div className="relative h-full w-full" >
@@ -52,7 +54,10 @@ export default function SafeAreaLayout({
               {/* 新建会话按钮 */}
               <button
                 onClick={onNewConversation}
-                className="flex h-8 w-8 items-center justify-center transition-transform active:scale-90"
+                disabled={isSendingMessage}
+                className={`flex h-8 w-8 items-center justify-center transition-transform active:scale-90 ${
+                  isSendingMessage ? 'cursor-not-allowed opacity-50' : ''
+                }`}
               >
                 <MessageSquarePlus className="h-5 w-5 text-gray-700 transition-colors hover:text-gray-900" />
               </button>
@@ -60,7 +65,10 @@ export default function SafeAreaLayout({
               {/* 历史记录按钮 */}
               <button
                 onClick={onShowHistory}
-                className="flex h-8 w-8 items-center justify-center transition-transform active:scale-90"
+                disabled={isSendingMessage}
+                className={`flex h-8 w-8 items-center justify-center transition-transform active:scale-90 ${
+                  isSendingMessage ? 'cursor-not-allowed opacity-50' : ''
+                }`}
               >
                 <Clock className="h-5 w-5 text-gray-700 transition-colors hover:text-gray-900" />
               </button>
