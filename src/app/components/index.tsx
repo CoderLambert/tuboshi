@@ -1471,7 +1471,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       {/* 固定在窗口底部的输入框 */}
       <div
         ref={inputBoxRef}
-        className='fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white p-4'
+        className='fixed bottom-0 left-0 right-0 z-50 p-4'
       >
         {
           chatConfig?.suggested_questions_after_answer?.enabled && !!suggestQuestionsAfterAnswer?.length && (
