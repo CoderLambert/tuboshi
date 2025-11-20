@@ -277,6 +277,58 @@ const EnhancedMainChat: FC<IEnhancedMainChatProps> = ({ headerContent, faqConten
     setShowConversationList(false)
   }, [appId, createNewConversation, notify])
 
+  // 删除会话处理
+  const handleDeleteConversation = useCallback(async (conversationId: string) => {
+    try {
+      console.log('Deleting conversation:', conversationId)
+
+      // 从本地列表中移除会话
+      deleteConversationFromList(conversationId)
+
+      // 如果删除的是当前会话，切换到其他会话或创建新会话
+      if (conversationId === getCurrConversationId()) {
+        const remainingConversations = conversationList.filter(conv => conv.id !== conversationId)
+        if (remainingConversations.length > 0) {
+          handleConversationSelect(remainingConversations[0].id)
+        } else {
+          handleNewConversation()
+        }
+      }
+
+      Toast.notify({
+        type: 'success',
+        message: t('app.conversation.deleteSuccess') || '会话删除成功'
+      })
+    } catch (error) {
+      console.error('Failed to delete conversation:', error)
+      Toast.notify({
+        type: 'error',
+        message: t('app.conversation.deleteFailed') || '删除会话失败'
+      })
+    }
+  }, [getCurrConversationId, conversationList, deleteConversationFromList, handleConversationSelect, handleNewConversation, t])
+
+  // 重命名会话处理
+  const handleRenameConversation = useCallback(async (conversationId: string, newName: string) => {
+    try {
+      console.log('Renaming conversation:', conversationId, 'to:', newName)
+
+      // 更新本地列表中的会话名称
+      renameConversationInList(conversationId, newName)
+
+      Toast.notify({
+        type: 'success',
+        message: t('app.conversation.renameSuccess') || '会话重命名成功'
+      })
+    } catch (error) {
+      console.error('Failed to rename conversation:', error)
+      Toast.notify({
+        type: 'error',
+        message: t('app.conversation.renameFailed') || '重命名会话失败'
+      })
+    }
+  }, [renameConversationInList, t])
+
   const handleConversationSwitch = () => {
     console.log('handleConversationSwitch')
     if (!inited) { return }
@@ -1073,6 +1125,8 @@ const EnhancedMainChat: FC<IEnhancedMainChatProps> = ({ headerContent, faqConten
         currentConversationId={currConversationId}
         onConversationSelect={handleConversationSelect}
         onNewConversation={handleNewConversation}
+        onConversationDeleted={handleDeleteConversation}
+        onConversationRenamed={handleRenameConversation}
         isVisible={showConversationList}
         onClose={() => setShowConversationList(false)}
       />

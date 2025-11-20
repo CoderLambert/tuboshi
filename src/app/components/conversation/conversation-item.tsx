@@ -1,10 +1,11 @@
 'use client'
 import type { FC } from 'react'
-import React, { memo } from 'react'
+import React, { memo, useEffect, useRef, useState } from 'react'
 import 'dayjs/locale/zh-cn'
-import type { ConversationItem as ConversationItemType } from '@/types/app'
-import { ChatBubbleLeftRightIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
+import type { IConversationItem as ConversationItemType } from '@/types/app'
+import { ChatBubbleLeftRightIcon, CheckIcon, PencilSquareIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import cn from 'clsx'
+import { Input } from '@/components/ui/input'
 
 export type IConversationItemProps = {
   conversation: ConversationItemType
@@ -12,6 +13,7 @@ export type IConversationItemProps = {
   onClick?: () => void
   onDelete?: (conversationId: string) => void
   onRename?: (conversationId: string, newName: string) => void
+  isRenaming?: boolean // 新增：是否正在重命名
   className?: string
 }
 
@@ -21,13 +23,26 @@ const ConversationItem: FC<IConversationItemProps> = ({
   onClick,
   onDelete,
   onRename,
+  isRenaming = false,
   className,
 }) => {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editingName, setEditingName] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
   // 处理会话名称显示
   const displayName = conversation.name
     || (conversation.introduction
       ? conversation.introduction.substring(0, 30) + (conversation.introduction.length > 30 ? '...' : '')
       : '新会话')
+
+  // 当开始编辑时，设置当前名称并聚焦输入框
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus()
+      inputRef.current.select()
+    }
+  }, [isEditing])
 
   const handleClick = () => {
     onClick?.()
@@ -42,9 +57,31 @@ const ConversationItem: FC<IConversationItemProps> = ({
 
   const handleRename = (e: React.MouseEvent) => {
     e.stopPropagation()
-    const newName = window.prompt('请输入新的会话名称：', conversation.name)
-    if (newName && newName.trim() && newName !== conversation.name) {
-      onRename?.(conversation.id, newName.trim())
+    setIsEditing(true)
+    setEditingName(conversation.name || displayName)
+  }
+
+  const handleSave = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    const trimmedName = editingName.trim()
+    if (trimmedName && trimmedName !== conversation.name) {
+      onRename?.(conversation.id, trimmedName)
+    }
+    setIsEditing(false)
+  }
+
+  const handleCancel = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsEditing(false)
+    setEditingName('')
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave(e as any)
+    }
+    else if (e.key === 'Escape') {
+      handleCancel(e as any)
     }
   }
 
@@ -69,42 +106,84 @@ const ConversationItem: FC<IConversationItemProps> = ({
       {/* 会话信息 */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
-          <h3 className={cn(
-            'truncate text-sm font-medium',
-            isActive ? 'text-blue-900' : 'text-gray-900',
-          )}>
-            {displayName}
-          </h3>
+          {isEditing ? (
+            <div className="flex min-w-0 flex-1 items-center gap-1">
+              <Input
+                ref={inputRef}
+                value={editingName}
+                onChange={e => setEditingName(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="h-7 px-2 py-1 text-sm font-medium"
+                placeholder="请输入会话名称"
+                onClick={e => e.stopPropagation()}
+              />
+              <button
+                className={cn(
+                  'flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90',
+                  editingName.trim()
+                    ? 'text-green-500 hover:bg-green-50 active:bg-green-500 active:text-white'
+                    : 'cursor-not-allowed text-gray-300',
+                )}
+                onClick={editingName.trim() ? handleSave : undefined}
+                title="保存修改"
+                disabled={!editingName.trim()}
+              >
+                <CheckIcon className="h-3.5 w-3.5" />
+              </button>
+              <button
+                className="flex h-7 w-7 items-center justify-center rounded-full text-gray-500 transition-all hover:bg-gray-50 active:scale-90 active:bg-gray-500 active:text-white"
+                onClick={handleCancel}
+                title="取消编辑"
+              >
+                <XMarkIcon className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <>
+              <h3 className={cn(
+                'truncate text-sm font-medium',
+                isActive ? 'text-blue-900' : 'text-gray-900',
+              )}>
+                {displayName}
+              </h3>
 
-          {/* 操作按钮组 */}
-          <div className="flex shrink-0 items-center gap-0.5">
-            <button
-              className={cn(
-                'flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90',
-                onRename
-                  ? 'text-blue-500 hover:bg-blue-50 active:bg-blue-500 active:text-white'
-                  : 'cursor-not-allowed text-gray-300',
-              )}
-              onClick={onRename ? handleRename : undefined}
-              title="重命名会话"
-              disabled={!onRename}
-            >
-              <PencilSquareIcon className="h-3.5 w-3.5" />
-            </button>
-            <button
-              className={cn(
-                'flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90',
-                onDelete
-                  ? 'text-red-500 hover:bg-red-50 active:bg-red-500 active:text-white'
-                  : 'cursor-not-allowed text-gray-300',
-              )}
-              onClick={onDelete ? handleDelete : undefined}
-              title="删除会话"
-              disabled={!onDelete}
-            >
-              <TrashIcon className="h-3.5 w-3.5" />
-            </button>
-          </div>
+              {/* 操作按钮组 */}
+              <div className="flex shrink-0 items-center gap-0.5">
+                <button
+                  className={cn(
+                    'flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90',
+                    isRenaming
+                      ? 'text-gray-400 cursor-not-allowed'
+                      : onRename
+                        ? 'text-blue-500 hover:bg-blue-50 active:bg-blue-500 active:text-white'
+                        : 'cursor-not-allowed text-gray-300',
+                  )}
+                  onClick={onRename && !isRenaming ? handleRename : undefined}
+                  title={isRenaming ? '正在重命名...' : '重命名会话'}
+                  disabled={!onRename || isRenaming}
+                >
+                  {isRenaming ? (
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border border-gray-400 border-t-transparent" />
+                  ) : (
+                    <PencilSquareIcon className="h-3.5 w-3.5" />
+                  )}
+                </button>
+                <button
+                  className={cn(
+                    'flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90',
+                    onDelete
+                      ? 'text-red-500 hover:bg-red-50 active:bg-red-500 active:text-white'
+                      : 'cursor-not-allowed text-gray-300',
+                  )}
+                  onClick={onDelete ? handleDelete : undefined}
+                  title="删除会话"
+                  disabled={!onDelete}
+                >
+                  <TrashIcon className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </>
+          )}
         </div>
 
         {/* 会话介绍或最后一条消息预览 */}

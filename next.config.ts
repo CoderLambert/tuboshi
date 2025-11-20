@@ -4,7 +4,7 @@ import { PHASE_DEVELOPMENT_SERVER } from 'next/constants'
 
 export default (phase: string): NextConfig => {
   const commonConfig: NextConfig = {
-    basePath: '/chat/aa',
+    basePath: '/ai-chat/aa',
     // 转换这些包以确保老浏览器兼容性
     transpilePackages: [
       // 基础包

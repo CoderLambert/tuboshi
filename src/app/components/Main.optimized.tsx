@@ -389,6 +389,8 @@ const OptimizedMain: FC<IOptimizedMainProps> = ({ headerContent, faqContent }) =
         currentConversationId={conversationManager.currConversationId}
         onConversationSelect={conversationManager.handleConversationSelect}
         onNewConversation={conversationManager.handleNewConversation}
+        onConversationDeleted={conversationManager.handleDeleteConversation}
+        onConversationRenamed={conversationManager.handleRenameConversation}
         isVisible={conversationManager.showConversationList}
         onClose={() => conversationManager.setShowConversationList(false)}
       />

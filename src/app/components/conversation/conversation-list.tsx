@@ -1,17 +1,20 @@
 'use client'
 import type { FC } from 'react'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { IConversationItem } from '@/types/app'
 import ConversationItem from './conversation-item'
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 import cn from 'clsx'
 import { useNativeBridge } from '@/hooks/useNativeBridge'
+import { deleteConversationApi, renameConversationApi } from '@/services/conversation-api'
 export type IConversationListProps = {
   conversationList: IConversationItem[]
   currentConversationId: string
   onConversationSelect: (conversationId: string) => void
   onNewConversation: () => void
+  onConversationDeleted?: (conversationId: string) => void
+  onConversationRenamed?: (conversationId: string, newName: string) => void
   isVisible: boolean
   onClose: () => void
   className?: string
@@ -22,19 +25,41 @@ const ConversationList: FC<IConversationListProps> = ({
   currentConversationId,
   onConversationSelect,
   onNewConversation,
+  onConversationDeleted,
+  onConversationRenamed,
   isVisible,
   onClose,
   className,
 }) => {
   const { t } = useTranslation()
   const [searchQuery, setSearchQuery] = useState('')
+  const [conversationListState, setConversationListState] = useState(conversationList)
+  const [renamingConversationId, setRenamingConversationId] = useState<string | null>(null)
   const { useStatusBarHeight } = useNativeBridge()
   const { top } = useStatusBarHeight()
   const headerHight = 44
+
+  // 同步外部数据变化到内部状态
+  useEffect(() => {
+    setConversationListState(conversationList)
+  }, [conversationList])
+
   // 过滤会话列表
-  const filteredConversations = conversationList.filter(conversation =>
+  const filteredConversations = conversationListState.filter(conversation =>
     conversation.name.toLowerCase().includes(searchQuery.toLowerCase()),
   )
+
+  // 乐观更新：立即更新本地状态
+  const handleOptimisticRename = useCallback((conversationId: string, newName: string) => {
+    setRenamingConversationId(conversationId)
+    setConversationListState(prev =>
+      prev.map(conv =>
+        conv.id === conversationId
+          ? { ...conv, name: newName }
+          : conv
+      )
+    )
+  }, [])
 
   const handleConversationClick = useCallback((conversationId: string) => {
     onConversationSelect(conversationId)
@@ -46,10 +71,45 @@ const ConversationList: FC<IConversationListProps> = ({
     onClose() // 新建后关闭列表
   }, [onNewConversation, onClose])
 
+  // 删除会话处理
+  const handleDeleteConversation = useCallback(async (conversationId: string) => {
+    const success = await deleteConversationApi(conversationId)
+    if (success) {
+      onConversationDeleted?.(conversationId)
+    }
+  }, [onConversationDeleted])
+
+  // 重命名会话处理（支持乐观更新）
+  const handleRenameConversation = useCallback(async (conversationId: string, newName: string) => {
+    // 记录原始名称，用于错误回滚
+    const originalConversation = conversationListState.find(conv => conv.id === conversationId)
+    const originalName = originalConversation?.name
+
+    const success = await renameConversationApi(conversationId, newName, handleOptimisticRename)
+
+    // 无论成功或失败，都重置重命名状态
+    setRenamingConversationId(null)
+
+    if (success) {
+      onConversationRenamed?.(conversationId, newName)
+    } else {
+      // API调用失败，回滚到原始名称
+      if (originalName !== undefined) {
+        setConversationListState(prev =>
+          prev.map(conv =>
+            conv.id === conversationId
+              ? { ...conv, name: originalName }
+              : conv
+          )
+        )
+      }
+    }
+  }, [handleOptimisticRename, onConversationRenamed, conversationListState])
+
   if (!isVisible) { return null }
 
   return (
-    <div className={cn('fixed inset-0 z-[1000] bg-black bg-opacity-50', className)}
+    <div className={cn('fixed inset-0 z-[100] bg-black bg-opacity-50', className)}
       style={{
         top: `calc((${top} + ${headerHight}) * var(--tpx))`,
       }}
@@ -102,13 +162,10 @@ const ConversationList: FC<IConversationListProps> = ({
                     key={conversation.id}
                     conversation={conversation}
                     isActive={conversation.id === currentConversationId}
+                    isRenaming={renamingConversationId === conversation.id}
                     onClick={() => handleConversationClick(conversation.id)}
-                    onDelete={() => {
-                      console.log('delete')
-                    }}
-                    onRename={() => {
-                      console.log('onRename')
-                    }}
+                    onDelete={handleDeleteConversation}
+                    onRename={handleRenameConversation}
                   />
                 ))}
               </div>
@@ -116,11 +173,11 @@ const ConversationList: FC<IConversationListProps> = ({
           </div>
 
           {/* 底部统计 */}
-          {conversationList.length > 0 && (
+          {conversationListState.length > 0 && (
             <div className="border-t border-gray-200 bg-gray-50 p-4">
               <p className="text-center text-xs text-gray-500">
-                {t('app.conversation.totalCount', { count: conversationList.length })
-                  || `共 ${conversationList.length} 个会话`}
+                {t('app.conversation.totalCount', { count: conversationListState.length })
+                  || `共 ${conversationListState.length} 个会话`}
               </p>
             </div>
           )}

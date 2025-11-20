@@ -215,6 +215,7 @@ export class ChatClient extends DifyClient {
 
   deleteConversation(conversation_id: string, user: User) {
     const data = { user }
+    console.log('========= deleteConversation ==========')
     return this.sendRequest(
       routes.deleteConversation.method,
       routes.deleteConversation.url(conversation_id),
