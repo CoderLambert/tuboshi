@@ -105,6 +105,9 @@ const translation = {
     maxConversationLimit: '已达到最大会话数限制（{{max}}条），请先删除部分会话后再重试',
     maxConversationTitle: '会话数量已达上限',
   },
+  action: {
+    trackShipmentWithId: '帮我查询以下运单信息：{{trackingId}}',
+  },
 }
 
 export default translation

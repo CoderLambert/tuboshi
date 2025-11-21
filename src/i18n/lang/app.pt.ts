@@ -109,6 +109,9 @@ const translation = {
     maxConversationLimit: 'Limite máximo de conversas ({{max}}) atingido. Exclua algumas conversas antes de criar novas.',
     maxConversationTitle: 'Limite de conversas atingido',
   },
+  action: {
+    trackShipmentWithId: 'Rastrear a seguinte remessa: {{trackingId}}',
+  },
 }
 
 export default translation
