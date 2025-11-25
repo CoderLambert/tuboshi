@@ -20,7 +20,7 @@ export default (phase: string): NextConfig => {
   }
 
   const baseConfig = {
-    basePath: '/ai-chat/aa',
+    basePath: process.env.NEXT_PUBLIC_NODE_BASE_PATH,
   }
 
   // 只在开发模式下应用 Turbopack 配置
@@ -50,5 +50,10 @@ export default (phase: string): NextConfig => {
     typescript: {
       ignoreBuildErrors: true,
     },
+    compiler: {
+      removeConsole: {
+        exclude: ['error'],
+      },
+    }
   }
 }
