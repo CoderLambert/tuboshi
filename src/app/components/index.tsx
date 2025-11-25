@@ -317,8 +317,17 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
     }
 
     console.log('Creating new conversation')
+    // ✅ 设置标记，表示用户刚刚主动创建了新会话
+    // 这个标记会在 handleSendMessage 中被检查，以避免在发送第一条消息时强制切换到旧会话
+    shouldSkipConversationSwitch.current = true
     createNewConversation(appId)
     setShowConversationList(false)
+
+    // ✅ 在较长时间后重置标记，确保用户在新建会话后发送第一条消息时能正确处理
+    setTimeout(() => {
+      console.log('🔄 重置 shouldSkipConversationSwitch 标记')
+      shouldSkipConversationSwitch.current = false
+    }, 5000) // 5秒后重置，给用户足够时间发送第一条消息
 
     // 显示新建会话成功提示
     setTimeout(() => {
@@ -385,15 +394,16 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   }, [renameConversationInList, t])
 
   const handleConversationSwitch = useCallback(() => {
-    console.log('handleConversationSwitch - currConversationId:', getCurrConversationId(), 'isNewConversation:', isNewConversation)
-    if (!inited) { return }
-
-    // ✅ 检查是否应该跳过会话切换逻辑
-    if (shouldSkipConversationSwitch.current) {
-      console.log('跳过会话切换逻辑 (shouldSkipConversationSwitch = true)')
-      shouldSkipConversationSwitch.current = false
+    console.log('🔄 handleConversationSwitch 开始执行')
+    console.log('📊 handleConversationSwitch - currConversationId:', getCurrConversationId(), 'isNewConversation:', isNewConversation, 'inited:', inited)
+    if (!inited) {
+      console.log('❌ 未初始化，跳过会话切换')
       return
     }
+
+    // ✅ 移除这里的跳过逻辑，让会话切换正常执行
+    // shouldSkipConversationSwitch 标记只在 handleSendMessage 中使用，用于避免消息发送时的错误切换
+    console.log('✅ 继续执行会话切换逻辑 (shouldSkipConversationSwitch 不再影响界面切换)')
 
     // 开始会话切换
     setIsSwitchingConversation(true)
@@ -485,14 +495,16 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         }
         else {
           // 处理新会话
-          console.log('Creating new conversation')
+          console.log('🆕 处理新会话 - 开始清空聊天内容')
 
           // 重置新会话输入参数
           if (newConversationInputs) {
+            console.log('📝 重置新会话输入参数')
             setCurrInputs(newConversationInputs)
           }
 
           // 重置新会话信息
+          console.log('📋 重置新会话信息')
           setNewConversationInfo({
             name: t('app.chat.newChatDefaultName'),
             introduction: '',
@@ -500,9 +512,13 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           })
 
           // 清空聊天列表，显示空白状态
-          setChatList(generateNewChatListWithOpenStatement())
+          console.log('🧹 清空聊天列表，设置历史状态')
+          const emptyChatList = generateNewChatListWithOpenStatement()
+          console.log('生成的空聊天列表:', emptyChatList)
+          setChatList(emptyChatList)
           setHasMoreHistory(false)
           setShowLoadHistoryButton(false)
+          console.log('✅ 新会话处理完成')
         }
       }
       catch (error) {
@@ -762,31 +778,47 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       console.log('📊 当前状态:', {
         isNewConversation,
         conversationListLength: conversationList.length,
+        currentConversationId: getCurrConversationId(),
         appId,
         hasSetAppConfig: hasSetAppConfig.current
       })
 
-      // 如果当前是新会话状态，先确保有一个有效的会话
+      // ✅ 修复逻辑：只有在真正需要时才自动切换到现有会话
+      // 检查是否是新会话状态，且有现有会话列表
       if (isNewConversation && conversationList.length > 0) {
-        // 使用第一个现有会话，避免创建新会话
+        console.log('📋 检测到新会话状态且有现有会话列表')
         const firstConversation = conversationList[0]
-        console.log(`firstConversation   ==> ${JSON.stringify(firstConversation)}}`)
-        if (firstConversation && firstConversation.id !== '-1') {
-          console.log('🔄 切换到现有会话并发送消息')
+        console.log(`firstConversation ==> ${JSON.stringify(firstConversation)}`)
+
+        // ✅ 检查用户是否刚刚主动创建了新会话
+        const isRecentlyCreatedNewConversation = shouldSkipConversationSwitch.current
+        console.log('isRecentlyCreatedNewConversation:', isRecentlyCreatedNewConversation)
+
+        // 如果用户刚刚主动创建新会话，我们应该保持在新会话状态发送消息
+        if (isRecentlyCreatedNewConversation) {
+          console.log('🆕 检测到用户刚刚创建新会话，保持在新会话状态发送消息')
+          // 重置标记，避免影响后续消息
+          shouldSkipConversationSwitch.current = false
+          // 直接在新会话中发送消息
+        }
+        // 如果不是用户主动创建，且现有会话有效，则切换到第一个现有会话（FAQ点击等场景）
+        else if (firstConversation && firstConversation.id !== '-1') {
+          console.log('🔄 FAQ或其他原因导致的会话不一致，切换到现有会话并发送消息')
           setCurrConversationId(firstConversation.id, appId!, false)
-          // 等待会话切换完成后再发送消息
           setTimeout(() => {
             console.log('⏰ 延迟发送消息:', message)
             handleSendRef.current?.(message)
           }, 100)
           return
         }
+        else {
+          console.log('🆕 没有有效的现有会话，保持在新会话状态发送消息')
+        }
       }
       else {
-        console.log('is Not firstConversation - 直接发送消息')
-        // ✅ 不需要强制设置会话ID，保持当前状态直接发送消息
+        console.log('💬 在当前会话中直接发送消息')
       }
-      console.log('🚀 准备发送消息:', message)
+      console.log('🚀 准备发送消息到当前会话:', getCurrConversationId())
       handleSendRef.current?.(message)
     }
 
