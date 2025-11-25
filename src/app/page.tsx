@@ -38,19 +38,22 @@ export default function Home() {
     eventBus.emit(EVENTS.SEND_MESSAGE, question)
   }
 
-  // useEffect(() => {
-  //   import('eruda').then((eruda) => {
-  //     eruda.default.init() // 初始化 Eruda
-  //   })
-  //   // }
-  // }, [])
   const { emitCreateConversation, emitToggleHistoryConversation } = useConversation()
 
+  // ✅ 使用分支感知的 eruda 加载逻辑
   useEffect(() => {
-    import('eruda').then((eruda) => {
-      eruda.default.init() // 初始化 Eruda
-    })
-    // }
+    // 检查环境变量决定是否加载 eruda
+    const enableEruda = process.env.NEXT_PUBLIC_ENABLE_ERUDA === 'true'
+    const isProduction = process.env.NODE_ENV === 'production'
+
+    if (enableEruda && !isProduction) {
+      import('eruda').then((eruda) => {
+        eruda.default.init()
+        console.log('🔧 Eruda 已启用 (分支:', process.env.NEXT_PUBLIC_BRANCH_NAME || 'unknown', ')')
+      }).catch((error) => {
+        console.warn('加载 Eruda 失败:', error)
+      })
+    }
   }, [])
 
   // 设置用户ID cookie
