@@ -6,7 +6,7 @@ export const LOCALE_COOKIE_NAME = 'locale'
 export const USERID_COOKIE_NAME = 'user_id'
 
 export const isShowPrompt = false
-export const API_PREFIX = '/ai-chat/aa/api'
+export const API_PREFIX = `${process.env.NEXT_PUBLIC_NODE_BASE_PATH}/api`
 
 export const DEFAULT_VALUE_MAX_LEN = 48
 export const promptTemplate = 'I want you to act as a assistant.'
