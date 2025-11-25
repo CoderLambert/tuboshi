@@ -1,7 +1,7 @@
 const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_'
 export function randomString(length: number) {
   let result = ''
-  for (let i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)]
+  for (let i = length; i > 0; --i) { result += chars[Math.floor(Math.random() * chars.length)] }
   return result
 }
 
@@ -38,28 +38,28 @@ export function tryRepairJson(jsonStr: string): string | null {
 
       // 对处理后的字符串内容进行转义处理
       return processedMatch
-          // 处理特殊控制字符
-          .replace(/([\n\r\t\b\f\v])/g, (char) => {
-            const escapeMap: Record<string, string> = {
-              '\n': '\\n',
-              '\r': '\\r',
-              '\t': '\\t',
-              '\b': '\\b',
-              '\f': '\\f',
-              '\v': '\\v',
-            }
-            return escapeMap[char]
-          })
-          // 处理其他控制字符（通过字符码判断，避免不安全的正则表达式）
-          .replace(/./g, (char) => {
-            const code = char.charCodeAt(0)
-            // 检查是否为控制字符（除了已处理的常见控制字符）
-            if ((code >= 0x00 && code <= 0x08) || (code >= 0x0E && code <= 0x1F) || code === 0x7F) {
-              const hex = code.toString(16).padStart(4, '0')
-              return `\\u${hex}`
-            }
-            return char
-          })
+        // 处理特殊控制字符
+        .replace(/([\n\r\t\b\f\v])/g, (char) => {
+          const escapeMap: Record<string, string> = {
+            '\n': '\\n',
+            '\r': '\\r',
+            '\t': '\\t',
+            '\b': '\\b',
+            '\f': '\\f',
+            '\v': '\\v',
+          }
+          return escapeMap[char]
+        })
+        // 处理其他控制字符（通过字符码判断，避免不安全的正则表达式）
+        .replace(/./g, (char) => {
+          const code = char.charCodeAt(0)
+          // 检查是否为控制字符（除了已处理的常见控制字符）
+          if ((code >= 0x00 && code <= 0x08) || (code >= 0x0E && code <= 0x1F) || code === 0x7F) {
+            const hex = code.toString(16).padStart(4, '0')
+            return `\\u${hex}`
+          }
+          return char
+        })
     })
 
     // 2. 移除末尾的逗号

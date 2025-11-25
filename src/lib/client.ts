@@ -74,6 +74,7 @@ export class DifyClient {
     }
 
     const url = `${this.baseUrl}${endpoint}`
+    console.log(url)
     return axios({
       method,
       url,
@@ -166,6 +167,8 @@ export class ChatClient extends DifyClient {
       files,
       ...(conversation_id ? { conversation_id } : {}),
     }
+    console.log(' ============ data ===========')
+    console.log(data)
     return this.sendRequest(
       routes.createChatMessage.method,
       routes.createChatMessage.url(),
@@ -212,6 +215,7 @@ export class ChatClient extends DifyClient {
 
   deleteConversation(conversation_id: string, user: User) {
     const data = { user }
+    console.log('========= deleteConversation ==========')
     return this.sendRequest(
       routes.deleteConversation.method,
       routes.deleteConversation.url(conversation_id),

@@ -9,7 +9,7 @@ export function useNativeBridge() {
       try {
         return JSON.parse(data)
       }
- catch {
+      catch {
         console.warn('[Android Bridge] 返回值解析失败，将返回原始字符串:', data)
         return data
       }
@@ -19,11 +19,9 @@ export function useNativeBridge() {
 
   const callNativeMethod = (methodName, params, callbackName) => {
     return new Promise((resolve, reject) => {
-      if (!methodName || typeof methodName !== 'string')
-        reject(new Error('Invalid method name'))
+      if (!methodName || typeof methodName !== 'string') { reject(new Error('Invalid method name')) }
 
-      if (typeof params !== 'object')
-        reject(new Error('Invalid parameters'))
+      if (typeof params !== 'object') { reject(new Error('Invalid parameters')) }
 
       try {
         if (window.flutter_inappwebview) {
@@ -33,10 +31,10 @@ export function useNativeBridge() {
             }
           }
           window.flutter_inappwebview
-            .callHandler(methodName, params)
-            .then((response) => {
-              resolve(response)
-            })
+              .callHandler(methodName, params)
+              .then((response) => {
+                resolve(response)
+              })
         }
         else {
           if (window.webkit && window.webkit.messageHandlers) {
@@ -153,7 +151,6 @@ export function useNativeBridge() {
     useEffect(() => {
       const getInfo = async () => {
         const res = await callNativeMethod('getStatusBarHeight', {})
-        console.log('useEffect statusBarHeight', res)
         setStatusBarHeight(res)
       }
       getInfo()

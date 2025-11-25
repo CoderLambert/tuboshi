@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm add:*)",
+      "Bash(mkdir:*)",
+      "Bash(pnpm run build:*)",
+      "Bash(pnpm run type-check:*)",
+      "Bash(pnpm run es:check:*)",
+      "Bash(timeout:*)",
+      "Bash(node verify-refactor.js:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(pnpm install:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(pnpm dlx shadcn@latest add:*)",
+      "Bash(npx tsc:*)",
+      "Bash(dir:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(npm run dev)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(npm run)",
+      "Bash(npm run build:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

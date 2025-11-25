@@ -24,7 +24,7 @@ const Question: FC<IQuestionProps> = ({ id, content, useCurrentUserAvatar: _useC
   return (
     <div className='flex items-start justify-end' key={id}>
       <div>
-        <div
+        <div 
           className={`${s.question} relative text-sm text-gray-900`}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
@@ -54,3 +54,7 @@ const Question: FC<IQuestionProps> = ({ id, content, useCurrentUserAvatar: _useC
 }
 
 export default React.memo(Question)
+
+
+
+

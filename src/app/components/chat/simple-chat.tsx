@@ -69,40 +69,10 @@ const SimpleChat: FC<ISimpleChatProps> = ({
   }, [onSend])
 
   return (
-    <div className={cn(!feedbackDisabled && 'px-3.5', 'relative flex h-full flex-col')}>
+    <div className={cn(!feedbackDisabled && 'px-3.5', 'relative flex h-full flex-col overflow-x-auto')}>
       {/* 聊天内容区域 */}
       {(chatList.length > 0 || historyMessages.length > 0 || showLoadHistoryButton) && (
         <div className="flex-1 overflow-y-auto">
-          {/* 历史消息加载按钮（备用方案） */}
-          {/* {showLoadHistoryButton && (
-            <div className="flex justify-center py-2">
-              <button
-                onClick={onLoadHistory}
-                disabled={isLoadingHistory}
-                className={cn(
-                  'flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors',
-                  isLoadingHistory
-                    ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
-                    : 'border-gray-300 bg-white text-gray-700 shadow-sm hover:border-gray-400 hover:bg-gray-50',
-                )}
-              >
-                {isLoadingHistory ? (
-                  <>
-                    <Loading type="area" />
-                    <span>{t('app.chat.loadingHistory') || '加载中...'}</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                    </svg>
-                    <span>{t('app.chat.loadHistoryMessages') || '查看历史消息'}</span>
-                  </>
-                )}
-              </button>
-            </div>
-          )} */}
-
           {/* 历史消息区域 */}
           {historyMessages.length > 0 && (
             <div className="mb-4 border-b border-gray-200 pb-4">
