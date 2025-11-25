@@ -754,34 +754,47 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
 
   // 监听FAQ问题点击事件
   useEffect(() => {
+    console.log('🔧 注册 SEND_MESSAGE 事件监听器, hasSetAppConfig:', hasSetAppConfig.current)
     if (!hasSetAppConfig.current) { return }
 
     const handleSendMessage = (message: string) => {
+      console.log('🔥 handleSendMessage 被调用:', message)
+      console.log('📊 当前状态:', {
+        isNewConversation,
+        conversationListLength: conversationList.length,
+        appId,
+        hasSetAppConfig: hasSetAppConfig.current
+      })
+
       // 如果当前是新会话状态，先确保有一个有效的会话
       if (isNewConversation && conversationList.length > 0) {
         // 使用第一个现有会话，避免创建新会话
         const firstConversation = conversationList[0]
         console.log(`firstConversation   ==> ${JSON.stringify(firstConversation)}}`)
         if (firstConversation && firstConversation.id !== '-1') {
+          console.log('🔄 切换到现有会话并发送消息')
           setCurrConversationId(firstConversation.id, appId!, false)
           // 等待会话切换完成后再发送消息
           setTimeout(() => {
-            handleSend(message)
+            console.log('⏰ 延迟发送消息:', message)
+            handleSendRef.current?.(message)
           }, 100)
           return
         }
       }
       else {
-        console.log('is Not firstConversation')
-
-        setCurrConversationId('-1', appId!, false)
+        console.log('is Not firstConversation - 直接发送消息')
+        // ✅ 不需要强制设置会话ID，保持当前状态直接发送消息
       }
-      handleSend(message)
+      console.log('🚀 准备发送消息:', message)
+      handleSendRef.current?.(message)
     }
 
+    console.log('✅ SEND_MESSAGE 事件监听器注册完成')
     eventBus.on(EVENTS.SEND_MESSAGE, handleSendMessage)
 
     return () => {
+      console.log('🔧 清理 SEND_MESSAGE 事件监听器')
       eventBus.off(EVENTS.SEND_MESSAGE, handleSendMessage)
     }
   }, [isNewConversation, conversationList, hasSetAppConfig])
@@ -853,6 +866,9 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       upload_file_id: fileItem.id,
     }
   }
+
+  // ✅ 使用 ref 保存 handleSend 的最新引用，避免闭包问题
+  const handleSendRef = useRef<typeof handleSend>()
 
   const handleSend = useCallback(async (message: string, files?: VisionFile[]) => {
     // ✅ 发送新消息时重置异常状态
@@ -1356,6 +1372,11 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       },
     })
   }, [isResponding, notify, t, currInputs, visionConfig, isNewConversation, currConversationId, updateCurrentQA])
+
+  // ✅ 更新 handleSend 的 ref 引用
+  useEffect(() => {
+    handleSendRef.current = handleSend
+  }, [handleSend])
 
   const handleFeedback = async (messageId: string, feedback: Feedbacktype) => {
     await updateFeedback({ url: `/messages/${messageId}/feedbacks`, body: { rating: feedback.rating } })

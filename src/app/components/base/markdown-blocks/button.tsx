@@ -24,7 +24,11 @@ const MarkdownButton = ({ node }: any) => {
   function transformMessage(message: string): string {
     console.log(action, message)
     if(action && action === 'app.action.trackShipmentWithId') {
-      return t(action, { trackingId: message })
+      const translatedMessage = t(action, { trackingId: message })
+      // ✅ 如果翻译键不存在，返回默认的查询消息
+      return translatedMessage.includes('app.action.trackShipmentWithId')
+        ? `查询运单 ${message}`
+        : translatedMessage
     }
     return message
   }
@@ -36,8 +40,11 @@ const MarkdownButton = ({ node }: any) => {
     onClick={() => {
       if (is_valid_url(link)) { window.open(link, '_blank') }
       else {
-        console.log(message)
-        eventBus.emit(EVENTS.SEND_MESSAGE, transformMessage(message))
+        const transformedMessage = transformMessage(message)
+        console.log('发送按钮消息:', message, '-> 转换后:', transformedMessage)
+        console.log('📡 发送事件:', EVENTS.SEND_MESSAGE)
+        eventBus.emit(EVENTS.SEND_MESSAGE, transformedMessage)
+        console.log('✅ 事件发送完成')
       }
     }}
   >
