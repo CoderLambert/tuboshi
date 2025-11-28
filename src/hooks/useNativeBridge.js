@@ -3,7 +3,7 @@ import useAppStore from './useAppStore'
 /* global Android, window */
 export function useNativeBridge() {
   // 辅助函数：解析Android平台返回值
-  const parseAndroidResponse = (data) => {
+  const parseJsonStringResponse = (data) => {
     if (typeof data === 'object') return data
     if (typeof data === 'string') {
       try {
@@ -40,7 +40,7 @@ export function useNativeBridge() {
           if (window.webkit && window.webkit.messageHandlers) {
             if (typeof callbackName === 'string') {
               window[callbackName] = (data) => {
-                resolve(data)
+                resolve(parseJsonStringResponse(data))
               }
             }
             // 调用原生iOS方法
@@ -49,18 +49,18 @@ export function useNativeBridge() {
           else if (window.Android) {
             if (typeof callbackName === 'string') {
               window[callbackName] = (data) => {
-                resolve(parseAndroidResponse(data))
+                resolve(parseJsonStringResponse(data))
               }
             }
 
             // 调用原生安卓方法
             if (methodName === 'jsToNative') {
               const res = Android[methodName](JSON.stringify(params))
-              resolve(parseAndroidResponse(res))
+              resolve(parseJsonStringResponse(res))
             }
             else {
               const res = Android[methodName]()
-              resolve(parseAndroidResponse(res))
+              resolve(parseJsonStringResponse(res))
             }
           }
           else {
