@@ -6,7 +6,7 @@ import '@/styles/markdown.css'
 import I18nProvider from '@/app/components/I18nProvider'
 import { USERID_COOKIE_NAME } from '@/config'
 import Cookies from 'js-cookie'
-import { testTransformFaqContentWithZod } from '@/lib/utils'
+// import { testTransformFaqContentWithZod } from '@/lib/utils'
 export const metadata = {
   title: 'AI Agent ChatFlow',
   description: 'A chat application powered by AI agents',
@@ -29,7 +29,7 @@ export const viewport = {
   viewportFit: 'cover', // For iOS safe areas
   // interactiveWidget: 'resizes-content', // 让视口随键盘调整（Chrome/Android支持）
 }
-testTransformFaqContentWithZod()
+// testTransformFaqContentWithZod()
 const LocaleLayout = async ({
   children,
 }: {
