@@ -95,6 +95,21 @@ export const RenameConversationParamsSchema = z.object({
   newName: z.string().min(1, 'New name cannot be empty'),
 })
 
+// Zod Schema 对应 QaItemList
+export const QaItemSchema = z.object({
+  question: z.string(),
+  answer: z.string(),
+})
+
+// Zod Schema 对应 QACategory
+export const QACategorySchema = z.object({
+  questionCategory: z.string(),
+  qaItemList: z.array(QaItemSchema),
+})
+
+// 定义 faqContent 的期望格式（QACategory[]）
+export const QACategoryArraySchema = z.array(QACategorySchema)
+
 // 类型导出
 export type ConversationIdType = z.infer<typeof ConversationIdSchema>
 export type AppIdType = z.infer<typeof AppIdSchema>
@@ -105,3 +120,6 @@ export type ConversationInfoType = z.infer<typeof ConversationInfoSchema>
 export type NewConversationParamsType = z.infer<typeof NewConversationParamsSchema>
 export type SwitchConversationParamsType = z.infer<typeof SwitchConversationParamsSchema>
 export type RenameConversationParamsType = z.infer<typeof RenameConversationParamsSchema>
+export type QACategoryArrayType = z.infer<typeof QACategoryArraySchema>
+export type QACategoryType = z.infer<typeof QACategorySchema>
+export type QaItemType = z.infer<typeof QaItemSchema>
