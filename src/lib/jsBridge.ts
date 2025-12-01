@@ -1,4 +1,5 @@
 /* global Android, window */
+import { parseJsonStringResponse } from '@/lib/utils'
 
 export type JsBridgeMethodName
     = | 'getAppRequestHeader'
@@ -11,8 +12,19 @@ export type JsBridgeMethodName
     | 'qaData'
     | 'jsToNative'
 
+export type JsBridgeCallbackMethodName
+    = | 'getAppRequestHeaderCallback'
+    | 'getUserInfoCallback'
+    | 'getGPTConfigCallback'
+    | 'getInputsFormCallback'
+    | 'getUserIDCallback'
+    | 'finishCallback' // closeWebview 对应的方法名
+    | 'getStatusBarHeightCallback'
+    | 'qaDataCallback'
+    | 'jsToNativeCallback'
+
 // 原生方法调用核心函数
-export function callNativeMethod(methodName: JsBridgeMethodName, params = {}, callbackName: string = '') {
+export function callNativeMethod(methodName: JsBridgeMethodName, params = {}, callbackName: JsBridgeCallbackMethodName) {
   return new Promise((resolve, reject) => {
     if (!methodName || typeof methodName !== 'string') {
       reject(new Error('Invalid method name'))
@@ -40,7 +52,7 @@ export function callNativeMethod(methodName: JsBridgeMethodName, params = {}, ca
       else if (window.webkit && window.webkit.messageHandlers) {
         if (typeof callbackName === 'string') {
           window[callbackName] = (data: any) => {
-            resolve(data)
+            resolve(parseJsonStringResponse(data))
           }
         }
         // 调用原生iOS方法
@@ -49,7 +61,7 @@ export function callNativeMethod(methodName: JsBridgeMethodName, params = {}, ca
       else if (window.Android) {
         if (typeof callbackName === 'string') {
           window[callbackName] = (data: any) => {
-            resolve(data)
+            resolve(parseJsonStringResponse(data))
           }
         }
         // 调用原生安卓方法
@@ -75,15 +87,15 @@ export function callNativeMethod(methodName: JsBridgeMethodName, params = {}, ca
 
 // 各种业务方法的纯函数实现
 export function getAppRequestHeader() {
-  return callNativeMethod('getAppRequestHeader', {})
+  return callNativeMethod('getAppRequestHeader', {}, 'getAppRequestHeaderCallback')
 }
 
 export function getUserInfo() {
-  return callNativeMethod('getUserInfo', {})
+  return callNativeMethod('getUserInfo', {}, 'getUserIDCallback')
 }
 
 export function getGPTConfig() {
-  return callNativeMethod('getGPTConfig', {}) as Promise<{
+  return callNativeMethod('getGPTConfig', {}, 'getGPTConfigCallback') as Promise<{
     app_key: string
     app_id: string
     api_url: string
@@ -91,21 +103,21 @@ export function getGPTConfig() {
 }
 
 export function getInputsForm() {
-  return callNativeMethod('getInputsForm', {})
+  return callNativeMethod('getInputsForm', {}, 'getInputsFormCallback')
 }
 
 export function getUserID() {
-  return callNativeMethod('getUserID', {})
+  return callNativeMethod('getUserID', {}, 'getUserIDCallback')
 }
 
 export function closeWebview() {
-  return callNativeMethod('finish', {})
+  return callNativeMethod('finish', {}, 'finishCallback')
 }
 
 export function getStatusBarHeight() {
-  return callNativeMethod('getStatusBarHeight', {})
+  return callNativeMethod('getStatusBarHeight', {}, 'getStatusBarHeightCallback')
 }
 
 export function getQaData() {
-  return callNativeMethod('qaData', {})
+  return callNativeMethod('qaData', {}, 'qaDataCallback')
 }

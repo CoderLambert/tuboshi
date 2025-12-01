@@ -1,23 +1,8 @@
 import { useEffect } from 'react'
 import useAppStore from './useAppStore'
-import Toast from '@/app/components/base/toast'
+import { parseJsonStringResponse } from '@/lib/utils'
 /* global Android, window */
 export function useNativeBridge() {
-  // 辅助函数：解析Android平台返回值
-  const parseJsonStringResponse = (data) => {
-    if (typeof data === 'object') { return data }
-    if (typeof data === 'string') {
-      try {
-        return JSON.parse(data)
-      }
-      catch {
-        console.warn('[Android Bridge] 返回值解析失败，将返回原始字符串:', data)
-        return data
-      }
-    }
-    return data
-  }
-
   const callNativeMethod = (methodName, params, callbackName) => {
     console.log('[useNativeBridge]', methodName, params)
     return new Promise((resolve, reject) => {
@@ -41,16 +26,7 @@ export function useNativeBridge() {
         else {
           if (window.webkit && window.webkit.messageHandlers) {
             if (typeof callbackName === 'string') {
-              Toast.notify({
-                type: 'success',
-                message: 'IOS  begin ==> callbackName',
-              })
-
               window[callbackName] = (data) => {
-                Toast.notify({
-                  type: 'success',
-                  message: JSON.stringify(data),
-                })
                 resolve(parseJsonStringResponse(data))
               }
             }
@@ -176,7 +152,7 @@ export function useNativeBridge() {
     const qaData = useAppStore(state => state.qaData)
     useEffect(() => {
       const getInfo = async () => {
-        const res = await callNativeMethod('qaData', {})
+        const res = await callNativeMethod('qaData', {}, 'qaDataCallback')
         setQaData(res)
       }
       getInfo()
