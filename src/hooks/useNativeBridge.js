@@ -1,23 +1,10 @@
 import { useEffect } from 'react'
 import useAppStore from './useAppStore'
+import { parseJsonStringResponse } from '@/lib/utils'
 /* global Android, window */
 export function useNativeBridge() {
-  // 辅助函数：解析Android平台返回值
-  const parseAndroidResponse = (data) => {
-    if (typeof data === 'object') return data
-    if (typeof data === 'string') {
-      try {
-        return JSON.parse(data)
-      }
-      catch {
-        console.warn('[Android Bridge] 返回值解析失败，将返回原始字符串:', data)
-        return data
-      }
-    }
-    return data
-  }
-
   const callNativeMethod = (methodName, params, callbackName) => {
+    console.log('[useNativeBridge]', methodName, params)
     return new Promise((resolve, reject) => {
       if (!methodName || typeof methodName !== 'string') { reject(new Error('Invalid method name')) }
 
@@ -31,36 +18,38 @@ export function useNativeBridge() {
             }
           }
           window.flutter_inappwebview
-              .callHandler(methodName, params)
-              .then((response) => {
-                resolve(response)
-              })
+            .callHandler(methodName, params)
+            .then((response) => {
+              resolve(response)
+            })
         }
         else {
           if (window.webkit && window.webkit.messageHandlers) {
             if (typeof callbackName === 'string') {
               window[callbackName] = (data) => {
-                resolve(data)
+                resolve(parseJsonStringResponse(data))
               }
             }
             // 调用原生iOS方法
+            // console.log('[iOS Bridge  window.webkit.messageHandlers ]', window.webkit.messageHandlers)
+            // console.log('[iOS Bridge methodName  params]', methodName, params)
             window.webkit.messageHandlers[methodName].postMessage(params)
           }
           else if (window.Android) {
             if (typeof callbackName === 'string') {
               window[callbackName] = (data) => {
-                resolve(parseAndroidResponse(data))
+                resolve(parseJsonStringResponse(data))
               }
             }
 
             // 调用原生安卓方法
             if (methodName === 'jsToNative') {
               const res = Android[methodName](JSON.stringify(params))
-              resolve(parseAndroidResponse(res))
+              resolve(parseJsonStringResponse(res))
             }
             else {
               const res = Android[methodName]()
-              resolve(parseAndroidResponse(res))
+              resolve(parseJsonStringResponse(res))
             }
           }
           else {
@@ -80,7 +69,7 @@ export function useNativeBridge() {
     const appRequestHeader = useAppStore(state => state.appRequestHeader)
     useEffect(() => {
       const getInfo = async () => {
-        const res = await callNativeMethod('getAppRequestHeader', {})
+        const res = await callNativeMethod('getAppRequestHeader', {}, 'getAppRequestHeaderCallback')
         setAppRequestHeader(res)
       }
       getInfo()
@@ -93,7 +82,7 @@ export function useNativeBridge() {
     const userInfo = useAppStore(state => state.userInfo)
     useEffect(() => {
       const getInfo = async () => {
-        const res = await callNativeMethod('getUserInfo', {})
+        const res = await callNativeMethod('getUserInfo', {}, 'getUserInfoCallback')
         setUserInfo(res)
       }
       getInfo()
@@ -106,7 +95,7 @@ export function useNativeBridge() {
     const GPTConfig = useAppStore(state => state.GPTConfig)
     useEffect(() => {
       const getInfo = async () => {
-        const res = await callNativeMethod('getGPTConfig', {})
+        const res = await callNativeMethod('getGPTConfig', {}, 'getGPTConfigCallback')
         setGPTConfig(res)
       }
       getInfo()
@@ -119,7 +108,7 @@ export function useNativeBridge() {
     const inputsFormConfig = useAppStore(state => state.inputsForm)
     useEffect(() => {
       const getInputsFormInfo = async () => {
-        const res = await callNativeMethod('getInputsForm', {})
+        const res = await callNativeMethod('getInputsForm', {}, 'getInputsFormCallback')
         console.log('useEffect inputsFormConfig', res)
         setInputsForm(res)
       }
@@ -132,7 +121,7 @@ export function useNativeBridge() {
     const setUserID = useAppStore(state => state.setUserID)
     const userID = useAppStore(state => state.userID)
     const getUserID = async () => {
-      const res = await callNativeMethod('getUserID', {})
+      const res = await callNativeMethod('getUserID', {}, 'getUserIDCallback')
       setUserID(res)
     }
     useEffect(() => {
@@ -142,7 +131,7 @@ export function useNativeBridge() {
   }
 
   const closeWebview = () => {
-    callNativeMethod('finish', {})
+    callNativeMethod('finish', {}, 'finishCallback')
   }
 
   const useStatusBarHeight = () => {
@@ -150,7 +139,7 @@ export function useNativeBridge() {
     const statusBarHeight = useAppStore(state => state.statusBarHeight)
     useEffect(() => {
       const getInfo = async () => {
-        const res = await callNativeMethod('getStatusBarHeight', {})
+        const res = await callNativeMethod('getStatusBarHeight', {}, 'getStatusBarHeightCallback')
         setStatusBarHeight(res)
       }
       getInfo()
@@ -163,7 +152,7 @@ export function useNativeBridge() {
     const qaData = useAppStore(state => state.qaData)
     useEffect(() => {
       const getInfo = async () => {
-        const res = await callNativeMethod('qaData', {})
+        const res = await callNativeMethod('qaData', {}, 'qaDataCallback')
         setQaData(res)
       }
       getInfo()

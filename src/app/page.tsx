@@ -17,6 +17,7 @@ import { useEffect } from 'react'
 import { enhancedCookies } from '@/lib/browser-cookie'
 import useConversation from '@/hooks/use-conversation'
 import { SendingProvider } from '@/app/contexts/SendingContext'
+import { transformFaqContentWithZod } from '@/lib/utils'
 export default function Home() {
   // 语言设置现在由 I18nProvider 统一处理
   const { t } = useTranslation()
@@ -29,11 +30,7 @@ export default function Home() {
 
   const faqContent = qaData?.data || []
 
-  const questions: INaviAppSuggestionQuestionItem[] = faqContent.map(categoryItem => ({
-    [categoryItem.questionCategory]: categoryItem.qaItemList.map(
-      item => item.question,
-    ),
-  }))
+  const questions: INaviAppSuggestionQuestionItem[] = transformFaqContentWithZod(faqContent)
   const handleQuestionClick = (question: string) => {
     eventBus.emit(EVENTS.SEND_MESSAGE, question)
   }

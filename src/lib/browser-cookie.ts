@@ -19,7 +19,7 @@ export const hashTo16Bytes = (input: string): string => {
 
 // 加密函数
 export const encrypt = (text: string, userId: string): string => {
-  const key = hashTo16Bytes(userId)
+  const key = hashTo16Bytes(`${userId}`)
   console.log(`encrypt key  ==>  ${key}`)
   // 确保数据是 UTF-8 编码
   const srcs = CryptoJS.enc.Utf8.parse(text)
@@ -30,15 +30,17 @@ export const encrypt = (text: string, userId: string): string => {
 
 // 解密函数
 export const decrypt = (ciphertext: string, userId: string): string => {
-  const key = hashTo16Bytes(userId)
-  console.log(`decrypt  ==>  ${key}`)
+  console.log(`decrypt userId  ==>  ${userId}`)
+  const key = hashTo16Bytes(`${userId}`)
+  console.log(`decrypt key  ==>  ${key}`)
 
   // 使用密钥和 IV 进行解密
   // 直接使用Base64字符串进行解密
   const decrypt = CryptoJS.AES.decrypt(ciphertext, key)
-
+  console.log(`decrypt content ==>  ${decrypt.toString()}`)
   // 将解密后的字节串转换为 UTF-8 编码的字符串
   const decryptedStr = decrypt.toString(CryptoJS.enc.Utf8)
+  console.log(`decryptedStr ==>  ${decryptedStr}`)
   return decryptedStr
 }
 
