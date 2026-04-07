@@ -47,19 +47,25 @@ const OrderDetail = ({ node, globalExpanded = true }: any) => {
   }
 
   return (
-    <div className="my-3 rounded-2xl border border-gray-100 bg-white px-4 py-3 text-sm text-gray-800 shadow-sm">
+    <div className="my-3 rounded-[24px] border border-gray-100 bg-white px-[24px] py-[12px] text-sm text-gray-800 shadow-sm">
       {/* 顶部：运单号 + 时间 + 展开按钮 */}
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="flex items-center justify-between">
-            <span className="text-lg font-semibold">{waybillNo || '—'}</span>
-            {timeValue && <span className="text-xs text-gray-400">{timeValue}</span>}
+            <span className="text-[32px] leading-[48px] font-semibold">{waybillNo || '—'}</span>
+            <span className="text-[24px] text-gray-400 leading-[48px]">{'1022-23-22 20:00:92'}</span>
+            {timeValue && <span className="text-[24px] text-gray-400 leading-[48px]">{timeValue}</span>}
           </div>
 
           {/* 姓名和图片在收起态也显示 */}
           <div className="mt-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-base">👤</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/assets/icons/staff.svg"
+                alt="Staff"
+                className="h-5 w-5"
+              />
               <span className="text-gray-700">{name || '—'}</span>
             </div>
 
