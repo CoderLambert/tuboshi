@@ -113,6 +113,8 @@ const translation = {
   },
   wait_for_completion: 'Aguardar conclusão',
   wait_for_completion_placeholder: 'Aguardar conclusão',
+  '展开全部': 'Expandir tudo',
+  '收起全部': 'Recolher tudo',
 }
 
 export default translation

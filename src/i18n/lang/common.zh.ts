@@ -114,6 +114,8 @@ const translation = {
   },
   wait_for_completion: '等待完成',
   wait_for_completion_placeholder: '等待完成',
+  '展开全部': '展开全部',
+  '收起全部': '收起全部',
 }
 
 export default translation
