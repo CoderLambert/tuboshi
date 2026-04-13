@@ -10,6 +10,7 @@ import MapIcon from '@/assets/icons/map.svg'
 import ArrowUpIcon from '@/assets/icons/arrow-up.svg'
 import ArrowDownIcon from '@/assets/icons/arrow-down.svg'
 import CallIcon from '@/assets/icons/call.svg'
+import { openCall, openGoogleMap } from '@/lib/jsBridge'
 
 // 注意：HTML 解析器会将属性名全部转为小写，所以 data-waybillNo → dataWaybillno
 const OrderDetail = ({ node, globalExpanded = true }: any) => {
@@ -36,6 +37,7 @@ const OrderDetail = ({ node, globalExpanded = true }: any) => {
   const name: string = isSend ? (p.dataSendername || '') : (p.dataReceivername || '')
   const address: string = isSend ? (p.dataSenderdetailedaddress || '') : (p.dataReceiverdetailedaddress || '')
   const phone: string = isSend ? (p.dataSendermobilephone || '') : (p.dataReceivermobilephone || '')
+  const addressForGoogle = p.dataAddressforgoogle
   // const nameLabel = isSend ? '发件人' : '收件人'
   // const addressLabel = isSend ? '发件地址' : '收件地址'
   // const phoneLabel = isSend ? '发件人电话' : '收件人电话'
@@ -54,11 +56,6 @@ const OrderDetail = ({ node, globalExpanded = true }: any) => {
   }
   catch {
     imageList = []
-  }
-
-  const handleCall = () => {
-    if (phone)
-      window.location.href = `tel:${phone}`
   }
 
   return (
@@ -153,15 +150,15 @@ const OrderDetail = ({ node, globalExpanded = true }: any) => {
             {address && (
               <button
                 className={phone ? 'border-r border-gray-200 pr-[48px]' : ''}
-                onClick={() => setPreviewUrl(`https://maps.google.com/?q=${encodeURIComponent(address)}`)}
+                onClick={() => openGoogleMap({ addressList: addressForGoogle })}
               >
                 <Image src={MapIcon} alt="Map" className='w-[48px] h-[48px]' />
               </button>
             )}
-            {phone && (
+            {phone && waybillNo && (
               <button
                 className={address ? 'pl-[48px]' : ''}
-                onClick={handleCall}
+                onClick={() => openCall({ waybillNo })}
               >
                 <Image src={CallIcon} alt="Call" className='w-[48px] h-[48px]' />
               </button>
