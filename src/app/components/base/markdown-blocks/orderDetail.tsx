@@ -16,17 +16,17 @@ const OrderDetail = ({ node, globalExpanded = true }: any) => {
   const p = node.properties || {}
   const { t } = useTranslation()
   const statusMap: Record<string, string> = {
-    '1': 'color-[#26B269]', // 已签收
-    '2': 'color-[#26B269]', // 退件签收
-    '3': 'color-[#3783FF]', // 派送中
+    '1': 'text-[#26B269]', // 已签收
+    '2': 'text-[#26B269]', // 退件签收
+    '3': 'text-[#3783FF]', // 派送中
   }
 
   const waybillNo: string = p.dataWaybillno || ''
   const orderType: string = p.dataOrdertype || 'receive' // 'send' | 'receive'
   const waybillStatusName: string = p.dataWaybillstatusname || ''
-  const waybillStatusCode: string = p.dataWaybillStatus || ''
+  const waybillStatusCode: string = p.dataWaybillstatus || ''
   const statusColor: string = statusMap[waybillStatusCode]
-  const timeLabel: string = p.dataTimelabel || ''
+  // const timeLabel: string = p.dataTimelabel || ''
   const timeValue: string = p.dataTimevalue || ''
   const imgListRaw: string = p.dataImglist || ''
   const showDetail: boolean = p.dataShowdetail === 'true'
@@ -36,9 +36,9 @@ const OrderDetail = ({ node, globalExpanded = true }: any) => {
   const name: string = isSend ? (p.dataSendername || '') : (p.dataReceivername || '')
   const address: string = isSend ? (p.dataSenderdetailedaddress || '') : (p.dataReceiverdetailedaddress || '')
   const phone: string = isSend ? (p.dataSendermobilephone || '') : (p.dataReceivermobilephone || '')
-  const nameLabel = isSend ? '发件人' : '收件人'
-  const addressLabel = isSend ? '发件地址' : '收件地址'
-  const phoneLabel = isSend ? '发件人电话' : '收件人电话'
+  // const nameLabel = isSend ? '发件人' : '收件人'
+  // const addressLabel = isSend ? '发件地址' : '收件地址'
+  // const phoneLabel = isSend ? '发件人电话' : '收件人电话'
 
   const [showAll, setShowAll] = useState(showDetail)
   const [previewUrl, setPreviewUrl] = useState('')
@@ -62,14 +62,13 @@ const OrderDetail = ({ node, globalExpanded = true }: any) => {
   }
 
   return (
-    <div className="my-[12px] rounded-[24px] border border-gray-100 bg-white px-[24px] py-[12px] text-sm text-gray-800 shadow-sm">
+    <div className="my-[12px] rounded-[24px] border border-gray-100 bg-white px-[24px] py-[12px] text-sm text-gray-800 shadow-sm min-w-[540px]">
       {/* 顶部：运单号 + 时间 + 展开按钮 */}
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <span className="text-[32px] leading-[48px] font-semibold">{waybillNo || '—'}</span>
-            <span className="text-[24px] text-gray-400 leading-[48px]">{'1022-23-22 20:00:92'}</span>
-            {timeValue && <span className="text-[24px] text-gray-400 leading-[48px]">{timeValue}</span>}
+            {timeValue && <span className="text-[20px] text-gray-400 leading-[48px]">{timeValue.substring(0, 16)}</span>}
           </div>
 
           {/* 姓名和图片在收起态也显示 */}
@@ -87,7 +86,7 @@ const OrderDetail = ({ node, globalExpanded = true }: any) => {
 
           {/* 展开态详情 */}
           {shouldShowDetail && (
-            <div className="space-y-3">
+            <div className="space-y-3 mt-3">
 
               {/* 电话（带电话图标） */}
               <div className="flex items-start gap-2">
@@ -111,20 +110,21 @@ const OrderDetail = ({ node, globalExpanded = true }: any) => {
 
             </div>
           )}
-          <div className='flex items-center justify-between'>
+          <div className='mt-3 flex items-center justify-between'>
             {/* 图片列表在收起态也显示 */}
             {imageList.length > 0 && (
-              <div className="mt-3 flex gap-2">
+              <div className="flex gap-2">
                 {imageList.slice(0, 4).map((src, index) => (
                   <div
                     key={index}
-                    className="h-16 w-16 cursor-pointer overflow-hidden rounded-lg border border-gray-100"
+                    className="h-[52px] w-[52px] cursor-pointer overflow-hidden rounded-[8px]"
                     onClick={() => setPreviewUrl(src)}
                   >
                     <img
                       src={src}
                       alt={`img-${index}`}
                       className="h-full w-full object-cover"
+                      style={{ border: 'none' }}
                     />
                   </div>
                 ))}
