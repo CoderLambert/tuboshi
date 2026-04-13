@@ -11,6 +11,8 @@ export type JsBridgeMethodName
     | 'getStatusBarHeight'
     | 'qaData'
     | 'jsToNative'
+    | 'openGoogleMap'
+    | 'openCall'
 
 export type JsBridgeCallbackMethodName
     = | 'getAppRequestHeaderCallback'
@@ -22,6 +24,8 @@ export type JsBridgeCallbackMethodName
     | 'getStatusBarHeightCallback'
     | 'qaDataCallback'
     | 'jsToNativeCallback'
+    | 'openGoogleMapCallback'
+    | 'openCallCallback'
 
 // 原生方法调用核心函数
 export function callNativeMethod(methodName: JsBridgeMethodName, params = {}, callbackName: JsBridgeCallbackMethodName) {
@@ -120,4 +124,12 @@ export function getStatusBarHeight() {
 
 export function getQaData() {
   return callNativeMethod('qaData', {}, 'qaDataCallback')
+}
+
+export function openGoogleMap(params: { addressList: string }) {
+  return callNativeMethod('openGoogleMap', params, 'openGoogleMapCallback')
+}
+
+export function openCall(params: { waybillNo: string }) {
+  return callNativeMethod('openCall', params, 'openCallCallback')
 }

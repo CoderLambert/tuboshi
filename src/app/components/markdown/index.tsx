@@ -1,5 +1,6 @@
 'use client'
 import dynamic from 'next/dynamic'
+import { useTranslation } from 'react-i18next'
 
 import ReactMarkdown from 'react-markdown'
 
@@ -28,6 +29,7 @@ import AudioGallery from '@/app/components/base/audio-gallery'
 import MarkdownButton from '@/app/components/base/markdown-blocks/button'
 import MarkdownForm from '@/app/components/base/markdown-blocks/form'
 import ThinkBlock from '@/app/components/base/markdown-blocks/think-block'
+import OrderDetail from '@/app/components/base/markdown-blocks/orderDetail'
 import cn from '@/utils/classnames'
 import SVGRenderer from '@/app/components/base/svg-gallery'
 const SyntaxHighlighter = dynamic(() => import('react-syntax-highlighter'), { ssr: false })
@@ -92,6 +94,24 @@ const preprocessThinkTag = (content: string) => {
     (str: string) => str.replace(thinkOpenTagRegex, '<details data-think=true>\n'),
     (str: string) => str.replace(thinkCloseTagRegex, '\n[ENDTHINKFLAG]</details>'),
   ])(content)
+}
+
+const preprocessOrderDetailTag = (content: string) => {
+  // 匹配完整的 <orderDetail ...>...</orderDetail> 块（大小写不敏感）
+  // 1. 将多行属性压成单行
+  // 2. 前后加空行，确保 Markdown 解析器将其识别为 HTML 块而非普通文本
+  // 3. 同时计数 orderdetail 标签数量
+  let orderDetailCount = 0
+  const processedContent = content.replace(
+    /<orderdetail([\s\S]*?)>([\s\S]*?)<\/orderdetail\s*>/gi,
+    (_, attrs, inner) => {
+      orderDetailCount++
+      const flatAttrs = attrs.replace(/\s+/g, ' ').trim()
+      const openTag = flatAttrs ? `<orderdetail ${flatAttrs}>` : '<orderdetail>'
+      return `\n\n${openTag}${inner.trim()}</orderdetail>\n\n`
+    },
+  )
+  return { content: processedContent, count: orderDetailCount }
 }
 
 export function PreCode(props: { children: any }) {
@@ -267,10 +287,21 @@ const Link = ({ node, children, ...props }: any) => {
 }
 
 export function Markdown(props: { content: string; className?: string; customDisallowedElements?: string[] }) {
-  const latexContent = flow([
+  // 预处理 Markdown 内容，统计 orderdetail 标签数量
+  let orderDetailCount = 0
+  const processedContent = flow([
     preprocessThinkTag,
+    (content) => {
+      const result = preprocessOrderDetailTag(content)
+      orderDetailCount = result.count
+      return result.content
+    },
     preprocessLaTeX,
   ])(props.content)
+
+  // 全局展开/收起状态管理
+  const { t } = useTranslation()
+  const [globalExpanded, setGlobalExpanded] = useState(true)
 
   const [copied, setCopied] = useState(false)
 
@@ -283,6 +314,16 @@ export function Markdown(props: { content: string; className?: string; customDis
 
   return (
     <div className={cn('markdown-body relative', '!text-text-primary', props.className)}>
+      {/* 全局展开/收起按钮 - 当有多个 orderdetail 标签时显示 */}
+      {orderDetailCount > 1 && (
+        <button
+          className="mb-3 text-xs text-blue-500 hover:text-blue-600"
+          onClick={() => setGlobalExpanded(!globalExpanded)}
+        >
+          {globalExpanded ? t('收起全部') : t('展开全部')}
+        </button>
+      )}
+
       <ReactMarkdown
         remarkPlugins={[
           RemarkGfm,
@@ -321,10 +362,13 @@ export function Markdown(props: { content: string; className?: string; customDis
           form: MarkdownForm,
           script: ScriptBlock as any,
           details: ThinkBlock,
+          ...({
+            orderdetail: (props) => <OrderDetail {...props} globalExpanded={globalExpanded} />
+          } as any),
         }}
       >
         {/* Markdown detect has problem. */}
-        {latexContent}
+        {processedContent}
       </ReactMarkdown>
     </div>
   )
@@ -332,7 +376,7 @@ export function Markdown(props: { content: string; className?: string; customDis
 
 // **Add an ECharts runtime error handler
 // Avoid error #7832 (Crash when ECharts accesses undefined objects)
-// This can happen when a component attempts to access an undefined object that references an unregistered map, causing the program to crash.
+// This can happen when a component attempts to access an undefined object· that references an unregistered map, causing the program to crash.
 
 export default class ErrorBoundary extends Component {
   constructor(props: any) {
