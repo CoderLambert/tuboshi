@@ -1,5 +1,6 @@
 'use client'
 import dynamic from 'next/dynamic'
+import Image from 'next/image'
 import { useTranslation } from 'react-i18next'
 
 import ReactMarkdown from 'react-markdown'
@@ -16,7 +17,7 @@ import RehypeRaw from 'rehype-raw'
 import {
   atelierHeathLight,
 } from 'react-syntax-highlighter/dist/esm/styles/hljs'
-import { Component, memo, useMemo, useRef, useState } from 'react'
+import { Component, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { flow } from 'lodash-es'
 import ActionButton from '@/app/components/base/action-button'
 import CopyIcon from '@/app/components/base/copy-icon'
@@ -32,6 +33,8 @@ import ThinkBlock from '@/app/components/base/markdown-blocks/think-block'
 import OrderDetail from '@/app/components/base/markdown-blocks/orderDetail'
 import cn from '@/utils/classnames'
 import SVGRenderer from '@/app/components/base/svg-gallery'
+import ArrowUpIcon from '@/assets/icons/arrow-up.svg'
+import ArrowDownIcon from '@/assets/icons/arrow-down.svg'
 const SyntaxHighlighter = dynamic(() => import('react-syntax-highlighter'), { ssr: false })
 
 // Available language https://github.com/react-syntax-highlighter/react-syntax-highlighter/blob/master/AVAILABLE_LANGUAGES_HLJS.MD
@@ -96,22 +99,47 @@ const preprocessThinkTag = (content: string) => {
   ])(content)
 }
 
+const getOrderDetailInitialExpanded = (attrs: string) => {
+  const showDetailMatch = attrs.match(/\bdata-showdetail\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i)
+  const showDetailValue = showDetailMatch?.[1] ?? showDetailMatch?.[2] ?? showDetailMatch?.[3]
+  return showDetailValue === 'true'
+}
+
+const getOrderDetailIndex = (orderProps: any) => {
+  const properties = orderProps.node?.properties || {}
+  const index = properties.dataOrderdetailIndex
+    ?? properties.dataOrderDetailIndex
+    ?? properties.dataorderdetailindex
+    ?? properties['data-orderdetail-index']
+  return Number(index)
+}
+
 const preprocessOrderDetailTag = (content: string) => {
   // 匹配完整的 <orderDetail ...>...</orderDetail> 块（大小写不敏感）
   // 1. 将多行属性压成单行
   // 2. 前后加空行，确保 Markdown 解析器将其识别为 HTML 块而非普通文本
-  // 3. 同时计数 orderdetail 标签数量
-  let orderDetailCount = 0
+  // 3. 根据 orderdetail 个数，在第一个 orderdetail 前插入展开/收起全部按钮占位标签
+  const orderDetailRegex = /<orderdetail([\s\S]*?)>([\s\S]*?)<\/orderdetail\s*>/gi
+  const orderDetailCount = content.match(orderDetailRegex)?.length || 0
+  const initialExpandedList: boolean[] = []
+  let currentOrderDetailIndex = 0
   const processedContent = content.replace(
-    /<orderdetail([\s\S]*?)>([\s\S]*?)<\/orderdetail\s*>/gi,
+    orderDetailRegex,
     (_, attrs, inner) => {
-      orderDetailCount++
+      currentOrderDetailIndex++
       const flatAttrs = attrs.replace(/\s+/g, ' ').trim()
-      const openTag = flatAttrs ? `<orderdetail ${flatAttrs}>` : '<orderdetail>'
-      return `\n\n${openTag}${inner.trim()}</orderdetail>\n\n`
+      initialExpandedList.push(getOrderDetailInitialExpanded(flatAttrs))
+      const orderDetailIndexAttr = `data-orderdetail-index="${currentOrderDetailIndex - 1}"`
+      const openTag = flatAttrs
+        ? `<orderdetail ${flatAttrs} ${orderDetailIndexAttr}>`
+        : `<orderdetail ${orderDetailIndexAttr}>`
+      const togglePlaceholder = orderDetailCount > 1 && currentOrderDetailIndex === 1
+        ? '\n\n<orderdetailtoggle></orderdetailtoggle>\n\n'
+        : ''
+      return `${togglePlaceholder}\n\n${openTag}${inner.trim()}</orderdetail>\n\n`
     },
   )
-  return { content: processedContent, count: orderDetailCount }
+  return { content: processedContent, count: orderDetailCount, initialExpandedList }
 }
 
 export function PreCode(props: { children: any }) {
@@ -287,21 +315,46 @@ const Link = ({ node, children, ...props }: any) => {
 }
 
 export function Markdown(props: { content: string; className?: string; customDisallowedElements?: string[] }) {
-  // 预处理 Markdown 内容，统计 orderdetail 标签数量
-  let orderDetailCount = 0
-  const processedContent = flow([
-    preprocessThinkTag,
-    (content) => {
-      const result = preprocessOrderDetailTag(content)
-      orderDetailCount = result.count
-      return result.content
-    },
-    preprocessLaTeX,
-  ])(props.content)
+  // 预处理 Markdown 内容，根据 orderdetail 数量插入展开/收起全部按钮
+  const processedOrderDetail = useMemo(() => {
+    const contentWithThinkTag = preprocessThinkTag(props.content)
+    const orderDetailResult = preprocessOrderDetailTag(contentWithThinkTag)
+    return {
+      ...orderDetailResult,
+      content: preprocessLaTeX(orderDetailResult.content),
+    }
+  }, [props.content])
+  const processedContent = processedOrderDetail.content
 
   // 全局展开/收起状态管理
   const { t } = useTranslation()
-  const [globalExpanded, setGlobalExpanded] = useState(true)
+  const [orderDetailExpandedMap, setOrderDetailExpandedMap] = useState<Record<number, boolean>>({})
+
+  useEffect(() => {
+    setOrderDetailExpandedMap({})
+  }, [props.content])
+
+  const isAllOrderDetailExpanded = processedOrderDetail.count > 1
+    && processedOrderDetail.initialExpandedList.every((initialExpanded, index) => orderDetailExpandedMap[index] ?? initialExpanded)
+
+  const handleGlobalExpandedToggle = () => {
+    const nextExpanded = !isAllOrderDetailExpanded
+    setOrderDetailExpandedMap(
+      Object.fromEntries(processedOrderDetail.initialExpandedList.map((_, index) => [index, nextExpanded])),
+    )
+  }
+
+  const handleOrderDetailExpandedChange = useCallback((index: number, expanded: boolean) => {
+    if (!Number.isInteger(index)) {
+      return
+    }
+    setOrderDetailExpandedMap((prev) => {
+      if (prev[index] === expanded) {
+        return prev
+      }
+      return { ...prev, [index]: expanded }
+    })
+  }, [])
 
   const [copied, setCopied] = useState(false)
 
@@ -314,16 +367,6 @@ export function Markdown(props: { content: string; className?: string; customDis
 
   return (
     <div className={cn('markdown-body relative', '!text-text-primary', props.className)}>
-      {/* 全局展开/收起按钮 - 当有多个 orderdetail 标签时显示 */}
-      {orderDetailCount > 1 && (
-        <button
-          className="mb-3 text-xs text-blue-500 hover:text-blue-600"
-          onClick={() => setGlobalExpanded(!globalExpanded)}
-        >
-          {globalExpanded ? t('收起全部') : t('展开全部')}
-        </button>
-      )}
-
       <ReactMarkdown
         remarkPlugins={[
           RemarkGfm,
@@ -363,7 +406,36 @@ export function Markdown(props: { content: string; className?: string; customDis
           script: ScriptBlock as any,
           details: ThinkBlock,
           ...({
-            orderdetail: (props) => <OrderDetail {...props} globalExpanded={globalExpanded} />
+            orderdetailtoggle: () => (
+              <button
+                className="mb-[24px] flex w-full items-center justify-center gap-1 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-500 hover:border-gray-300 hover:text-gray-600"
+                onClick={handleGlobalExpandedToggle}
+              >
+                {isAllOrderDetailExpanded ? t('收起') : t('展开')}
+                <Image
+                  src={isAllOrderDetailExpanded ? ArrowUpIcon : ArrowDownIcon}
+                  alt="Arrow"
+                  className='w-[24px] h-[24px]'
+                />
+              </button>
+            ),
+            orderdetail: (orderProps: any) => {
+              const currentOrderDetailIndex = getOrderDetailIndex(orderProps)
+              const isValidOrderDetailIndex = Number.isInteger(currentOrderDetailIndex)
+                && currentOrderDetailIndex >= 0
+                && currentOrderDetailIndex < processedOrderDetail.count
+              const expanded = isValidOrderDetailIndex
+                ? orderDetailExpandedMap[currentOrderDetailIndex] ?? processedOrderDetail.initialExpandedList[currentOrderDetailIndex]
+                : false
+              return (
+                <OrderDetail
+                  {...orderProps}
+                  expanded={expanded}
+                  orderDetailIndex={currentOrderDetailIndex}
+                  onExpandedChange={handleOrderDetailExpandedChange}
+                />
+              )
+            },
           } as any),
         }}
       >

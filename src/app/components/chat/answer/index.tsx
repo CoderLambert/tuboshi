@@ -177,7 +177,7 @@ const Answer: FC<IAnswerProps> = ({
           }
         <div className={`${s.answerWrap}`}>
           <div className={`${s.answer} relative text-sm text-gray-900`}>
-            <div className={'ml-2 rounded-b-[32px] rounded-tr-[32px] bg-gray-100 px-4 py-3 '}>
+            <div className={'ml-2 rounded-b-[32px] rounded-tr-[32px] bg-gray-100 px-[24px] py-3 '}>
               {(() => {
                 const shouldShowLoading = isResponding && (
                   isAgentMode
