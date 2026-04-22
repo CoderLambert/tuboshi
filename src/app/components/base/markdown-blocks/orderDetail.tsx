@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import ImagePreview from '@/app/components/base/image-uploader/image-preview'
-import { useTranslation } from 'react-i18next'
 import Image from 'next/image'
 import StaffIcon from '@/assets/icons/staff.svg'
 import PhoneIcon from '@/assets/icons/phone.svg'
@@ -13,9 +12,8 @@ import CallIcon from '@/assets/icons/call.svg'
 import { openCall, openGoogleMap } from '@/lib/jsBridge'
 
 // 注意：HTML 解析器会将属性名全部转为小写，所以 data-waybillNo → dataWaybillno
-const OrderDetail = ({ node, globalExpanded = true }: any) => {
+const OrderDetail = ({ node, expanded, orderDetailIndex, onExpandedChange }: any) => {
   const p = node.properties || {}
-  const { t } = useTranslation()
   const statusMap: Record<string, string> = {
     '1': 'text-[#26B269]', // 已签收
     '2': 'text-[#26B269]', // 退件签收
@@ -42,11 +40,10 @@ const OrderDetail = ({ node, globalExpanded = true }: any) => {
   // const addressLabel = isSend ? '发件地址' : '收件地址'
   // const phoneLabel = isSend ? '发件人电话' : '收件人电话'
 
-  const [showAll, setShowAll] = useState(showDetail)
   const [previewUrl, setPreviewUrl] = useState('')
+  const showAll = expanded ?? showDetail
 
-  // 合并全局状态和局部状态：全局收起时优先全局，全局展开时尊重局部
-  const shouldShowDetail = globalExpanded && showAll
+  const shouldShowDetail = showAll
 
   let imageList: string[] = []
   try {
@@ -68,18 +65,18 @@ const OrderDetail = ({ node, globalExpanded = true }: any) => {
             {timeValue && <span className="text-[20px] text-gray-400 leading-[48px]">{timeValue.substring(0, 16)}</span>}
           </div>
 
-          {/* 姓名和图片在收起态也显示 */}
-          <div className="mt-2 flex items-center justify-between">
-            <div className="flex items-start gap-2">
-              <Image
-                className='w-[32px] h-[32px]'
-                src={StaffIcon}
-                alt="Staff"
-              />
-              <span className="text-gray-700">{name || '—'}</span>
+          {shouldShowDetail && (
+            <div className="mt-2 flex items-center justify-between">
+              <div className="flex items-start gap-2">
+                <Image
+                  className='w-[32px] h-[32px]'
+                  src={StaffIcon}
+                  alt="Staff"
+                />
+                <span className="text-gray-700">{name || '—'}</span>
+              </div>
             </div>
-
-          </div>
+          )}
 
           {/* 展开态详情 */}
           {shouldShowDetail && (
@@ -102,14 +99,23 @@ const OrderDetail = ({ node, globalExpanded = true }: any) => {
                   alt="Location"
                   className='w-[32px] h-[32px]'
                 />
-                <span className="break-all flex-1">{address || '—'}</span>
+                <span className="flex-1 break-all font-bold">{address || '—'}</span>
               </div>
 
             </div>
           )}
+          {!shouldShowDetail && (
+            <div className="mt-2 flex items-start gap-2">
+              <Image
+                src={AddressIcon}
+                alt="Location"
+                className='w-[32px] h-[32px]'
+              />
+              <span className="flex-1 line-clamp-2 break-all font-bold">{address || '—'}</span>
+            </div>
+          )}
           <div className='mt-3 flex items-center justify-between'>
-            {/* 图片列表在收起态也显示 */}
-            {imageList.length > 0 && (
+            {shouldShowDetail && imageList.length > 0 && (
               <div className="flex gap-2">
                 {imageList.slice(0, 4).map((src, index) => (
                   <div
@@ -134,7 +140,7 @@ const OrderDetail = ({ node, globalExpanded = true }: any) => {
             )}
             <button
               className="ml-auto flex items-center gap-1 rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-500 hover:border-gray-300 hover:text-gray-600"
-              onClick={() => setShowAll(v => !v)}
+              onClick={() => onExpandedChange?.(orderDetailIndex, !showAll)}
             >
               {showAll ? '收起' : '展开'}
               <Image src={showAll ? ArrowUpIcon : ArrowDownIcon} alt="Arrow"
