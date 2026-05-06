@@ -111,6 +111,8 @@ const translation = {
     pasteFileLinkInvalid: 'Link de arquivo inválido',
     fileExtensionNotSupport: 'Extensão de arquivo não suportada',
   },
+  '展开': 'Expandir',
+  '收起': 'Recolher',
   wait_for_completion: 'Aguardar conclusão',
   wait_for_completion_placeholder: 'Aguardar conclusão',
   '展开全部': 'Expandir tudo',

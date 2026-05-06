@@ -10,9 +10,11 @@ import ArrowUpIcon from '@/assets/icons/arrow-up.svg'
 import ArrowDownIcon from '@/assets/icons/arrow-down.svg'
 import CallIcon from '@/assets/icons/call.svg'
 import { openCall, openGoogleMap } from '@/lib/jsBridge'
+import { useTranslation } from 'react-i18next'
 
 // 注意：HTML 解析器会将属性名全部转为小写，所以 data-waybillNo → dataWaybillno
 const OrderDetail = ({ node, expanded, orderDetailIndex, onExpandedChange }: any) => {
+  const { t } = useTranslation()
   const p = node.properties || {}
   const statusMap: Record<string, string> = {
     '1': 'text-[#26B269]', // 已签收
@@ -142,7 +144,7 @@ const OrderDetail = ({ node, expanded, orderDetailIndex, onExpandedChange }: any
               className="ml-auto flex items-center gap-1 rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-500 hover:border-gray-300 hover:text-gray-600"
               onClick={() => onExpandedChange?.(orderDetailIndex, !showAll)}
             >
-              {showAll ? '收起' : '展开'}
+              {showAll ? t('收起') : t('展开')}
               <Image src={showAll ? ArrowUpIcon : ArrowDownIcon} alt="Arrow"
                 className='w-[24px] h-[24px]' />
             </button>

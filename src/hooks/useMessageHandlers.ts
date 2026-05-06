@@ -632,6 +632,11 @@ export function useMessageHandlers(config: MessageHandlersConfig) {
       },
       onWorkflowFinished: ({ data }) => {
         responseItem.workflowProcess!.status = data.status as WorkflowRunningStatus
+        // 将 workflow 输出的 answer 设置为消息内容
+        if (data.outputs?.answer) {
+          responseItem.content = data.outputs.answer
+        }
+
         chatActions.setChatList(produce(chatState.chatList, (draft) => {
           const currentIndex = draft.findIndex(item => item.id === responseItem.id)
           draft[currentIndex] = {
