@@ -112,6 +112,8 @@ const translation = {
     pasteFileLinkInvalid: 'Invalid file link',
     fileExtensionNotSupport: 'File extension not supported',
   },
+  '展开': 'Expand',
+  '收起': 'Collapse',
   wait_for_completion: 'Wait for completion',
   wait_for_completion_placeholder: 'Wait for completion',
   '展开全部': 'Expand All',
