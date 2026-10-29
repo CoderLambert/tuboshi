@@ -800,6 +800,8 @@ html {
 .markdown-body {
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
+  min-width: 0;
+  max-width: 100%;
   margin: 0;
   color: var(--color-text-primary);
   background-color: var(--color-canvas-default);
@@ -1004,10 +1006,11 @@ html {
 .markdown-body table {
   border-spacing: 0;
   border-collapse: separate;
-  display: block;
-  width: max-content;
+  display: table;
+  width: 100%;
   max-width: 100%;
-  overflow: auto;
+  table-layout: fixed;
+  overflow: hidden;
   border: 2px solid var(--color-divider-regular);
   border-radius: 16px;
 }
@@ -1385,14 +1388,16 @@ html {
   color: var(--color-text-tertiary);
   font-size: 24px;
   font-weight: var(--base-text-weight-medium, 500);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .markdown-body table td {
   color: var(--color-text-secondary);
   font-size: 26px;
   font-weight: var(--base-text-weight-normal, 400);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .markdown-body table th,

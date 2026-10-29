@@ -3,12 +3,15 @@ import { Suspense } from 'react'
 import { Geist } from 'next/font/google'
 import '@/styles/tailwind.css'
 import '@/styles/markdown.css'
+import '@/styles/markdown.scss'
 import I18nProvider from '@/app/components/I18nProvider'
+import PhoneBoot from '@/demo/PhoneBoot'
+import DemoChrome from '@/demo/DemoChrome'
 import { USERID_COOKIE_NAME } from '@/config'
 import Cookies from 'js-cookie'
 // import { testTransformFaqContentWithZod } from '@/lib/utils'
 export const metadata = {
-  title: 'AI Agent ChatFlow',
+  title: 'Courier AI Assistant · Demo',
   description: 'A chat application powered by AI agents',
   other: {
     // 禁用移动端浏览器的下拉刷新
@@ -37,16 +40,19 @@ const LocaleLayout = async ({
 }) => {
   Cookies.remove(USERID_COOKIE_NAME)
   return (
-    <html className={`${geist.className} h-full`} style={{
-      'fontSize': '100px', // 注意：驼峰式写法 fontSize，而不是 font-size
-      '--tpx': '0.01rem', // 自定义 CSS 变量使用字符串值
+    <html className={`${geist.className} h-full overflow-hidden`} style={{
+      // Rem root for the 750-wide design scale. Body below pins inherited text to 16px
+      // so unstyled fallbacks are not blown up to ~100px inside a phone iframe.
+      'fontSize': '100px',
+      '--tpx': '0.01rem',
     } as React.CSSProperties} suppressHydrationWarning>
-      <body className="h-full" suppressHydrationWarning>
-        <div className="px-safe-left pr-safe-right pt-safe-top pb-safe-bottom flex h-full min-h-0 w-full bg-white">
+      <body className="h-full overflow-hidden" style={{ fontSize: '16px' }} suppressHydrationWarning>
+        <div className="px-safe-left pr-safe-right pt-safe-top pb-safe-bottom flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden bg-white">
           <I18nProvider >
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<PhoneBoot label="Loading" />}>
               {children}
             </Suspense>
+            <DemoChrome />
           </I18nProvider>
         </div>
         <script

@@ -1465,7 +1465,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
   if (!appId || !APP_INFO || !promptConfig) { return <Loading className='mt-16' type='app' /> }
 
   return (
-    <div className='flex min-h-screen max-w-full flex-col bg-white' style={{ paddingBottom: `${inputBoxHeight}px` }}>
+    <div className='flex h-full min-h-0 w-full min-w-0 max-w-full flex-col overflow-hidden bg-white'>
       {/* 会话列表 */}
       <ConversationList
         conversationList={conversationList}
@@ -1484,7 +1484,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
         noMoreDataText={t('app.chat.noMoreMessages')}
       >
         {/* 页面内容区域 - 包含所有内容的页面级滚动 */}
-        <div className='flex flex-col bg-white'>
+        <div className='flex min-w-0 max-w-full flex-col bg-white'>
           {/* FAQ内容 */}
           {faqContent && (
             <div className='shrink-0'>
@@ -1493,7 +1493,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
           )}
 
           {/* 聊天消息区域 - 占据剩余空间 */}
-          <div className='flex-1 p-4'>
+          <div className='min-w-0 max-w-full flex-1 p-4'>
             <div className='h-full'>
               {/* 会话切换加载指示器 */}
               {isSwitchingConversation && (
@@ -1531,7 +1531,7 @@ const Main: FC<IMainProps> = ({ headerContent, faqContent }) => {
       {/* 固定在窗口底部的输入框 */}
       <div
         ref={inputBoxRef}
-        className='fixed bottom-0 left-0 right-0 z-50 p-4'
+        className='z-50 w-full min-w-0 max-w-full shrink-0 bg-white p-4'
       >
         {
           chatConfig?.suggested_questions_after_answer?.enabled && !!suggestQuestionsAfterAnswer?.length && (

@@ -6,11 +6,9 @@ import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 
 const Flowchart = dynamic(() => import('@/app/components/base/mermaid'), { ssr: false })
-import 'katex/dist/katex.min.css'
 
 import RemarkMath from 'remark-math'
 import RemarkBreaks from 'remark-breaks'
-import RehypeKatex from 'rehype-katex'
 import RemarkGfm from 'remark-gfm'
 import RehypeRaw from 'rehype-raw'
 // import SyntaxHighlighter from 'react-syntax-highlighter'
@@ -329,6 +327,26 @@ export function Markdown(props: { content: string; className?: string; customDis
   // 全局展开/收起状态管理
   const { t } = useTranslation()
   const [orderDetailExpandedMap, setOrderDetailExpandedMap] = useState<Record<number, boolean>>({})
+  const needsMath = processedContent.includes('$$')
+  const [katexPlugin, setKatexPlugin] = useState<any>(null)
+
+  useEffect(() => {
+    if (!needsMath || katexPlugin)
+      return
+    let cancelled = false
+    Promise.all([
+      import('rehype-katex'),
+      import('katex/dist/katex.min.css'),
+    ]).then(([mod]) => {
+      if (!cancelled)
+        setKatexPlugin(() => mod.default)
+    }).catch((error) => {
+      console.error('Failed to load KaTeX', error)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [needsMath, katexPlugin])
 
   useEffect(() => {
     setOrderDetailExpandedMap({})
@@ -374,7 +392,7 @@ export function Markdown(props: { content: string; className?: string; customDis
           RemarkBreaks,
         ]}
         rehypePlugins={[
-          RehypeKatex,
+          ...(katexPlugin ? [katexPlugin] : []),
           RehypeRaw as any,
           // The Rehype plug-in is used to remove the ref attribute of an element
           () => {

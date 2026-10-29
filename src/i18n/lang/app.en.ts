@@ -1,6 +1,7 @@
 const translation = {
   common: {
-    welcome: 'Hello! I\'m your AI assistant, happy to help you.',
+    welcome: 'Hi! I\'m your courier AI assistant — ask me anything on your delivery route.',
+    title: 'Courier AI Assistant Demo',
     faqTip: 'Try asking questions like',
     appUnavailable: 'App is unavailable',
     appUnkonwError: 'App is unavailable',

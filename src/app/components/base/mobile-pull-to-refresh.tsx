@@ -81,7 +81,7 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
   const handleTouchStart = useCallback(
     (e: TouchEvent) => {
       if (loadingMore) return
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      const scrollTop = containerRef.current?.scrollTop || 0
       if (scrollTop > 0) return
 
       const touch = e.touches[0]
@@ -100,7 +100,7 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
     (e: TouchEvent) => {
       if (!isTracking || loadingMore) return
 
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      const scrollTop = containerRef.current?.scrollTop || 0
       if (scrollTop > 0) {
         setIsTracking(false)
         setIsPulling(false)
@@ -132,7 +132,7 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
 
     setIsTracking(false)
 
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+    const scrollTop = containerRef.current?.scrollTop || 0
     if (scrollTop > 0) {
       setIsPulling(false)
       setPullDistance(0)
@@ -286,7 +286,7 @@ const MobilePullToRefresh: React.FC<IMobilePullToRefreshProps> = ({
       )}
       <div
         ref={containerRef}
-        className={cn('mobile-pull-to-refresh min-h-screen', { 'selection-disabled': isPulling }, className)}
+        className={cn('phone-scroll mobile-pull-to-refresh min-h-0 w-full min-w-0 max-w-full flex-1 overflow-x-hidden overflow-y-auto', { 'selection-disabled': isPulling }, className)}
         style={{
           transform: `translateY(${isPulling ? Math.min(pullDistance, 80) : 0}px)`,
           transition: isPulling ? 'none' : 'transform 0.3s ease-out',

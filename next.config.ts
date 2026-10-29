@@ -19,15 +19,20 @@ export default (phase: string): NextConfig => {
     return config
   }
 
+  const isStaticExport = process.env.STATIC_EXPORT === '1'
+
   const baseConfig = {
     basePath: process.env.NEXT_PUBLIC_NODE_BASE_PATH,
+    images: { unoptimized: true },
+    // Static hosting serves the export folder as /tubo-app/.
+    ...(isStaticExport ? { output: 'export' as const, trailingSlash: true } : {}),
   }
 
   // 只在开发模式下应用 Turbopack 配置
   if (phase === PHASE_DEVELOPMENT_SERVER) {
     return {
       ...baseConfig,
-      output: 'standalone', // 可选：开发模式下也保持 standalone（但实际 dev 不影响）
+      ...(isStaticExport ? {} : { output: 'standalone' as const }),
       webpack: (config: any) => {
         webpackConfig(config)
         config.plugins.push(codeInspectorPlugin({ bundler: 'webpack', editor: 'code' }))
@@ -39,7 +44,7 @@ export default (phase: string): NextConfig => {
   // 在构建模式下，不应用 Turbopack（使用默认 Webpack）
   return {
     ...baseConfig,
-    output: 'standalone', // 只保留必要的生产配置
+    ...(isStaticExport ? {} : { output: 'standalone' as const }),
     webpack: webpackConfig,
     eslint: {
       // Warning: This allows production builds to successfully complete even if

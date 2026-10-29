@@ -10,15 +10,17 @@
 }
 
 .header {
-    @apply  flex flex-row items-end mx-[32px];
+    @apply flex min-w-0 max-w-full flex-row items-end mx-[32px];
 }
 
 .logo {
     width: 127.15px;
     height: 113px;
+    flex-shrink: 0;
 }
 
 .intro {
-    @apply text-[38px] leading-tight font-[500];
+    @apply min-w-0 text-[38px] leading-tight font-[500];
+    overflow-wrap: anywhere;
 }
 

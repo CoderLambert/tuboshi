@@ -1,6 +1,7 @@
 const translation = {
   common: {
-    welcome: '我是您的智能助手，期待为您服务',
+    welcome: '你好，我是快递员 AI 助手，派件路上有问题随时问我',
+    title: '快递员 AI 助手 Demo',
     faqTip: '你可以试试这样问我',
     appUnavailable: '应用不可用',
     appUnkonwError: '应用不可用',

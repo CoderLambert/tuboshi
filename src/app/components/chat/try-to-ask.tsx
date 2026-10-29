@@ -51,14 +51,14 @@ const TryToAsk: FC<TryToAskProps> = ({
         <div className='system-xs-medium-uppercase shrink-0 text-text-tertiary'>{t('app.chat.tryToAsk')}</div>
         {!isMobile && <Divider bgStyle='gradient' className='h-px grow' />}
       </div>
-      <div className={cn('flex flex-wrap justify-center', isMobile && 'justify-end')}>
+      <div className={cn('flex w-full min-w-0 flex-wrap justify-center', isMobile && 'justify-end')}>
         {
           suggestedQuestions.map((suggestQuestion, index) => (
             <Button
               size='small'
               key={index}
               variant='secondary-accent'
-              className='mb-1 mr-1 last:mr-0'
+              className='mb-1 mr-1 !h-auto max-w-full !whitespace-normal text-left last:mr-0'
               onClick={() => onSend(suggestQuestion)}
             >
               {suggestQuestion}
