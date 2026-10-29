@@ -5,6 +5,13 @@ import { useTranslation } from 'react-i18next'
 import { getLocaleOnClient, setLocaleOnClient } from '@/i18n/client'
 import { APP_INFO } from '@/config'
 import { useNativeBridge } from '@/hooks/useNativeBridge'
+import { installDemoBridge } from '@/demo/bridge'
+import { startDemo } from '@/demo/start'
+
+if (typeof window !== 'undefined') {
+  installDemoBridge()
+  void startDemo()
+}
 type I18nProviderProps = {
   children: React.ReactNode
 }

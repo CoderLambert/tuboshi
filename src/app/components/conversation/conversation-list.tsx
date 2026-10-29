@@ -154,7 +154,7 @@ const ConversationList: FC<IConversationListProps> = ({
     >
       <div className="flex h-full">
         {/* 侧边栏 */}
-        <div className="flex w-80 flex-col bg-white shadow-xl">
+        <div className="flex w-full min-w-0 max-w-full flex-col bg-white shadow-xl">
           {/* 搜索框 */}
           <div className="px-4 pt-4">
             <div className="relative flex">

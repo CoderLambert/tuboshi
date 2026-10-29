@@ -44,7 +44,11 @@ const SimpleChat: FC<ISimpleChatProps> = ({
 
   // 自动滚动到底部 - 使用 window.scroll
   const scrollToBottom = useCallback(() => {
-    console.debug('[SmartScroll] Executing auto-scroll to bottom')
+    const scroller = document.querySelector('.phone-scroll')
+    if (scroller instanceof HTMLElement) {
+      scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' })
+      return
+    }
     window.scrollTo({
       top: document.body.scrollHeight,
       behavior: 'smooth',
@@ -69,10 +73,10 @@ const SimpleChat: FC<ISimpleChatProps> = ({
   }, [onSend])
 
   return (
-    <div className={cn(!feedbackDisabled && 'px-3.5', 'relative flex h-full flex-col overflow-x-auto')}>
+    <div className={cn(!feedbackDisabled && 'px-3.5', 'relative flex h-full min-w-0 max-w-full flex-col overflow-x-hidden')}>
       {/* 聊天内容区域 */}
       {(chatList.length > 0 || historyMessages.length > 0 || showLoadHistoryButton) && (
-        <div className="flex-1 overflow-y-auto">
+        <div className="min-w-0 max-w-full flex-1">
           {/* 历史消息区域 */}
           {historyMessages.length > 0 && (
             <div className="mb-4 border-b border-gray-200 pb-4">

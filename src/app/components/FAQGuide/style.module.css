@@ -1,5 +1,5 @@
 .suggestion {
-    @apply text-[16px] leading-[24px] font-[400] mx-[40px] mt-[40.7px] max-w-full;
+    @apply text-[16px] leading-[24px] font-[400] mx-[40px] mt-[40.7px] min-w-0 max-w-full overflow-hidden;
 }
 
 .tip {
@@ -14,8 +14,11 @@
 .categories {
     display: flex;
     flex-direction: row;
-    gap: 60px;
+    flex-wrap: wrap;
+    gap: 16px 28px;
     margin-top: 24px;
+    max-width: 100%;
+    min-width: 0;
 }
 
 .categoryName {
@@ -26,6 +29,8 @@
     color: #8F8F91;
     user-select: none;
     cursor: pointer;
+    max-width: 100%;
+    white-space: normal;
     transition: color 0.2s ease, transform 0.2s ease;
 }
 
@@ -95,6 +100,8 @@
     color: #111111;
     z-index: 0;
     width: fit-content;
+    max-width: 100%;
+    overflow-wrap: anywhere;
     user-select: none;
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.2s ease;

@@ -31,17 +31,17 @@ const SafeAreaLayout = memo(({
     closeWebview()
   }, [closeWebview])
   return (
-    <div className="relative h-full w-full" >
-      {/* 顶部安全区 + Header */}
+    <div className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden" >
+      {/* 顶部安全区 + Header，留在文档流里，避免盖住聊天区 */}
       <div
-        className="fixed left-0 right-0 top-0 z-[999] flex flex-col"
+        className="z-[999] flex shrink-0 flex-col"
         style={{
-          paddingTop: `calc(${top} * var(--tpx))`,
+          paddingTop: `calc(${top || 0} * var(--tpx))`,
           background: 'linear-gradient(244deg, rgba(255, 232, 224, 1) 0%, rgb(247 233 241 / 58%) 50%, rgba(250, 231, 217, 1) 100%)',
         }}
       >
         <div
-          className="relative flex items-center justify-between px-4"
+          className="relative flex min-w-0 items-center justify-between px-4"
           style={{ height: `calc(${headerHeight} * var(--tpx))` }}
         >
           {/* 左侧返回按钮 */}
@@ -51,7 +51,7 @@ const SafeAreaLayout = memo(({
           />
 
           {/* 中间标题区域 */}
-          <div className="flex-1 text-center text-[34px] font-bold">{title}</div>
+          <div className="min-w-0 flex-1 truncate text-center text-[34px] font-bold">{title}</div>
 
           {/* 右侧菜单按钮区域 */}
           {showMenu && (
@@ -64,11 +64,7 @@ const SafeAreaLayout = memo(({
         </div>
       </div>
 
-      {/* 内容区，自动下移 */}
-      <div
-        className="relative pt-4"
-        style={{ paddingTop: `calc((${top} + ${headerHeight}) * var(--tpx))` }}
-      >
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden pt-4">
         {children}
       </div>
     </div>

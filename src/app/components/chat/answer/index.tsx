@@ -166,7 +166,7 @@ const Answer: FC<IAnswerProps> = ({
 
   return (
     <div key={id}>
-      <div className='flex items-start'>
+      <div className='flex min-w-0 max-w-full items-start'>
         {/* <div className={`${s.answerIcon} h-10 w-10 shrink-0`}>
 
         </div> */}
@@ -175,9 +175,9 @@ const Answer: FC<IAnswerProps> = ({
               <LoadingAnim type='avatar' />
             </div>
           }
-        <div className={`${s.answerWrap}`}>
-          <div className={`${s.answer} relative text-sm text-gray-900`}>
-            <div className={'ml-2 rounded-b-[32px] rounded-tr-[32px] bg-gray-100 px-[24px] py-3 '}>
+        <div className={`${s.answerWrap} min-w-0 max-w-full`}>
+          <div className={`${s.answer} relative min-w-0 max-w-full text-sm text-gray-900`}>
+            <div className={'ml-2 min-w-0 max-w-full overflow-hidden rounded-b-[32px] rounded-tr-[32px] bg-gray-100 px-[24px] py-3 '}>
               {(() => {
                 const shouldShowLoading = isResponding && (
                   isAgentMode

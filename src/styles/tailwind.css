@@ -88,6 +88,37 @@
 
 html, body, :root {
   height: 100%;
+  max-width: 100%;
+}
+
+html, body {
+  overflow: hidden;
+}
+
+/* Vertical scrollbar lives on the chat scroller, not the phone iframe. */
+.phone-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(17, 24, 39, 0.35) transparent;
+}
+
+.phone-scroll::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.phone-scroll::-webkit-scrollbar-thumb {
+  background: rgba(17, 24, 39, 0.28);
+  border-radius: 999px;
+}
+
+.phone-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.markdown-body pre,
+.markdown-body .katex-display {
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 /* CSS Utils */
@@ -688,4 +719,35 @@ html, body, :root {
     overscroll-behavior-y: contain;
     touch-action: pan-y;
   }
+}
+
+html, body {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Vertical scrollbar lives on the chat scroller, not the phone iframe. */
+.phone-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(17, 24, 39, 0.35) transparent;
+}
+
+.phone-scroll::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.phone-scroll::-webkit-scrollbar-thumb {
+  background: rgba(17, 24, 39, 0.28);
+  border-radius: 999px;
+}
+
+.phone-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.markdown-body pre,
+.markdown-body .katex-display {
+  max-width: 100%;
+  overflow-x: auto;
 }

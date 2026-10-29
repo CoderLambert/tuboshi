@@ -22,15 +22,15 @@ const Question: FC<IQuestionProps> = ({ id, content, useCurrentUserAvatar: _useC
   const [isHovered, setIsHovered] = useState(false)
 
   return (
-    <div className='flex items-start justify-end' key={id}>
-      <div>
+    <div className='flex min-w-0 max-w-full items-start justify-end' key={id}>
+      <div className="min-w-0 max-w-full">
         <div 
-          className={`${s.question} relative text-sm text-gray-900`}
+          className={`${s.question} relative min-w-0 max-w-full text-sm text-gray-900`}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
           <div
-            className={'mr-2 rounded-b-[32px] rounded-tl-[32px] bg-[#D1E9FF]/50 px-4 py-3'}
+            className={'mr-2 min-w-0 max-w-full overflow-hidden rounded-b-[32px] rounded-tl-[32px] bg-[#D1E9FF]/50 px-4 py-3'}
           >
             {imgSrcs && imgSrcs.length > 0 && (
               <ImageGallery srcs={imgSrcs} />
